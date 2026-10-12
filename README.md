@@ -5,11 +5,8 @@ sudo pip3 install fastapi uvicorn yt-dlp
 to uninstall  
 sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
 
-On apache need avirtual host with ssh listen to port 443 and these  
- --- YouTube Browser App Configuration ---  
-
- Automatically add a slash if the user types /ytapp  
-
+On apache need a virtual host with ssh listen to port 443 and these  
+  
 Listen 443  
 SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
 SSLProxyCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
@@ -41,6 +38,7 @@ CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common
 	RewriteEngine On  
     RewriteRule ^/ytapp$ /ytapp/ [R=301,L]  
 
+  
     <Location /ytapp>  
         ProxyPass http://127.0.0.1:8090  
         ProxyPassReverse http://127.0.0.1:8090  
