@@ -50,7 +50,7 @@ CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common
     </Location>  
 </VirtualHost>  
   
-
+#############################
 <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/b117d3bd-6222-47da-982d-dafb7b0315a2" />
 
 <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/74116445-9a97-4f4f-ba7e-da0882f2fa51" />
