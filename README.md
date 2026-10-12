@@ -48,5 +48,8 @@ CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common
     </Location>  
 </VirtualHost>  
 
+
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/74116445-9a97-4f4f-ba7e-da0882f2fa51" />
+
 <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/2a03516f-8c77-450d-8071-dd71ff649b2a" />
 	
