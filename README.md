@@ -13,21 +13,21 @@ sudo chmod -R apache:apache /srv/httpd/htdocs/ytapp/
 
 On apache need a virtual host with ssh listen to port 443 and these  
     
-Listen 443  
-SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
-SSLProxyCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
-SSLHonorCipherOrder on   
-SSLProtocol all -SSLv3  
-SSLProxyProtocol all -SSLv3  
-SSLPassPhraseDialog  builtin  
-SSLSessionCache        "shmcb:/var/run/ssl_scache(512000)"  
-SSLSessionCacheTimeout  300  
-  
-<VirtualHost *:443>  
-DocumentRoot "/srv/httpd/htdocs/"  
-ServerName your_dnsname.ddnsfree.com:443  
-ErrorLog "/var/log/httpd/your_dnsname.ddnsfree.com-error_log"  
-CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common  
+	Listen 443  
+	SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
+	SSLProxyCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
+	SSLHonorCipherOrder on   
+	SSLProtocol all -SSLv3  
+	SSLProxyProtocol all -SSLv3  
+	SSLPassPhraseDialog  builtin  
+	SSLSessionCache        "shmcb:/var/run/ssl_scache(512000)"  
+	SSLSessionCacheTimeout  300  
+	  
+	<VirtualHost *:443>  
+	DocumentRoot "/srv/httpd/htdocs/"  
+	ServerName your_dnsname.ddnsfree.com:443  
+	ErrorLog "/var/log/httpd/your_dnsname.ddnsfree.com-error_log"  
+	CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common  
   
 	Alias /.well-known/acme-challenge/ /var/www/dehydrated/  
 	<Directory /var/www/dehydrated/>  
@@ -46,7 +46,7 @@ CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common
         ProxyPass http://127.0.0.1:8090  
         ProxyPassReverse http://127.0.0.1:8090  
     </Location>  
-</VirtualHost>  
+	</VirtualHost>  
 
 
 
