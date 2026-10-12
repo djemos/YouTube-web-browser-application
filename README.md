@@ -44,6 +44,6 @@ CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common
         ProxyPassReverse http://127.0.0.1:8090  
     </Location>  
 </VirtualHost>  
-  
- <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/2a03516f-8c77-450d-8071-dd71ff649b2a" />
+
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/2a03516f-8c77-450d-8071-dd71ff649b2a" />
 	
