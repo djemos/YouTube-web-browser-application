@@ -1,4 +1,4 @@
-# web_youtube_player
+# YouTube web browser app
 these have to install locally  
 to install  
 sudo pip3 install fastapi uvicorn yt-dlp  
