@@ -1,5 +1,5 @@
-# YouTube web browser app
-A YouTube web browser app (or YouTube browsing and management tool) is a type of specialized web application that allows users to search for, stream, and download YouTube content via an alternative, customized interface, separate from the platform's official website.  
+# YouTube web browser application
+A YouTube web browser application (or YouTube browsing and management tool) is a type of specialized web application that allows users to search for, stream, and download YouTube content via an alternative, customized interface, separate from the platform's official website.  
 
 These must be installed locally  
 for installation  
