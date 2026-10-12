@@ -1,5 +1,6 @@
 # YouTube web browser application
-A YouTube web browser application (or YouTube browsing and management tool) is a type of specialized web application that allows users to search for, stream, and download YouTube content via an alternative, customized interface, separate from the platform's official website. You can see the application running here:[YouTube Browser App](https://meraklis.ddnsfree.com/ytapp/)
+A YouTube web browser application (or YouTube browsing and management tool) is a type of specialized web application that allows users to search for, stream, and download YouTube content via an alternative, customized interface, separate from the platform's official website. You can see the application running here: <a href="https://meraklis.ddnsfree.com/ytapp/" target="_blank" rel="noopener noreferrer">https://meraklis.ddnsfree.com/ytapp/</a>
+
 
 These must be installed locally  
 for installation  
