@@ -5,8 +5,11 @@ sudo pip3 install fastapi uvicorn yt-dlp
 to uninstall  
 sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
 
-On apache need a virtual host with ssh listen to port 443 and these  
+Copy server.py and index.html in /srv/httpd/htdocs/ytapp/ folder 
+type  
+sudo chmod -R apache:apache -R /srv/httpd/htdocs/ytapp/ 
 
+On apache need a virtual host with ssh listen to port 443 and these  
     
 Listen 443  
 SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
