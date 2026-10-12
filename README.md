@@ -11,9 +11,10 @@ for uninstallation
 	sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
 
 
-Copy server.py and index.html in /srv/httpd/htdocs/ytapp/ folder 
+Copy server.py and index.html to the /srv/httpd/htdocs/ytapp/ folder,  
 
 then type  
+ 
 
 	sudo chmod -R apache:apache /srv/httpd/htdocs/ytapp/ 
 
