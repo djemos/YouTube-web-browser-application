@@ -65,9 +65,6 @@ Restart httpd
 
 you must create this script in /etc/rc.d/rc.ytapp to be executed when system starts  
 
-	  sudo service restart ytapp 
-
-
 		#!/bin/sh  
 		# /etc/rc.d/rc.ytapp  
 		# Script για την αυτόματη εκκίνηση του YouTube FastAPI Server στο Slackware  
@@ -119,7 +116,12 @@ you must create this script in /etc/rc.d/rc.ytapp to be executed when system sta
 		esac  
 	
 
-    
+An run rc.ytapp script which run the server.py
+  
+
+	sudo service restart ytapp 
+  
+	
 <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/b117d3bd-6222-47da-982d-dafb7b0315a2" />  
 
    
