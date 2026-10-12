@@ -4,3 +4,45 @@ to install
 sudo pip3 install fastapi uvicorn yt-dlp  
 to uninstall  
 sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
+
+On apache need avirtual host with ssh listen to port 443 and these
+ --- YouTube Browser App Configuration ---
+
+ Automatically add a slash if the user types /ytapp
+
+Listen 443
+SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES
+SSLProxyCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES
+SSLHonorCipherOrder on 
+SSLProtocol all -SSLv3
+SSLProxyProtocol all -SSLv3
+SSLPassPhraseDialog  builtin
+SSLSessionCache        "shmcb:/var/run/ssl_scache(512000)"
+SSLSessionCacheTimeout  300
+
+<VirtualHost *:443>
+DocumentRoot "/srv/httpd/htdocs/"
+ServerName your_dnsname.ddnsfree.com:443
+ErrorLog "/var/log/httpd/your_dnsname.ddnsfree.com-error_log"
+CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common
+
+	Alias /.well-known/acme-challenge/ /var/www/dehydrated/
+	<Directory /var/www/dehydrated/>
+		Options None
+		AllowOverride None
+		Require all granted
+	</Directory>
+	
+    SSLEngine on
+    SSLCertificateFile      /etc/dehydrated/certs-letsencrypt/your_dnsname.ddnsfree.com/cert.pem
+    SSLCertificateKeyFile   /etc/dehydrated/certs-letsencrypt/your_dnsname.ddnsfree.com/privkey.pem
+    SSLCertificateChainFile /etc/dehydrated/certs-letsencrypt/your_dnsname.ddnsfree.com/chain.pem
+	
+	RewriteEngine On
+    RewriteRule ^/ytapp$ /ytapp/ [R=301,L]
+
+    <Location /ytapp>
+        ProxyPass http://127.0.0.1:8090
+        ProxyPassReverse http://127.0.0.1:8090
+    </Location>
+</VirtualHost>
