@@ -134,7 +134,24 @@
         .btn-fav:hover { background: #cf8e29; }
         .btn-loop { background: #555; }
         .btn-loop.active { background: #007bff; box-shadow: 0 0 8px #007bff; }
-
+        
+        .btn-dll { 
+            background: #0056b3; 
+            border-radius: 6px; 
+            padding: 12px 10px; 
+            font-size: 12px; /* Slightly smaller font size to fit neatly in one line */
+            border: none; 
+            color: white; 
+            cursor: pointer; 
+            font-weight: bold; 
+            flex: 1; /* Forces all buttons to share the exact same width */
+            text-align: center;
+            white-space: nowrap; /* Keeps text on a single line */
+            min-height: 45px;
+            box-sizing: border-box;
+        }
+        .btn-dll:hover { background: #1e782c; }
+        
         
         .progress-container { display: none; background: #444; border-radius: 10px; height: 20px; width: 80%; margin: 0 auto; position: relative; overflow: hidden; }
         .progress-bar { background: #2ba640; height: 100%; width: 0%; transition: width 0.2s ease; }
@@ -190,7 +207,8 @@
                     <button class="btn-dl btn-fav" id="favButton" onclick="addCurrentToFavorites()">⭐ Favorite</button>
                     <button class="btn-dl btn-loop" id="loopToggle" onclick="toggleLoop()">🔁 Loop: OFF</button>
                     <button class="btn-dl" id="dlMp3">Download MP3 (Audio)</button>
-                    <button class="btn-dl" id="dlMp4" style="background:#0056b3;">Download MP4 (Video)</button>
+                   <!-- <button class="btn-dl" id="dlMp4" style="background:#0056b3;">Download MP4 (Video)</button> -->
+                    <button class="btn-dll" id="dlMp4">Download MP4 (Video)</button>
                 </div>
                 <div class="progress-container" id="progressBarContainer">
                     <div class="progress-bar" id="progressBar"></div>
@@ -441,4 +459,3 @@
     </script>
 </body>
 </html>
-
