@@ -59,10 +59,10 @@ In Apache, you need an SSH virtual host listening on port 443, as follows. Repla
     </Location>  
 	</VirtualHost>  
 
-Restart httpd
-	sudo service restart httpd
+Restart httpd  
+	sudo service restart httpd  
 
-you must create this script in /etc/rc.d/rc.ytapp to be executed when syste starts 
+you must create this script in /etc/rc.d/rc.ytapp to be executed when syste starts  
 	sudo service restart ytapp 
 
 	#!/bin/sh
