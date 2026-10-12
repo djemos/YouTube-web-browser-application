@@ -1,5 +1,7 @@
 # YouTube web browser app
-these have to install locally  
+A YouTube web browser app (or YouTube browsing and management tool) is a type of specialized web application that allows users to search for, stream, and download YouTube content via an alternative, customized interface, separate from the platform's official website.  
+
+These have to be installed locally  
 to install  
 sudo pip3 install fastapi uvicorn yt-dlp  
 to uninstall  
