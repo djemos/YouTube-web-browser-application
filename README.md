@@ -63,9 +63,10 @@ Restart httpd
 
 	  sudo service restart httpd  
 
-you must create this script in /etc/rc.d/rc.ytapp to be executed when syste starts  
+you must create this script in /etc/rc.d/rc.ytapp to be executed when system starts  
 
 	  sudo service restart ytapp 
+
 
 	#!/bin/sh
 	# /etc/rc.d/rc.ytapp
