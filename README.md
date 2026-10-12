@@ -1,6 +1,6 @@
 # web_youtube_player
-# these have to install locally  
-# to install  
+these have to install locally  
+to install  
 sudo pip3 install fastapi uvicorn yt-dlp  
-# to uninstall  
+to uninstall  
 sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
