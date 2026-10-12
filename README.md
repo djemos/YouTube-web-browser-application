@@ -65,7 +65,8 @@ In Apache, you need an SSH virtual host listening on port 443, as follows. Repla
 
 <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/2a03516f-8c77-450d-8071-dd71ff649b2a" />
 
-
+  
+  
 Copyright (C) 2026 Dimitris Tzemos <dijemos@gmail.com>
 This program is free software: you can redistribute it and/or modify it under the terms 
 of the GNU General Public License as published by the Free Software Foundation, 
