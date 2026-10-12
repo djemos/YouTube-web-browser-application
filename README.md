@@ -6,7 +6,7 @@ for installation
 
 	sudo pip3 install fastapi uvicorn yt-dlp  
 	
-to uninstall  
+for uninstallation  
 
 	sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
 
