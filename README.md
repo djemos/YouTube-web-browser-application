@@ -6,7 +6,8 @@ to uninstall
 sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
 
 On apache need a virtual host with ssh listen to port 443 and these  
-  
+
+    
 Listen 443  
 SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
 SSLProxyCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
