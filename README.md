@@ -12,7 +12,8 @@ to uninstall
 
 
 Copy server.py and index.html in /srv/httpd/htdocs/ytapp/ folder 
-type  
+
+then type  
 
 	sudo chmod -R apache:apache /srv/httpd/htdocs/ytapp/ 
 
