@@ -40,15 +40,13 @@ CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common
     SSLCertificateFile      /etc/dehydrated/certs-letsencrypt/your_dnsname.ddnsfree.com/cert.pem  
     SSLCertificateKeyFile   /etc/dehydrated/certs-letsencrypt/your_dnsname.ddnsfree.com/privkey.pem  
     SSLCertificateChainFile /etc/dehydrated/certs-letsencrypt/your_dnsname.ddnsfree.com/chain.pem  
-	
 	RewriteEngine On  
     RewriteRule ^/ytapp$ /ytapp/ [R=301,L]  
-
     <Location /ytapp>  
         ProxyPass http://127.0.0.1:8090  
         ProxyPassReverse http://127.0.0.1:8090  
     </Location>  
-  </VirtualHost>  
+</VirtualHost>  
 
 
 
