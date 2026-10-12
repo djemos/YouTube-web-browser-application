@@ -7,7 +7,7 @@ sudo pip3 uninstall -y fastapi uvicorn yt-dlp
 
 Copy server.py and index.html in /srv/httpd/htdocs/ytapp/ folder 
 type  
-sudo chmod -R apache:apache -R /srv/httpd/htdocs/ytapp/ 
+sudo chmod -R apache:apache /srv/httpd/htdocs/ytapp/ 
 
 On apache need a virtual host with ssh listen to port 443 and these  
     
