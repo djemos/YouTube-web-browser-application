@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Browser App</title>
+    <style>
+         :root {
+            --bg-body: #0f0f0f;
+            --bg-box: #1f1f1f;
+            --bg-card: #282828;
+            --bg-card-hover: #383838;
+            --text-main: #fff;
+            --text-sub: #aaa;
+            --border-input: #3c3c3c;
+        }
+        .light-theme {
+            --bg-body: #f9f9f9;
+            --bg-box: #ffffff;
+            --bg-card: #f1f1f1;
+            --bg-card-hover: #e5e5e5;
+            --text-main: #000;
+            --text-sub: #606060;
+            --border-input: #ccc;
+        }
+
+        /* 1. We ensure that the page takes up 100% of the screen height. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 2. We convert the body into a vertical flex layout so that it fills the screen correctly. */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg-body); 
+            color: var(--text-main); 
+            padding: 20px; 
+            padding-bottom: 90px; /* Space to ensure nothing is hidden behind the footer. */
+            transition: background 0.3s, color 0.3s; 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-container { 
+            max-width: 1400px; 
+            margin: 0 auto 20px auto; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 10px; 
+            flex-shrink: 0; /* Prevents the search bar from shrinking. */
+        }
+        input { padding: 12px; width: 400px; border-radius: 20px; border: 1px solid var(--border-input); background: var(--bg-box); color: var(--text-main); padding-left: 20px; font-size: 16px; }
+        button { padding: 12px 24px; background: #cc0000; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #990000; }
+        
+        .btn-theme { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-input); border-radius: 20px; }
+        .btn-theme:hover { background: var(--bg-card-hover); }
+        
+        /* 3. ΤThe Grid occupies all the remaining available vertical space on the screen. */
+        .main-layout { 
+            display: grid; 
+            grid-template-columns: 220px 250px 420px 700px; /* grid-template-columns: 220px 250px 420px 600px; */
+            max-width: 1850px; /*  max-width: 1750px; */
+            margin: 0 auto; 
+            gap: 15px; 
+            flex-grow: 1; /* It forces the grid to stretch all the way to the bottom. */
+            width: 100%;
+            overflow-x: auto; /* Enables horizontal scrolling for the columns. */
+            padding-bottom: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* 4. The boxes automatically take the maximum possible screen height instead of a fixed height. 750px */
+        .box { 
+            background: var(--bg-box); 
+            padding: 15px; 
+            border-radius: 12px; 
+            height: calc(100vh - 180px); /* It dynamically calculates the height based on the screen. */
+            min-height: 400px;
+            overflow-y: auto; /*Internal scroll for the content of each column*/
+            border: 1px solid var(--border-input); 
+            box-sizing: border-box;
+        }
+        .box-header { display: flex; justify-content: space-between; align-items: center; margin-top: 0; }
+        .btn-clear-action { background: transparent; color: var(--text-sub); border: none; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0; margin: 0; }
+        .btn-clear-action:hover { color: #ff0000; }
+        
+        .history-item, .fav-item { padding: 8px; margin-bottom: 5px; background: var(--bg-card); border-radius: 6px; cursor: pointer; font-size: 13px; word-break: break-all; }
+        .history-item:hover, .fav-item:hover { background: var(--bg-card-hover); color: #cc0000; }
+        
+        .video-card { display: flex; gap: 12px; padding: 10px; margin-bottom: 12px; background: var(--bg-card); border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .video-card:hover { background: var(--bg-card-hover); }
+        .thumbnail-wrapper { position: relative; width: 140px; height: 80px; flex-shrink: 0; }
+        .thumbnail-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+        .duration-badge { position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.8); padding: 2px 6px; font-size: 11px; border-radius: 4px; font-weight: bold; color: #fff; }
+        .video-title { font-size: 13px; font-weight: 600; margin: 0 0 5px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .video-channel { font-size: 11px; color: var(--text-sub); margin: 0; }
+        
+        .player-box { display: none; text-align: center; }
+        iframe { width: 100%; height: 394px; border-radius: 8px; border: none; } /* iframe { width: 100%; height: 480px; border-radius: 8px; border: none; }*/
+        
+        .download-zone { margin-top: 15px; padding: 15px; background: var(--bg-card); border-radius: 8px; display: flex; flex-direction: column; gap: 15px; }
+         /* 1. Force the buttons to strictly remain on a single line (flex-wrap: nowrap) */
+        .buttons-row { 
+            display: flex; 
+            justify-content: space-between; 
+            gap: 8px; 
+            flex-wrap: nowrap; /* Prevents buttons from changing rows */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* 2. Make buttons distribute evenly along the horizontal space */
+        .btn-dl { 
+            background: #2ba640; 
+            border-radius: 6px; 
+            padding: 12px 10px; 
+            font-size: 12px; /* Slightly smaller font size to fit neatly in one line */
+            border: none; 
+            color: white; 
+            cursor: pointer; 
+            font-weight: bold; 
+            flex: 1; /* Forces all buttons to share the exact same width */
+            text-align: center;
+            white-space: nowrap; /* Keeps text on a single line */
+            min-height: 45px;
+            box-sizing: border-box;
+        }
+        .btn-dl:hover { background: #1e782c; }
+        .btn-fav { background: #e6a23c; }
+        .btn-fav:hover { background: #cf8e29; }
+        .btn-loop { background: #555; }
+        .btn-loop.active { background: #007bff; box-shadow: 0 0 8px #007bff; }
+
+        
+        .progress-container { display: none; background: #444; border-radius: 10px; height: 20px; width: 80%; margin: 0 auto; position: relative; overflow: hidden; }
+        .progress-bar { background: #2ba640; height: 100%; width: 0%; transition: width 0.2s ease; }
+        .progress-text { position: absolute; width: 100%; text-align: center; top: 0; left: 0; font-size: 12px; line-height: 20px; font-weight: bold; color: #fff; }
+        
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #1a1a1a; 
+            color: #ffffff;             
+            text-align: center;         
+            padding: 15px 0;            
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            z-index: 9999;
+            border-top: 1px solid var(--border-input);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
+        }
+   </style>
+</head>
+<body>
+    <div class="search-container">
+        <button class="btn-theme" onclick="toggleTheme()">🌓 Theme</button>
+        <input type="text" id="queryInput" placeholder="Αναζήτηση...">
+        <button onclick="executeSearch(document.getElementById('queryInput').value)">Search</button>
+    </div>
+    <div class="main-layout">
+        <div class="box">
+            <div class="box-header"><h3>History</h3><button class="btn-clear-action" onclick="clearHistory()">Cleaning</button></div>
+            <div id="historyList"></div>
+        </div>
+        <div class="box">
+            <div class="box-header"><h3>⭐ Favorites</h3><button class="btn-clear-action" onclick="clearFavorites()">Cleaning</button></div>
+            <div id="favoritesList"></div>
+        </div>
+        <div class="box" id="resultsBox" style="opacity: 0.5;">
+            <h3 style="margin-top:0;" id="resultsTitle">Results</h3>
+            <div id="resultsList">Perform a search...</div>
+        </div>
+   
+        <div class="box player-box" id="mainPlayer">
+            <h2 id="currentTitle" style="font-size:18px; text-align:left; margin-top:0;"></h2>
+            <iframe id="youtubeEmbed" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            <div class="volume-container">
+                <span>🔊</span>
+                <input type="range" id="volumeSlider" min="0" max="100" value="100" oninput="changeVolume(this.value)">
+                <span id="volumeLabel">100%</span>
+            </div>
+            <div class="download-zone">
+                <div class="buttons-row">
+                    <button class="btn-dl btn-fav" id="favButton" onclick="addCurrentToFavorites()">⭐ Favorite</button>
+                    <button class="btn-dl btn-loop" id="loopToggle" onclick="toggleLoop()">🔁 Loop: OFF</button>
+                    <button class="btn-dl" id="dlMp3">Download MP3 (Audio)</button>
+                    <button class="btn-dl" id="dlMp4" style="background:#0056b3;">Download MP4 (Video)</button>
+                </div>
+                <div class="progress-container" id="progressBarContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mobile-spacer"></div>
+    <div class="footer">
+        &copy; 2026 Developed by <strong>Dimitris Tzemos</strong>. All rights reserved 
+    </div>
+    <script>
+        let progressInterval = null;
+        let isLoopActive = false;
+        let currentVideoId = "";
+        let currentVideoTitle = "";
+        let currentVolume = 100;
+        
+        let lastQuery = "";
+        let currentShownCount = 0;
+        let allCachedResults = [];
+
+        // Secure connection via the Apache proxy /ytapp
+        const baseApiUrl = window.location.origin + "/ytapp";
+
+        document.addEventListener("DOMContentLoaded", function() {
+            renderHistory();
+            renderFavorites();
+            if(localStorage.getItem("theme") === "light") {
+                document.body.classList.add("light-theme");
+            }
+            document.getElementById('youtubeEmbed').addEventListener('load', function() {
+                setTimeout(() => { changeVolume(currentVolume); }, 1000);
+            });
+        });
+
+        function toggleTheme() {
+            document.body.classList.toggle("light-theme");
+            localStorage.setItem("theme", document.body.classList.contains("light-theme") ? "light" : "dark");
+        }
+
+        async function executeSearch(query) {
+            if(!query) return;
+            const list = document.getElementById('resultsList');
+            document.getElementById('resultsBox').style.opacity = "1";
+
+            if (query === lastQuery) {
+                renderNextBatch();
+                return;
+            }
+
+            currentShownCount = 0;
+            lastQuery = query;
+            allCachedResults = [];
+            saveToHistory(query);
+            list.innerHTML = "<p>Search...</p>";
+            document.getElementById('queryInput').value = query;
+
+            try {
+                const targetUrl = baseApiUrl + "/search?q=" + encodeURIComponent(query);
+                const response = await fetch(targetUrl);
+                if (!response.ok) throw new Error("HTTP error! status: " + response.status);
+                
+                const data = await response.json();
+                list.innerHTML = "";
+
+                if(data.status === "success" && data.results && data.results.length > 0) {
+                    allCachedResults = data.results;
+                    renderNextBatch();
+                } else {
+                    list.innerHTML = "<p style='color:red;'>No results found on YouTube.</p>";
+                    document.getElementById("resultsTitle").innerText = "Results";
+                }
+            } catch (error) {
+                list.innerHTML = "<p style='color:red;'>API connection error:" + error.message + "</p>";
+            }
+        }
+
+        function renderNextBatch() {
+            const list = document.getElementById('resultsList');
+            const start = currentShownCount;
+            const end = Math.min(start + 15, allCachedResults.length);
+            
+            if (start >= allCachedResults.length) {
+                alert("There are no further results in memory.");
+                return;
+            }
+
+            const imgPrefix = atob("aHR0cHM6Ly9pbWcueW91dHViZS5jb20vdmkv");
+
+            const batch = allCachedResults.slice(start, end);
+            batch.forEach(video => {
+                const thumbUrl = imgPrefix + video.id + "/mqdefault.jpg";
+                
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.onclick = function() { startPlayback(video.id, video.title); };
+                card.innerHTML = `
+                    <div class="thumbnail-wrapper">
+                        <img src="${thumbUrl}" alt="thumb">
+                        <span class="duration-badge">${video.duration}</span>
+                    </div>
+                    <div class="video-info">
+                        <p class="video-title">${video.title}</p>
+                        <p class="video-channel">${video.channel}</p>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+            currentShownCount = end;
+            document.getElementById("resultsTitle").innerText = "Results (" + currentShownCount + ")";
+        }
+        function startPlayback(id, title) {
+            clearInterval(progressInterval);
+            currentVideoId = id;
+            currentVideoTitle = title;
+            
+            document.getElementById('progressBarContainer').style.display = 'none';
+            document.getElementById('currentTitle').innerText = title;
+            updatePlayerSrc();
+            document.getElementById('mainPlayer').style.display = 'block';
+            
+            // ΕΔΩ ΔΙΟΡΘΩΘΗΚΕ: Και τα δύο κουμπιά καλούν πλέον τη σωστή triggerDownload διαδικασία
+            document.getElementById('dlMp3').onclick = function() { triggerDownload(id, 'mp3'); };
+            document.getElementById('dlMp4').onclick = function() { triggerDownload(id, 'mp4'); };
+        }
+
+        function changeVolume(volume) {
+            currentVolume = volume;
+            document.getElementById('volumeLabel').innerText = volume + "%";
+            const iframe = document.getElementById('youtubeEmbed');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage(JSON.stringify({
+                    "event": "command", "func": "setVolume", "args": [volume]
+                }), "*");
+            }
+        }
+
+        function toggleLoop() {
+            isLoopActive = !isLoopActive;
+            const btn = document.getElementById('loopToggle');
+            btn.className = isLoopActive ? "btn-dl btn-loop active" : "btn-dl btn-loop";
+            btn.innerText = isLoopActive ? "🔁 Loop: ON" : "🔁 Loop: OFF";
+            if(currentVideoId) updatePlayerSrc();
+        }
+
+        function updatePlayerSrc() {
+            const embedPrefix = atob("aHR0cHM6Ly93d3cueW91dHViZS5jb20vZW1iZWQv");
+            let finalUrl = embedPrefix + currentVideoId + "?autoplay=1&enablejsapi=1";
+            if(isLoopActive) {
+                finalUrl += "&loop=1&playlist=" + currentVideoId;
+            }
+            document.getElementById('youtubeEmbed').src = finalUrl;
+        }
+
+        async function triggerDownload(id, mode) {
+            document.getElementById('progressBarContainer').style.display = 'block';
+            updateProgressBar(0, "Requesting conversion on server..."); // 100% English
+            try {
+                const targetUrl = baseApiUrl + "/download?video_id=" + id + "&mode=" + mode;
+                await fetch(targetUrl);
+                clearInterval(progressInterval);
+                progressInterval = setInterval(function() { checkProgress(id); }, 1000);
+            } catch (e) { console.error(e); }
+        }
+
+        async function checkProgress(id) {
+            try {
+                const targetUrl = baseApiUrl + "/progress?video_id=" + id;
+                const response = await fetch(targetUrl);
+                const data = await response.json();
+                
+                if (data.status === "downloading") {
+                    updateProgressBar(data.percent, "Conversion on Server: " + data.percent + "%"); // 100% English
+                } 
+                else if (data.status === "finished") {
+                    clearInterval(progressInterval);
+                    updateProgressBar(100, "Ready! Downloading to your device..."); // 100% English
+                    
+                    // AUTOMATIC DOWNLOAD TO USER DEVICE
+                    const downloadUrl = baseApiUrl + "/get-file?file_name=" + encodeURIComponent(data.file);
+                    const nativeLink = document.createElement("a");
+                    nativeLink.href = downloadUrl;
+                    nativeLink.style.display = "none";
+                    document.body.appendChild(nativeLink);
+                    nativeLink.click(); 
+                    document.body.removeChild(nativeLink);
+
+                    setTimeout(() => {
+                        document.getElementById('progressBarContainer').style.display = 'none';
+                    }, 4000);
+                } 
+                else if (data.status === "error") {
+                    updateProgressBar(0, "Error during conversion."); // 100% English
+                    clearInterval(progressInterval);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function updateProgressBar(percent, text) {
+            document.getElementById('progressBar').style.width = percent + "%";
+            document.getElementById('progressText').innerText = text;
+        }
+
+        function saveToHistory(query) {
+            let history = JSON.parse(localStorage.getItem("yt_history")) || [];
+            history = history.filter(item => item !== query);
+            history.unshift(query);
+            if(history.length > 15) history.pop();
+            localStorage.setItem("yt_history", JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            let history = JSON.parse(localStorage.getItem("yt_history")) || [];
+            container.innerHTML = history.length === 0 ? "<span style='color:#555;font-size:13px;'>Empty history</span>" : "";
+            history.forEach(item => {
+                const div = document.createElement('div'); div.className = 'history-item'; div.innerText = item;
+                div.onclick = () => executeSearch(item); container.appendChild(div);
+            });
+        }
+
+        function clearHistory() { localStorage.removeItem("yt_history"); renderHistory(); }
+
+        function addCurrentToFavorites() {
+            if(!currentVideoId) return;
+            let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+            if(favorites.some(item => item.id === currentVideoId)) { alert("It already exists!"); return; }
+            favorites.push({ id: currentVideoId, title: currentVideoTitle });
+            localStorage.setItem("yt_favorites", JSON.stringify(favorites));
+            renderFavorites();
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('favoritesList');
+            let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+            container.innerHTML = favorites.length === 0 ? "<span style='color:#555;font-size:12px;'>Empty</span>" : "";
+            favorites.forEach(video => {
+                const div = document.createElement('div'); div.className = 'fav-item'; div.innerText = video.title;
+                div.onclick = () => startPlayback(video.id, video.title); container.appendChild(div);
+            });
+        }
+
+        function clearFavorites() { if(confirm("Deletion?")) { localStorage.removeItem("yt_favorites"); renderFavorites(); } }
+
+    </script>
+</body>
+</html>

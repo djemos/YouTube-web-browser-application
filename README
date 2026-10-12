@@ -1,0 +1,8 @@
+# these have to install locally  
+# to install  
+sudo pip3 install fastapi uvicorn yt-dlp  
+# to uninstall  
+sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
+  
+
+
