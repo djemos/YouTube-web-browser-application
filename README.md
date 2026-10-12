@@ -3,13 +3,13 @@ A YouTube web browser app (or YouTube browsing and management tool) is a type of
 
 These have to be installed locally  
 to install  
-sudo pip3 install fastapi uvicorn yt-dlp  
+	sudo pip3 install fastapi uvicorn yt-dlp  
 to uninstall  
-sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
+	sudo pip3 uninstall -y fastapi uvicorn yt-dlp  
 
 Copy server.py and index.html in /srv/httpd/htdocs/ytapp/ folder 
 type  
-sudo chmod -R apache:apache /srv/httpd/htdocs/ytapp/ 
+	sudo chmod -R apache:apache /srv/httpd/htdocs/ytapp/ 
 
 On apache need a virtual host with ssh listen to port 443 and these  
     
