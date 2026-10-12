@@ -18,7 +18,7 @@ then type
 	sudo chmod -R apache:apache /srv/httpd/htdocs/ytapp/ 
 
 
-On apache you need a virtual host with ssh that listen on port 443 like this. Rename your_dnsname.ddnsfree.com with yours dnsfree domain name and use your own letsencrypt certificate keys.
+In Apache, you need an SSH virtual host listening on port 443, as follows. Replace `your_dnsname.ddnsfree.com` with your own dnsfree domain name and use your own Let's Encrypt certificate keys.
     
 	Listen 443  
 	SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
