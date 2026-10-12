@@ -68,55 +68,56 @@ you must create this script in /etc/rc.d/rc.ytapp to be executed when system sta
 	  sudo service restart ytapp 
 
 
-	#!/bin/sh
-	# /etc/rc.d/rc.ytapp
-	# Script για την αυτόματη εκκίνηση του YouTube FastAPI Server στο Slackware
+	#!/bin/sh  
+	# /etc/rc.d/rc.ytapp  
+	# Script για την αυτόματη εκκίνηση του YouTube FastAPI Server στο Slackware  
 	
-	PIDFILE=/var/run/ytapp.pid
-	LOGFILE=/var/log/ytapp.log
-	PYTHON_SCRIPT=/var/www/htdocs/ytapp/server.py
+	PIDFILE=/var/run/ytapp.pid  
+	LOGFILE=/var/log/ytapp.log  
+	PYTHON_SCRIPT=/var/www/htdocs/ytapp/server.py  
+	  
+	ytapp_start() {  
+	  if [ -f $PIDFILE ]; then  
+	    echo "Ο YTApp server εκτελείται ήδη (PID: $(cat $PIDFILE))."  
+	  else  
+	    echo "Εκκίνηση του YTApp server..."  
+	    # Μεταβαίνουμε στον φάκελο της εφαρμογής για να βρίσκει σωστά το index.html  
+	    cd /var/www/htdocs/ytapp  
+	    nohup python3 $PYTHON_SCRIPT > $LOGFILE 2>&1 &  
+	    echo $! > $PIDFILE  
+	  fi  
+	}  
 	
-	ytapp_start() {
-	  if [ -f $PIDFILE ]; then
-	    echo "Ο YTApp server εκτελείται ήδη (PID: $(cat $PIDFILE))."
-	  else
-	    echo "Εκκίνηση του YTApp server..."
-	    # Μεταβαίνουμε στον φάκελο της εφαρμογής για να βρίσκει σωστά το index.html
-	    cd /var/www/htdocs/ytapp
-	    nohup python3 $PYTHON_SCRIPT > $LOGFILE 2>&1 &
-	    echo $! > $PIDFILE
-	  fi
-	}
-	
-	ytapp_stop() {
-	  if [ -f $PIDFILE ]; then
-	    echo "Διακοπή του YTApp server..."
-	    kill $(cat $PIDFILE)
-	    rm -f $PIDFILE
-	  else
-	    echo "Ο YTApp server δεν εκτελείται."
-	  fi
-	}
-	
-	ytapp_restart() {
-	  ytapp_stop
-	  sleep 1
-	  ytapp_start
-	}
-	
-	case "$1" in
-	  'start')
-	    ytapp_start
-	    ;;
-	  'stop')
-	    ytapp_stop
-	    ;;
-	  'restart')
-	    ytapp_restart
-	    ;;
-	  *)
-	    echo "Χρήση: $0 {start|stop|restart}"
-	esac
+	ytapp_stop() {  
+	  if [ -f $PIDFILE ]; then  
+	    echo "Διακοπή του YTApp server..."  
+	    kill $(cat $PIDFILE)  
+	    rm -f $PIDFILE  
+	  else  
+	    echo "Ο YTApp server δεν εκτελείται."  
+	  fi  
+	}  
+	  
+	ytapp_restart() {  
+	  ytapp_stop  
+	  sleep 1  
+	  ytapp_start  
+	}  
+	  
+	case "$1" in  
+	  'start')  
+	    ytapp_start  
+	    ;;  
+	  'stop')  
+	    ytapp_stop  
+	    ;;  
+	  'restart')  
+	    ytapp_restart  
+	    ;;  
+	  *)  
+	    echo "Χρήση: $0 {start|stop|restart}"  
+	esac  
+
 
     
 <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/b117d3bd-6222-47da-982d-dafb7b0315a2" />  
