@@ -39,7 +39,6 @@ CustomLog "/var/log/httpd/your_dnsname.ddnsfree.com-access_log" common
 	RewriteEngine On  
     RewriteRule ^/ytapp$ /ytapp/ [R=301,L]  
 
-  
     <Location /ytapp>  
         ProxyPass http://127.0.0.1:8090  
         ProxyPassReverse http://127.0.0.1:8090  
