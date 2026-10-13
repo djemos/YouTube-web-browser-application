@@ -65,55 +65,56 @@ Restart httpd
 
 you must create this script in /etc/rc.d/rc.ytapp to be executed when system starts  
 
-		#!/bin/sh  
-		# /etc/rc.d/rc.ytapp  
-		# Script για την αυτόματη εκκίνηση του YouTube FastAPI Server στο Slackware  
-		
-		PIDFILE=/var/run/ytapp.pid  
-		LOGFILE=/var/log/ytapp.log  
-		PYTHON_SCRIPT=/var/www/htdocs/ytapp/server.py  
-		  
-		ytapp_start() {  
-		  if [ -f $PIDFILE ]; then  
-		    echo "Ο YTApp server εκτελείται ήδη (PID: $(cat $PIDFILE))."  
-		  else  
-		    echo "Εκκίνηση του YTApp server..."  
-		    # Μεταβαίνουμε στον φάκελο της εφαρμογής για να βρίσκει σωστά το index.html  
-		    cd /var/www/htdocs/ytapp  
-		    nohup python3 $PYTHON_SCRIPT > $LOGFILE 2>&1 &  
-		    echo $! > $PIDFILE  
-		  fi  
-		}  
-		
-		ytapp_stop() {  
-		  if [ -f $PIDFILE ]; then  
-		    echo "Διακοπή του YTApp server..."  
-		    kill $(cat $PIDFILE)  
-		    rm -f $PIDFILE  
-		  else  
-		    echo "Ο YTApp server δεν εκτελείται."  
-		  fi  
-		}  
-		  
-		ytapp_restart() {  
-		  ytapp_stop  
-		  sleep 1  
-		  ytapp_start  
-		}  
-		  
-		case "$1" in  
-		  'start')  
-		    ytapp_start  
-		    ;;  
-		  'stop')  
-		    ytapp_stop  
-		    ;;  
-		  'restart')  
-		    ytapp_restart  
-		    ;;  
-		  *)  
-		    echo "Χρήση: $0 {start|stop|restart}"  
-		esac  
+#!/bin/sh  
+# /etc/rc.d/rc.ytapp  
+# Script for automatically starting the YouTube FastAPI Server on Slackware  
+
+PIDFILE=/var/run/ytapp.pid  
+LOGFILE=/var/log/ytapp.log  
+PYTHON_SCRIPT=/var/www/htdocs/ytapp/server.py  
+  
+ytapp_start() {  
+  if [ -f $PIDFILE ]; then  
+    echo "The YTApp server is already running (PID: $(cat $PIDFILE))."  
+  else  
+    echo "Starting YTApp server..."  
+    # Change directory to the application folder so it can locate index.html properly  
+    cd /var/www/htdocs/ytapp  
+    nohup python3 $PYTHON_SCRIPT > $LOGFILE 2>&1 &  
+    echo $! > $PIDFILE  
+  fi  
+}  
+
+ytapp_stop() {  
+  if [ -f $PIDFILE ]; then  
+    echo "Stopping YTApp server..."  
+    kill $(cat $PIDFILE)  
+    rm -f $PIDFILE  
+  else  
+    echo "The YTApp server is not running."  
+  fi  
+}  
+  
+ytapp_restart() {  
+  ytapp_stop  
+  sleep 1  
+  ytapp_start  
+}  
+  
+case "$1" in  
+  'start')  
+    ytapp_start  
+    ;;  
+  'stop')  
+    ytapp_stop  
+    ;;  
+  'restart')  
+    ytapp_restart  
+    ;;  
+  *)  
+    echo "Usage: $0 {start|stop|restart}"  
+esac
+
 	
 
 An run rc.ytapp script which run the server.py
