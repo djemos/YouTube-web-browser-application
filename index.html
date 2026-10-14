@@ -337,7 +337,6 @@
             updatePlayerSrc();
             document.getElementById('mainPlayer').style.display = 'block';
             
-            // ΕΔΩ ΔΙΟΡΘΩΘΗΚΕ: Και τα δύο κουμπιά καλούν πλέον τη σωστή triggerDownload διαδικασία
             document.getElementById('dlMp3').onclick = function() { triggerDownload(id, 'mp3'); };
             document.getElementById('dlMp4').onclick = function() { triggerDownload(id, 'mp4'); };
         }
