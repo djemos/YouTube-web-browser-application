@@ -22,6 +22,8 @@ download_progress = {}
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads_temp")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+MAX_RESULTS = 100
+
 # CLEANING UP ORPHANED FILES ON SERVER STARTUP
 try:
     for old_file in glob.glob(os.path.join(OUTPUT_DIR, "*")):
@@ -38,7 +40,7 @@ def read_root():
             return f.read()
     return "<h3>The index.html file was not found!</h3>"
 
-def search_youtube_with_ytdlp(query: str, limit: int = 100):
+def search_youtube_with_ytdlp(query: str, limit: int = MAX_RESULTS):
     ydl_opts = {
         'extract_flat': True,
         'skip_download': True,
@@ -150,5 +152,3 @@ def get_file(file_name: str, background_tasks: BackgroundTasks):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8090)
-
-
