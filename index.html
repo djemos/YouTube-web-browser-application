@@ -235,6 +235,7 @@
         let lastQuery = "";
         let currentShownCount = 0;
         let allCachedResults = [];
+        let MAX_HISTORY_ITEMS = 100;
 
         // Secure connection via the Apache proxy /ytapp
         const baseApiUrl = window.location.origin + "/ytapp";
@@ -417,46 +418,131 @@
             document.getElementById('progressBar').style.width = percent + "%";
             document.getElementById('progressText').innerText = text;
         }
-
+		
         function saveToHistory(query) {
             let history = JSON.parse(localStorage.getItem("yt_history")) || [];
             history = history.filter(item => item !== query);
             history.unshift(query);
-            if(history.length > 15) history.pop();
+            if(history.length > MAX_HISTORY_ITEMS) history.pop();
             localStorage.setItem("yt_history", JSON.stringify(history));
             renderHistory();
         }
 
-        function renderHistory() {
-            const container = document.getElementById('historyList');
-            let history = JSON.parse(localStorage.getItem("yt_history")) || [];
-            container.innerHTML = history.length === 0 ? "<span style='color:#555;font-size:13px;'>Empty history</span>" : "";
-            history.forEach(item => {
-                const div = document.createElement('div'); div.className = 'history-item'; div.innerText = item;
-                div.onclick = () => executeSearch(item); container.appendChild(div);
-            });
-        }
+		function removeFromHistory(query) {
+			let history = JSON.parse(localStorage.getItem("yt_history")) || [];
+			
+			// We remove the specific search from the table.
+			history = history.filter(item => item !== query);
+			
+			localStorage.setItem("yt_history", JSON.stringify(history));
+			renderHistory();
+		}
+
+		function renderHistory() {
+			const container = document.getElementById('historyList');
+			let history = JSON.parse(localStorage.getItem("yt_history")) || [];
+			container.innerHTML = history.length === 0 ? "<span style='color:#555;font-size:13px;'>Empty history</span>" : "";
+			
+			history.forEach(item => {
+				const div = document.createElement('div'); 
+				div.className = 'history-item'; 
+				div.style.display = 'flex'; // To keep the text and the ❌ on the same line
+				div.style.justifyContent = 'space-between';
+				div.style.alignItems = 'center';
+
+				const textSpan = document.createElement('span');
+				textSpan.innerText = item;
+				textSpan.style.cursor = 'pointer';
+				textSpan.style.flexGrow = '1';
+				textSpan.onclick = () => executeSearch(item);
+				div.appendChild(textSpan);
+
+				const removeBtn = document.createElement('span');
+				removeBtn.innerText = '❌';
+				removeBtn.style.cursor = 'pointer';
+				removeBtn.style.padding = '0 5px';
+				removeBtn.style.fontSize = '12px';
+				removeBtn.onclick = (e) => {
+					e.stopPropagation(); // Prevents execute Search from running when you press delete.
+					removeFromHistory(item);
+				};
+				div.appendChild(removeBtn);
+
+				container.appendChild(div);
+			});
+		}
 
         function clearHistory() { localStorage.removeItem("yt_history"); renderHistory(); }
 
         function addCurrentToFavorites() {
-            if(!currentVideoId) return;
-            let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
-            if(favorites.some(item => item.id === currentVideoId)) { alert("It already exists!"); return; }
-            favorites.push({ id: currentVideoId, title: currentVideoTitle });
-            localStorage.setItem("yt_favorites", JSON.stringify(favorites));
-            renderFavorites();
-        }
+			if(!currentVideoId) return;
+			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+    
+			// Check if it already exists
+			if(favorites.some(item => item.id === currentVideoId)) { 
+				alert("It already exists!"); 
+			return; 
+		}
+    
+			// Add new video
+			favorites.push({ id: currentVideoId, title: currentVideoTitle });
+    
+			//Secure storage in localStorage
+		try {
+			localStorage.setItem("yt_favorites", JSON.stringify(favorites));
+			renderFavorites();
+		} catch (e) {
+			// This will execute ONLY if the browser's 5MB limit is exhausted.
+			alert("Your browser's local storage is full! Cannot add more favorites.");
+		}
+	}
 
-        function renderFavorites() {
-            const container = document.getElementById('favoritesList');
-            let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
-            container.innerHTML = favorites.length === 0 ? "<span style='color:#555;font-size:12px;'>Empty</span>" : "";
-            favorites.forEach(video => {
-                const div = document.createElement('div'); div.className = 'fav-item'; div.innerText = video.title;
-                div.onclick = () => startPlayback(video.id, video.title); container.appendChild(div);
-            });
-        }
+		function removeFromFavorites(id) {
+			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+    
+			// We filter the list, keeping all videos EXCEPT the one we want to delete.
+			favorites = favorites.filter(item => item.id !== id);
+    
+			// Save the new list and refresh the UI
+			localStorage.setItem("yt_favorites", JSON.stringify(favorites));
+			renderFavorites();
+		}
+
+		function renderFavorites() {
+			const container = document.getElementById('favoritesList');
+			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+			container.innerHTML = favorites.length === 0 ? "<span style='color:#555;font-size:12px;'>Empty</span>" : "";
+			
+			favorites.forEach(video => {
+				// Creating the centerpiece for the favorite
+				const div = document.createElement('div'); 
+				div.className = 'fav-item'; 
+				div.style.display = 'flex'; // To keep the title and the X on the same line
+				div.style.justifyContent = 'space-between';
+				div.style.alignItems = 'center';
+
+				// Title element (click to play)
+				const titleSpan = document.createElement('span');
+				titleSpan.innerText = video.title;
+				titleSpan.style.cursor = 'pointer';
+				titleSpan.style.flexGrow = '1';
+				titleSpan.onclick = () => startPlayback(video.id, video.title);
+				div.appendChild(titleSpan);
+
+				// Element for the delete button (click to remove)
+				const removeBtn = document.createElement('span');
+				removeBtn.innerText = ' ❌';
+				removeBtn.style.cursor = 'pointer';
+				removeBtn.style.padding = '0 5px';
+				removeBtn.onclick = (e) => {
+					e.stopPropagation(); // Prevents the click from starting the video.
+					removeFromFavorites(video.id);
+				};
+				div.appendChild(removeBtn);
+
+				container.appendChild(div);
+			});
+		}
 
         function clearFavorites() { if(confirm("Deletion?")) { localStorage.removeItem("yt_favorites"); renderFavorites(); } }
 
