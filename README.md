@@ -124,7 +124,7 @@ An run rc.ytapp script which run the server.py
 <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/65386048-3b9f-4e3b-a844-c29db1759b9e" />  
 
 
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/9e06dbf5-5fe8-4534-9c37-afe8734cca72" /> 
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/9e06dbf5-5fe8-4534-9c37-afe8734cca72" />  
 
 
 Copyright (C) 2026 Dimitris Tzemos <dijemos@gmail.com>
