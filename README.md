@@ -120,6 +120,9 @@ An run rc.ytapp script which run the server.py
 
 	sudo service restart ytapp 
   
+
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/61d3a414-cf91-4916-b303-4dc5eff8457a" />  
+
 	
 <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/65386048-3b9f-4e3b-a844-c29db1759b9e" />  
 
