@@ -5,7 +5,6 @@ import glob
 from fastapi import FastAPI, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
 from yt_dlp import YoutubeDL
 
 app = FastAPI()
@@ -18,11 +17,14 @@ app.add_middleware(
 )
 
 download_progress = {}
-# Temporary storage directory for completed files on the server before being sent to the user
+# Temporary storage directory for completed files on the server
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads_temp")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 MAX_RESULTS = 100
+
+# IN-MEMORY CACHE: Stores the last search result list per query string
+search_cache = {}
 
 # CLEANING UP ORPHANED FILES ON SERVER STARTUP
 try:
@@ -125,7 +127,35 @@ def download_youtube_video(video_id: str, mode: str):
 @app.get("/search")
 def search(q: str = Query(..., description="Search query string")):
     videos = search_youtube_with_ytdlp(q)
+    if videos:
+        search_cache[q] = videos  # Cache the latest search list in memory
     return {"status": "success" if videos else "error", "results": videos}
+
+@app.get("/next")
+def play_next_video(
+    current_id: str = Query(..., description="The ID of the video currently playing"),
+    q: str = Query(..., description="The original search query to find the list")
+):
+    # Retrieve videos from memory, otherwise run a quick new search if the cache was lost
+    videos = search_cache.get(q)
+    if not videos:
+        videos = search_youtube_with_ytdlp(q)
+        if videos:
+            search_cache[q] = videos
+        else:
+            return {"status": "error", "message": "No search results found"}
+
+    # Find the index position of the current video
+    current_idx = next((i for i, video in enumerate(videos) if video["id"] == current_id), -1)
+
+    if current_idx == -1:
+        return {"status": "error", "message": "Current video not found in search results"}
+        
+    if current_idx + 1 >= len(videos):
+        return {"status": "end_of_playlist", "message": "You reached the end of the search list"}
+
+    # Return the next video instantly
+    return {"status": "success", "next_video": videos[current_idx + 1]}
 
 @app.get("/download")
 def download(video_id: str, mode: str, background_tasks: BackgroundTasks):
@@ -136,15 +166,11 @@ def download(video_id: str, mode: str, background_tasks: BackgroundTasks):
 def get_progress(video_id: str = Query(..., description="The ID of the video to check")):
     return download_progress.get(video_id, {"status": "idle", "percent": 0, "file": ""})
 
-# Endpoint that serves the file directly to the user's device
 @app.get("/get-file")
 def get_file(file_name: str, background_tasks: BackgroundTasks):
     file_path = os.path.join(OUTPUT_DIR, file_name)
     if os.path.exists(file_path):
-        # Cleans up the file from the server 30 seconds after retrieval to save space
         background_tasks.add_task(lambda path: os.remove(path) if os.path.exists(path) else None, file_path)
-        
-        # Remove the 11-character video_id prefix from the filename downloaded by the user
         clean_name = re.sub(r'^[a-zA-Z0-9_-]{11}_', '', file_name)
         return FileResponse(path=file_path, filename=clean_name, media_type='application/octet-stream')
     return {"status": "error", "message": "File expired or not found"}
