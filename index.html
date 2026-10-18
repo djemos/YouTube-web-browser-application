@@ -106,50 +106,83 @@
 
         .download-zone { margin-top: 15px; padding: 15px; background: var(--bg-card); border-radius: 8px; display: flex; flex-direction: column; gap: 15px; }
         
-         /* ΔΙΟΡΘΩΣΗ: Όλα τα κουμπιά σε μία σειρά ΧΩΡΙΣ ορατή μπάρα κύλισης */
-        .buttons-row { 
-            display: flex; 
+         /* All buttons in a single row WITHOUT a visible scroll bar */
+      .buttons-row { 
+            display: flex;  !important;
             justify-content: flex-start; 
             gap: 8px; 
-            flex-wrap: nowrap; 
+            flex-wrap: wrap; 
             width: 100%;
             box-sizing: border-box;
             align-items: center;
-            overflow-x: auto;
+            overflow-x: auto; 
             padding-bottom: 5px;
             /* Κρύβει τη μπάρα σε Firefox και IE/Edge */
             scrollbar-width: none; 
             -ms-overflow-style: none;  
         }
 
-        /* Κρύβει τη μπάρα σε Chrome, Safari και Opera (Webkit) */
+        /* Hides the bar in Chrome, Safari, and Opera (Webkit) */
         .buttons-row::-webkit-scrollbar {
             display: none;
         }
+
+
+/* Master button text compression rule */
+.buttons-row button,
+.buttons-row .btn-dl,
+.buttons-row .btn-dll {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 10px !important; /* Slightly smaller text envelope so long words fit */
+    font-weight: bold !important;
+    padding-left: 2px !important; /* Drops internal side margins to maximum compress text */
+    padding-right: 2px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+}
+
+/* Dedicated background padding cushion for the Autoplay button */
+.btn-autoplay {
+    padding-right: 8px !important; 
+}
+
+
 
         .btn-dl { 
             background: #2ba640; 
             border-radius: 6px; 
             padding: 10px; 
-            font-size: 12px; 
+            font-size: 12px !important;
             border: none; 
             color: white; 
             cursor: pointer; 
             font-weight: bold; 
             flex: 1; 
             min-width: 100px;
-            text-align: center;
-            white-space: nowrap; 
+            text-align: center  !important;
+            white-space: nowrap !important;
             min-height: 45px;
             box-sizing: border-box;
-        }
+            width: auto !important; /* Kills any hardcoded 'width: 140px' overrides */
+			min-width: 0 !important; /* Allows items to shrink below text boundary safely */
+			max-width: none !important;
+
+
+        } 
+        
         .btn-dl:hover { background: #1e782c; }
         .btn-fav { background: #e6a23c; }
         .btn-fav:hover { background: #cf8e29; }
         .btn-loop { background: #2ba640; }
         .btn-loop.active { background: #007bff; box-shadow: 0 0 8px #007bff; }
-        
-        .btn-dll { 
+		.btn-autoplay.active {background: #007bff; box-shadow: 0 0 8px #007bff;}
+
+
+       .btn-dll { 
             background: #0056b3; 
             border-radius: 6px; 
             padding: 10px; 
@@ -187,6 +220,16 @@
             box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
         }
         .mobile-spacer { height: 60px; }
+        
+        /* Highlights the active playing track element in list views */
+		.video-card.playing-now,
+		.fav-item.playing-now {
+			border: 2px solid #007bff !important;
+			background: rgba(0, 123, 255, 0.1) !important;
+			box-shadow: 0 0 8px rgba(0, 123, 255, 0.3) !important;
+			font-weight: bold !important;
+		}
+
    </style>
 </head>
 <body>
@@ -224,14 +267,15 @@
                 <span id="volumeLabel">100%</span>
             </div>
             <div class="download-zone">
-                <!-- ΟΛΑ τα κουμπιά τοποθετήθηκαν σε ΜΙΑ σειρά, χωρίς Autoplay Checkbox -->
+                <!--ALL buttons were placed in a SINGLE row, without an Autoplay checkbox -->
                 <div class="buttons-row">
                     <button class="btn-dl btn-fav" id="favButton" onclick="addCurrentToFavorites()">⭐ Favorite</button>
                     <button class="btn-dl btn-loop" id="loopToggle" onclick="toggleLoop()">🔁 Loop: OFF</button>
+                    <button id="autoplayToggle" class="btn-dl btn-autoplay active" onclick="toggleAutoplay()">⏭️ Autoplay: ON</button>
                     <button class="btn-dl" id="dlMp3">Download MP3</button>
-                    <button class="btn-dll" id="dlMp4">Download MP4</button>
-                    <button class="btn-dll" id="prevButton" onclick="playPreviousVideo()">⏮️ Prev</button>
-                    <button class="btn-dll" id="nextButton" onclick="playNextVideo()">⏭️ Next</button>
+                    <button class="btn-dl" id="dlMp4">Download MP4</button>
+                    <button class="btn-dl" id="prevButton" onclick="playPreviousVideo()">⏮️ Prev</button>
+                    <button class="btn-dl" id="nextButton" onclick="playNextVideo()">⏭️ Next</button>
                 </div>
                 <div class="progress-container" id="progressBarContainer">
                     <div class="progress-bar" id="progressBar"></div>
@@ -244,13 +288,17 @@
     <div class="footer">
         &copy; 2026 Developed by <strong>Dimitris Tzemos</strong>. All rights reserved 
     </div>
-    <script>
+<script>
         let progressInterval = null;
         let isLoopActive = false;
         let currentVideoId = "";
         let currentVideoTitle = "";
         let currentVolume = 100;
+        let isAutoplayActive = true; // Autoplay is enabled by default
         
+        // ADDED FOR FAVORITES AUTOPLAY ROUTING:
+        let currentQueueType = "search"; // Tracks current playback context: 'search' or 'favorites'
+
         let lastQuery = "";
         let currentShownCount = 0;
         let allCachedResults = [];
@@ -258,28 +306,107 @@
 
         const baseApiUrl = window.location.origin + "/ytapp";
 
-        document.addEventListener("DOMContentLoaded", function() {
-            renderHistory();
-            renderFavorites();
-            if(localStorage.getItem("theme") === "light") {
-                document.body.classList.add("light-theme");
-            }
-            document.getElementById('youtubeEmbed').addEventListener('load', function() {
-                setTimeout(() => { changeVolume(currentVolume); }, 1000);
-            });
+		document.addEventListener("DOMContentLoaded", function() {
+			// 1. INTERCEPTOR: Kept exactly as it is to handle mobile bypass
+			(function() {
+				const iframe = document.getElementById('youtubeEmbed');
+				if (!iframe) return;
 
-            window.addEventListener('message', function(event) {
-                try {
-                    const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-                    if (data.event === "infoDelivery" && data.info && data.info.playerState !== undefined) {
-                        const state = data.info.playerState;
-                        if (state === 0 && isLoopActive) {
-                            updatePlayerSrc();
-                        }
-                    }
-                } catch (e) {}
-            });
-        });
+				const descriptor = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'src');
+				
+				Object.defineProperty(iframe, 'src', {
+					set: function(value) {
+						// CHANGED: Fixed the include filter to strictly match 'youtube.com' safely
+						if (value && value.includes('youtube.com') && !value.includes('cver=Desktop')) {
+						//if (value && value.includes('://youtube.com') && !value.includes('cver=Desktop')) {
+							const separator = value.includes('?') ? '&' : '?';
+							value = value + separator + "html5=1&cbr=Chrome&cver=Desktop&autoplay=1";
+						}
+						descriptor.set.call(this, value);
+					},
+					get: function() {
+						return descriptor.get.call(this);
+					}
+				});
+			})();
+
+			// 2. Your original app initialization logic
+			renderHistory();
+			renderFavorites();
+			if(localStorage.getItem("theme") === "light") {
+				document.body.classList.add("light-theme");
+			}
+			
+			// Your working volume listener
+			document.getElementById('youtubeEmbed').addEventListener('load', function() {
+				setTimeout(() => { changeVolume(currentVolume); }, 1000);
+			});
+
+			// 3. FIXED MESSAGE LISTENER: Standard loop-only behavior remains un-touched
+			window.addEventListener('message', function(event) {
+				try {
+					const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+					if (data.event === "infoDelivery" && data.info && data.info.playerState !== undefined) {
+						const state = data.info.playerState;
+						if (state === 0 && isLoopActive) {
+							updatePlayerSrc();
+						}
+					}
+				} catch (e) {}
+			});
+			
+			let lastCheckedTime = -1;
+			let trackEndedTriggered = false;
+
+			setInterval(function() {
+				const iframe = document.getElementById('youtubeEmbed');
+				if (!iframe || !iframe.src) return;
+
+				try {
+					iframe.contentWindow.postMessage('{"event":"listening","id":1,"channel":"widget"}', '*');
+				} catch(e) {}
+
+				window.addEventListener('message', function(e) {
+					try {
+						const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+						if (data.event === "infoDelivery" && data.info) {
+							const currentTime = data.info.currentTime;
+							const duration = data.info.duration;
+							const state = data.info.playerState;
+
+							if (Math.abs(currentTime - lastCheckedTime) > 2.0) {
+								trackEndedTriggered = false;
+							}
+							
+							if (currentTime < lastCheckedTime) {
+								trackEndedTriggered = false;
+							}
+							lastCheckedTime = currentTime;
+
+							const isAtFinalSecond = (currentTime && duration && (duration - currentTime <= 1.0));
+							const isStateEnded = (state === 0);
+
+							if (isStateEnded || isAtFinalSecond) {
+								if (!trackEndedTriggered && currentTime > 0) {
+									trackEndedTriggered = true;
+									
+									if (isLoopActive) {
+										updatePlayerSrc();
+									} else if (isAutoplayActive) {
+										// FIXED: Only advances to the next track if Autoplay is switched ON
+										playNextVideo();
+									} else {
+										console.log("Autoplay is OFF. Stopping playback flow.");
+									}
+								}
+							}
+
+						}
+					} catch(err) {}
+				});
+			}, 1000);
+		});
+
 
         function toggleTheme() {
             document.body.classList.toggle("light-theme");
@@ -321,8 +448,8 @@
                 list.innerHTML = "<p style='color:red;'>API connection error: " + error.message + "</p>";
             }
         }
-
-        function renderNextBatch() {
+        
+		function renderNextBatch() {
             const list = document.getElementById('resultsList');
             const start = currentShownCount;
             const end = Math.min(start + 15, allCachedResults.length);
@@ -339,8 +466,15 @@
                 const thumbUrl = imgPrefix + video.id + "/mqdefault.jpg";
                 
                 const card = document.createElement('div');
-                card.className = 'video-card';
-                card.onclick = function() { startPlayback(video.id, video.title); };
+                //card.className = 'video-card';
+                // FIXED: Dynamically appends the highlighting token class on search list matches
+				card.className = (video.id === currentVideoId) ? 'video-card playing-now' : 'video-card';
+        
+                // FIXED: Flags playback state layout context as 'search' when clicking a search element
+                card.onclick = function() { 
+                    currentQueueType = "search"; 
+                    startPlayback(video.id, video.title); 
+                };
                 card.innerHTML = `
                     <div class="thumbnail-wrapper">
                         <img src="${thumbUrl}" alt="thumb">
@@ -357,75 +491,117 @@
             document.getElementById("resultsTitle").innerText = "Results (" + currentShownCount + ")";
         }
         
-        function startPlayback(id, title) {
-            clearInterval(progressInterval);
-            currentVideoId = id;
-            currentVideoTitle = title;
-            
-            document.getElementById('progressBarContainer').style.display = 'none';
-            document.getElementById('currentTitle').innerText = title; /* print title always */
-            
-            updatePlayerSrc();
-            document.getElementById('mainPlayer').style.display = 'block';
-            
-            document.getElementById('dlMp3').onclick = function() { triggerDownload(id, 'mp3'); };
-            document.getElementById('dlMp4').onclick = function() { triggerDownload(id, 'mp4'); };
-        }
+		function startPlayback(id, title) {
+			clearInterval(progressInterval);
+			currentVideoId = id;
+			currentVideoTitle = title;
+			
+			document.getElementById('progressBarContainer').style.display = 'none';
+			document.getElementById('currentTitle').innerText = title;
+			
+			updatePlayerSrc();
+			document.getElementById('mainPlayer').style.display = 'block';
+			
+			// FIXED: Force re-render execution loops to apply highlights dynamically across both list trays
+			renderFavorites();
+			
+			// Safely re-apply search layout highlights if results are actively loaded in memory cache
+			const resultsList = document.getElementById('resultsList');
+			if (resultsList && resultsList.innerHTML !== "") {
+				// Loop through all currently rendered video elements on screen
+				const cards = resultsList.getElementsByClassName('video-card');
+				for (let i = 0; i < cards.length; i++) {
+					// Check if this specific card matches our active video index
+					const isCurrent = allCachedResults[i] && allCachedResults[i].id === id;
+					cards[i].className = isCurrent ? 'video-card playing-now' : 'video-card';
+				}
+			}
+			
+			document.getElementById('dlMp3').onclick = function() { triggerDownload(id, 'mp3'); };
+			document.getElementById('dlMp4').onclick = function() { triggerDownload(id, 'mp4'); };
+		}
+
+        
         function updatePlayerSrc() {
             const embedPrefix = atob("aHR0cHM6Ly93d3cueW91dHViZS5jb20vZW1iZWQv");
             const currentOrigin = window.location.origin;
             
-            // Καθαρό URL για ένα μεμονωμένο βίντεο (Το Autoplay logic έχει αφαιρεθεί τελείως)
+            // Clean URL for an individual video (Autoplay logic has been completely removed)
             let finalUrl = embedPrefix + currentVideoId + "?autoplay=1&enablejsapi=1&origin=" + encodeURIComponent(currentOrigin) + "&rel=0";
             
-            if (isLoopActive) {
+            /* if (isLoopActive) {
                 finalUrl += "&loop=1&playlist=" + currentVideoId;
-            } 
+            } */
+            
             
             document.getElementById('youtubeEmbed').src = finalUrl;
         }
 
-        async function playNextVideo() {
-            if (!currentVideoId || !lastQuery) {
-                console.log("No active search or playing video.");
-                return;
-            }
-            try {
-                const targetUrl = baseApiUrl + "/next?current_id=" + currentVideoId + "&q=" + encodeURIComponent(lastQuery);
-                const response = await fetch(targetUrl);
-                if (!response.ok) throw new Error("HTTP error! status: " + response.status);
-                
-                const data = await response.json();
-                if (data.status === "success") {
-                    startPlayback(data.next_video.id, data.next_video.title);
-                } else if (data.status === "end_of_playlist") {
-                    alert("You have reached the end of the search results!");
-                } else {
-                    console.error("API Error: ", data.message);
-                }
-            } catch (error) {
-                console.error("Network error during Play Next: ", error.message);
-            }
-        }
+			// UPDATED: Symmetrically handles both Favorites playlist queues and Search result cache streams
+			async function playNextVideo() {
+			if (!currentVideoId) {
+				console.log("No active playing video.");
+				return;
+			}
+			try {
+				let targetUrl = baseApiUrl + "/next?current_id=" + currentVideoId + "&list_type=" + currentQueueType;
+				
+				if (currentQueueType === "favorites") {
+					const localFavs = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
+					if (localFavs.length === 0) return;
+					
+					// CHANGED: Loops and appends each ID independently as expected by Python's List[str]
+					localFavs.forEach(item => {
+						targetUrl += "&fav_ids=" + encodeURIComponent(item.id);
+					});
+				} else {
+					if (!lastQuery) return;
+					targetUrl += "&q=" + encodeURIComponent(lastQuery);
+				}
+
+				const response = await fetch(targetUrl);
+				if (!response.ok) throw new Error("HTTP error! status: " + response.status);
+				
+				const data = await response.json();
+				if (data.status === "success") {
+					startPlayback(data.next_video.id, data.next_video.title);
+				} else if (data.status === "end_of_playlist") {
+					alert("You have reached the end of the current playlist!");
+				} else {
+					console.error("API Error: ", data.message);
+				}
+			} catch (error) {
+				console.error("Network error during Play Next: ", error.message);
+			}
+		}
+
+
 
         function playPreviousVideo() {
-            if (allCachedResults.length === 0 || !currentVideoId) {
-                console.log("No results in memory or no active video.");
+            if (!currentVideoId) {
+                console.log("No active video.");
                 return;
             }
             
-            const currentIdx = allCachedResults.findIndex(video => video.id === currentVideoId);
+            let videosList = [];
+            if (currentQueueType === "favorites") {
+                videosList = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
+            } else {
+                videosList = allCachedResults;
+            }
+
+            if (videosList.length === 0) return;
+            const currentIdx = videosList.findIndex(video => video.id === currentVideoId);
             
             if (currentIdx > 0) {
-                const prevVideo = allCachedResults[currentIdx - 1];
+                const prevVideo = videosList[currentIdx - 1];
                 console.log("⏮️ Playing previous video: " + prevVideo.title);
                 startPlayback(prevVideo.id, prevVideo.title);
             } else {
                 alert("You are already at the first song of the list!");
             }
         }
-
-        function changeVolume(volume) {
+	function changeVolume(volume) {
             currentVolume = volume;
             document.getElementById('volumeLabel').innerText = volume + "%";
             const iframe = document.getElementById('youtubeEmbed');
@@ -436,12 +612,22 @@
             }
         }
 
+		function toggleAutoplay() {
+			isAutoplayActive = !isAutoplayActive;
+			const btn = document.getElementById('autoplayToggle');
+			btn.className = isAutoplayActive ? "btn-dl btn-autoplay active" : "btn-dl btn-autoplay";
+            // FIXED: Using shorter text layouts to completely stop letters from spilling out of background boxes
+			btn.innerText = isAutoplayActive ? "⏭️ Autoplay: ON" : "⏭️ Autoplay: OFF";
+		}
+
+
         function toggleLoop() {
             isLoopActive = !isLoopActive;
             const btn = document.getElementById('loopToggle');
             btn.className = isLoopActive ? "btn-dl btn-loop active" : "btn-dl btn-loop";
             btn.innerText = isLoopActive ? "🔁 Loop: ON" : "🔁 Loop: OFF";
-            if(currentVideoId) updatePlayerSrc();
+            // if(currentVideoId) updatePlayerSrc();
+            
         }
 
         async function triggerDownload(id, mode) {
@@ -575,7 +761,10 @@
 			
 			favorites.forEach(video => {
 				const div = document.createElement('div'); 
-				div.className = 'fav-item'; 
+				// div.className = 'fav-item'; 
+				 // FIXED: Dynamically appends the highlighting token class on favorite list matches
+				div.className = (video.id === currentVideoId) ? 'fav-item playing-now' : 'fav-item'; 
+        
 				div.style.display = 'flex'; 
 				div.style.justifyContent = 'space-between';
 				div.style.alignItems = 'center';
@@ -584,7 +773,12 @@
 				titleSpan.innerText = video.title;
 				titleSpan.style.cursor = 'pointer';
 				titleSpan.style.flexGrow = '1';
-				titleSpan.onclick = () => startPlayback(video.id, video.title);
+                
+				// FIXED: Updates playback routing state variable context explicitly to 'favorites' on tap
+				titleSpan.onclick = () => {
+                    currentQueueType = "favorites";
+                    startPlayback(video.id, video.title);
+                };
 				div.appendChild(titleSpan);
 
 				const removeBtn = document.createElement('span');
@@ -602,5 +796,7 @@
 
         function clearFavorites() { if(confirm("Clear all favorites?")) { localStorage.removeItem("yt_favorites"); renderFavorites(); } }
     </script>
+
+
 </body>
 </html>

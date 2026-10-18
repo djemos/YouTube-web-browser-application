@@ -2,6 +2,7 @@ import os
 import re
 import base64
 import glob
+from typing import List, Optional
 from fastapi import FastAPI, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
@@ -131,28 +132,49 @@ def search(q: str = Query(..., description="Search query string")):
         search_cache[q] = videos  # Cache the latest search list in memory
     return {"status": "success" if videos else "error", "results": videos}
 
+# UPDATED: Handles both Search list and Favorites continuous track transitions
 @app.get("/next")
 def play_next_video(
     current_id: str = Query(..., description="The ID of the video currently playing"),
-    q: str = Query(..., description="The original search query to find the list")
+    q: Optional[str] = Query(None, description="The original search query to find the list"),
+    list_type: str = Query("search", description="Context list type: 'search' or 'favorites'"),
+    fav_ids: Optional[List[str]] = Query(None, description="Array map containing active favorited tracks")
 ):
-    # Retrieve videos from memory, otherwise run a quick new search if the cache was lost
-    videos = search_cache.get(q)
+    videos = []
+    
+    # 1. ROUTE LIST RETRIEVAL BASED ON USER SELECTION CONTEXT
+    if list_type == "favorites" and fav_ids:
+        # Unpack items if they were sent as comma-separated entries inside list indices
+        actual_ids = []
+        for item in fav_ids:
+            if "," in item:
+                actual_ids.extend([i.strip() for i in item.split(",") if i.strip()])
+            else:
+                actual_ids.append(item.strip())
+                
+        for vid_id in actual_ids:
+            if vid_id:
+                videos.append({"id": vid_id, "title": "Favorite Track", "channel": "", "duration": ""})
+    else:
+        # Fallback tracking logic referencing standard search matrix
+        if q:
+            videos = search_cache.get(q)
+            if not videos:
+                videos = search_youtube_with_ytdlp(q)
+                if videos:
+                    search_cache[q] = videos
+
     if not videos:
-        videos = search_youtube_with_ytdlp(q)
-        if videos:
-            search_cache[q] = videos
-        else:
-            return {"status": "error", "message": "No search results found"}
+        return {"status": "error", "message": f"No active queue playlist found for list type: {list_type}"}
 
     # Find the index position of the current video
     current_idx = next((i for i, video in enumerate(videos) if video["id"] == current_id), -1)
 
     if current_idx == -1:
-        return {"status": "error", "message": "Current video not found in search results"}
+        return {"status": "error", "message": "Current video not found in active playlist view context"}
         
     if current_idx + 1 >= len(videos):
-        return {"status": "end_of_playlist", "message": "You reached the end of the search list"}
+        return {"status": "end_of_playlist", "message": "You have reached the end of the tracking list"}
 
     # Return the next video instantly
     return {"status": "success", "next_video": videos[current_idx + 1]}
