@@ -138,25 +138,18 @@ def play_next_video(
     current_id: str = Query(..., description="The ID of the video currently playing"),
     q: Optional[str] = Query(None, description="The original search query to find the list"),
     list_type: str = Query("search", description="Context list type: 'search' or 'favorites'"),
-    fav_ids: Optional[List[str]] = Query(None, description="Array map containing active favorited tracks")
+    fav_ids_string: Optional[str] = Query(None, description="Comma-separated string of favorite IDs")
 ):
     videos = []
     
-    # 1. ROUTE LIST RETRIEVAL BASED ON USER SELECTION CONTEXT
-    if list_type == "favorites" and fav_ids:
-        # Unpack items if they were sent as comma-separated entries inside list indices
-        actual_ids = []
-        for item in fav_ids:
-            if "," in item:
-                actual_ids.extend([i.strip() for i in item.split(",") if i.strip()])
-            else:
-                actual_ids.append(item.strip())
-                
-        for vid_id in actual_ids:
-            if vid_id:
-                videos.append({"id": vid_id, "title": "Favorite Track", "channel": "", "duration": ""})
+    # 1. FETCH LIST BASED ON QUEUE TYPE
+    if list_type == "favorites" and fav_ids_string:
+        # Split the string by commas to extract clean IDs
+        id_list = [vid_id.strip() for vid_id in fav_ids_string.split(",") if vid_id.strip()]
+        for vid_id in id_list:
+            videos.append({"id": vid_id, "title": "Favorite Track", "channel": "", "duration": ""})
     else:
-        # Fallback tracking logic referencing standard search matrix
+        # Fallback to search memory cache
         if q:
             videos = search_cache.get(q)
             if not videos:
@@ -167,7 +160,7 @@ def play_next_video(
     if not videos:
         return {"status": "error", "message": f"No active queue playlist found for list type: {list_type}"}
 
-    # Find the index position of the current video
+    # 2. FIND POSITION OF THE CURRENT VIDEO
     current_idx = next((i for i, video in enumerate(videos) if video["id"] == current_id), -1)
 
     if current_idx == -1:
@@ -176,8 +169,9 @@ def play_next_video(
     if current_idx + 1 >= len(videos):
         return {"status": "end_of_playlist", "message": "You have reached the end of the tracking list"}
 
-    # Return the next video instantly
+    # Return the next video
     return {"status": "success", "next_video": videos[current_idx + 1]}
+
 
 @app.get("/download")
 def download(video_id: str, mode: str, background_tasks: BackgroundTasks):
