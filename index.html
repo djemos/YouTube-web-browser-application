@@ -548,7 +548,7 @@ let lastCheckedTime = -1;
 					const localFavs = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
 					if (localFavs.length === 0) return;
 					
-					// ΔΙΟΡΘΩΣΗ: Ενώνουμε όλα τα IDs σε ένα string χωρισμένο με κόμματα (π.χ. id1,id2,id3)
+					// CORRECTION: Combine all IDs into a single comma-separated string (e.g., id1,id2,id3)
 					const favIdsString = localFavs.map(item => item.id).join(",");
 					targetUrl += "&fav_ids_string=" + encodeURIComponent(favIdsString);
 				} else {
