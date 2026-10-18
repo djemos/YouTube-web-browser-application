@@ -237,8 +237,11 @@
         <button class="btn-theme" onclick="toggleTheme()">🌓 Theme</button>
         <input type="text" id="queryInput" placeholder="Search...">
         <button onclick="executeSearch(document.getElementById('queryInput').value)">Search</button>
-        <div style="display: block; width: 100%; flex-basis: 100%; text-align: center; margin-top: 10px; color: var(--text-sub); font-size: 14px;">
-			Each click on "Search" button returns more results, ranging from 15 up to a maximum of 100.
+        <!-- <div style="display: block; width: 100%; flex-basis: 100%; text-align: center; margin-top: 10px; color: var(--text-sub); font-size: 14px;">
+				Each click on "Search" button returns more results, ranging from 15 up to a maximum of ${MAX_RESULTS}.
+			 </div> -->
+		<div id="search-message" style="display: block; width: 100%; flex-basis: 100%; text-align: center; margin-top: 10px; color: var(--text-sub); font-size: 14px;">
+			<!-- JavaScript will insert the text here -->
 		</div>
     </div>
     <div class="main-layout">
@@ -303,8 +306,12 @@
         let currentShownCount = 0;
         let allCachedResults = [];
         let MAX_HISTORY_ITEMS = 100;
-
-        const baseApiUrl = window.location.origin + "/ytapp";
+        let MAX_RESULTS = 100;
+		
+		document.getElementById('search-message').textContent = 
+			`Each click on "Search" button returns more results, ranging from 15 up to a maximum of ${MAX_RESULTS}.`;
+        
+	  	const baseApiUrl = window.location.origin + "/ytapp";
 
 		document.addEventListener("DOMContentLoaded", function() {
 			// 1. INTERCEPTOR: Kept exactly as it is to handle mobile bypass
