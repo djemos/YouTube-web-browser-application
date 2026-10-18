@@ -354,8 +354,7 @@
 					}
 				} catch (e) {}
 			});
-			
-			let lastCheckedTime = -1;
+let lastCheckedTime = -1;
 			let trackEndedTriggered = false;
 
 			setInterval(function() {
@@ -533,12 +532,11 @@
                 finalUrl += "&loop=1&playlist=" + currentVideoId;
             } */
             
-            
             document.getElementById('youtubeEmbed').src = finalUrl;
         }
 
-			// UPDATED: Symmetrically handles both Favorites playlist queues and Search result cache streams
-			async function playNextVideo() {
+        // UPDATED: Symmetrically handles both Favorites playlist queues and Search result cache streams
+		async function playNextVideo() {
 			if (!currentVideoId) {
 				console.log("No active playing video.");
 				return;
@@ -550,10 +548,9 @@
 					const localFavs = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
 					if (localFavs.length === 0) return;
 					
-					// CHANGED: Loops and appends each ID independently as expected by Python's List[str]
-					localFavs.forEach(item => {
-						targetUrl += "&fav_ids=" + encodeURIComponent(item.id);
-					});
+					// ΔΙΟΡΘΩΣΗ: Ενώνουμε όλα τα IDs σε ένα string χωρισμένο με κόμματα (π.χ. id1,id2,id3)
+					const favIdsString = localFavs.map(item => item.id).join(",");
+					targetUrl += "&fav_ids_string=" + encodeURIComponent(favIdsString);
 				} else {
 					if (!lastQuery) return;
 					targetUrl += "&q=" + encodeURIComponent(lastQuery);
@@ -574,7 +571,6 @@
 				console.error("Network error during Play Next: ", error.message);
 			}
 		}
-
 
 
         function playPreviousVideo() {
