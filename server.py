@@ -104,7 +104,7 @@ def download_youtube_video(video_id: str, mode: str):
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': '192',
+                'preferredquality': '0',
             }],
         })
     else:
