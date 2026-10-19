@@ -233,17 +233,21 @@
    </style>
 </head>
 <body>
-    <div class="search-container">
-        <button class="btn-theme" onclick="toggleTheme()">🌓 Theme</button>
+<div class="search-container">
+    <button class="btn-theme" onclick="toggleTheme()">🌓 Theme</button>
+    
+    <!-- Using a <form> to automatically capture Enter and clicks -->
+    <!--  <form id="searchForm" onsubmit="event.preventDefault(); executeSearch(document.getElementById('queryInput').value);" style="display: flex; flex-grow: 1; gap: inherit; align-items: center; margin: 0;">-->
+		<form id="searchForm" style="display: flex; flex-grow: 1; gap: inherit; align-items: center; margin: 0;">
         <input type="text" id="queryInput" placeholder="Search...">
-        <button onclick="executeSearch(document.getElementById('queryInput').value)">Search</button>
-        <!-- <div style="display: block; width: 100%; flex-basis: 100%; text-align: center; margin-top: 10px; color: var(--text-sub); font-size: 14px;">
-				Each click on "Search" button returns more results, ranging from 15 up to a maximum of ${MAX_RESULTS}.
-			 </div> -->
-		<div id="search-message" style="display: block; width: 100%; flex-basis: 100%; text-align: center; margin-top: 10px; color: var(--text-sub); font-size: 14px;">
-			<!-- JavaScript will insert the text here -->
-		</div>
+        <button type="submit">Search</button>
+    </form>
+    
+    <div id="search-message" style="display: block; width: 100%; flex-basis: 100%; text-align: center; margin-top: 10px; color: var(--text-sub); font-size: 14px;">
+        <!-- JavaScript will insert the text here -->
     </div>
+</div>
+
     <div class="main-layout">
         <div class="box">
             <div class="box-header"><h3>History</h3><button class="btn-clear-action" onclick="clearHistory()">Clear All</button></div>
@@ -306,12 +310,12 @@
         let currentShownCount = 0;
         let allCachedResults = [];
         let MAX_HISTORY_ITEMS = 100;
-        let MAX_RESULTS = 100;
+		let MAX_RESULTS = 100;
 		
 		document.getElementById('search-message').textContent = 
 			`Each click on "Search" button returns more results, ranging from 15 up to a maximum of ${MAX_RESULTS}.`;
-        
-	  	const baseApiUrl = window.location.origin + "/ytapp";
+
+        const baseApiUrl = window.location.origin + "/ytapp";
 
 		document.addEventListener("DOMContentLoaded", function() {
 			// 1. INTERCEPTOR: Kept exactly as it is to handle mobile bypass
@@ -361,6 +365,7 @@
 					}
 				} catch (e) {}
 			});
+			
             let lastCheckedTime = -1;
 			let trackEndedTriggered = false;
 
@@ -411,121 +416,162 @@
 					} catch(err) {}
 				});
 			}, 1000);
+			document.getElementById('searchForm').addEventListener('submit', function(event) {
+				event.preventDefault(); // Stops the page from reloading
+				
+				let query = document.getElementById('queryInput').value;
+				if (query.trim() !== "") { // Changed to .trim() because JS does not have .strip()
+					executeSearch(query); 
+				}
+			});
 		});
-
 
         function toggleTheme() {
             document.body.classList.toggle("light-theme");
             localStorage.setItem("theme", document.body.classList.contains("light-theme") ? "light" : "dark");
         }
 
-        async function executeSearch(query) {
-            if(!query) return;
-            const list = document.getElementById('resultsList');
-            document.getElementById('resultsBox').style.opacity = "1";
+		async function executeSearch(query) {
+			if(!query) return;
+			const list = document.getElementById('resultsList');
+			document.getElementById('resultsBox').style.opacity = "1";
 
-            if (query === lastQuery) {
-                renderNextBatch();
-                return;
-            }
-            currentShownCount = 0;
-            lastQuery = query;
-            allCachedResults = [];
-            saveToHistory(query);
-            list.innerHTML = "<p>Searching...</p>";
-            document.getElementById('queryInput').value = query;
-
-            try {
-                const targetUrl = baseApiUrl + "/search?q=" + encodeURIComponent(query);
-                const response = await fetch(targetUrl);
-                if (!response.ok) throw new Error("HTTP error! status: " + response.status);
-                
-                const data = await response.json();
-                list.innerHTML = "";
-
-                if(data.status === "success" && data.results && data.results.length > 0) {
-                    allCachedResults = data.results;
-                    renderNextBatch();
-                } else {
-                    list.innerHTML = "<p style='color:red;'>No results found on YouTube.</p>";
-                    document.getElementById("resultsTitle").innerText = "Results";
-                }
-            } catch (error) {
-                list.innerHTML = "<p style='color:red;'>API connection error: " + error.message + "</p>";
-            }
-        }
-        
-		function renderNextBatch() {
-            const list = document.getElementById('resultsList');
-            const start = currentShownCount;
-            const end = Math.min(start + 15, allCachedResults.length);
-            
-            if (start >= allCachedResults.length) {
-                alert("There are no further results in memory.");
-                return;
-            }
-            
-            const imgPrefix = atob("aHR0cHM6Ly9pbWcueW91dHViZS5jb20vdmkv");
-            const batch = allCachedResults.slice(start, end);
-            
-            batch.forEach(video => {
-                const thumbUrl = imgPrefix + video.id + "/mqdefault.jpg";
-                
-                const card = document.createElement('div');
-                //card.className = 'video-card';
-                // FIXED: Dynamically appends the highlighting token class on search list matches
-				card.className = (video.id === currentVideoId) ? 'video-card playing-now' : 'video-card';
-        
-                // FIXED: Flags playback state layout context as 'search' when clicking a search element
-                card.onclick = function() { 
-                    currentQueueType = "search"; 
-                    startPlayback(video.id, video.title); 
-                };
-                card.innerHTML = `
-                    <div class="thumbnail-wrapper">
-                        <img src="${thumbUrl}" alt="thumb">
-                        <span class="duration-badge">${video.duration}</span>
-                    </div>
-                    <div class="video-info">
-                        <p class="video-title">${video.title}</p>
-                        <p class="video-channel">${video.channel}</p>
-                    </div>
-                `;
-                list.appendChild(card);
-            });
-            currentShownCount = end;
-            document.getElementById("resultsTitle").innerText = "Results (" + currentShownCount + ")";
-        }
-        
-		function startPlayback(id, title) {
-			clearInterval(progressInterval);
-			currentVideoId = id;
-			currentVideoTitle = title;
-			
-			document.getElementById('progressBarContainer').style.display = 'none';
-			document.getElementById('currentTitle').innerText = title;
-			
-			updatePlayerSrc();
-			document.getElementById('mainPlayer').style.display = 'block';
-			
-			// FIXED: Force re-render execution loops to apply highlights dynamically across both list trays
-			renderFavorites();
-			
-			// Safely re-apply search layout highlights if results are actively loaded in memory cache
-			const resultsList = document.getElementById('resultsList');
-			if (resultsList && resultsList.innerHTML !== "") {
-				// Loop through all currently rendered video elements on screen
-				const cards = resultsList.getElementsByClassName('video-card');
-				for (let i = 0; i < cards.length; i++) {
-					// Check if this specific card matches our active video index
-					const isCurrent = allCachedResults[i] && allCachedResults[i].id === id;
-					cards[i].className = isCurrent ? 'video-card playing-now' : 'video-card';
-				}
+			if (query === lastQuery && allCachedResults.length > 0) {
+				renderNextBatch();
+				return;
 			}
 			
-			document.getElementById('dlMp3').onclick = function() { triggerDownload(id, 'mp3'); };
-			document.getElementById('dlMp4').onclick = function() { triggerDownload(id, 'mp4'); };
+			// Reset layout rules for a NEW query execution
+			currentShownCount = 0;
+			allCachedResults = [];
+			lastQuery = query;
+			
+			saveToHistory(query);
+			list.innerHTML = "<p>Searching...</p>";
+			document.getElementById('queryInput').value = query;
+
+			// === ADD THIS LINE HERE ===
+			// Instantly wipes the old counter out as soon as Enter/Search is triggered
+			document.getElementById("resultsTitle").innerText = "Results (...)"; 
+
+			try {
+				const targetUrl = baseApiUrl + "/search?q=" + encodeURIComponent(query);
+				const response = await fetch(targetUrl);
+				if (!response.ok) throw new Error("HTTP error! status: " + response.status);
+				
+				const data = await response.json();
+				list.innerHTML = "";
+
+				if(data.status === "success" && data.results && data.results.length > 0) {
+					allCachedResults = data.results;
+					renderNextBatch(); // This will automatically display "Results (15)" when elements render
+				} else {
+					list.innerHTML = "<p style='color:red;'>No results found on YouTube.</p>";
+					document.getElementById("resultsTitle").innerText = "Results (0)";
+				}
+			} catch (error) {
+				list.innerHTML = "<p style='color:red;'>API connection error: " + error.message + "</p>";
+				document.getElementById("resultsTitle").innerText = "Results (Error)";
+			}
 		}
+
+		// Add this variable globally at the top of your script block, outside functions
+		let isRenderingBatch = false;
+
+		function renderNextBatch() {
+			const list = document.getElementById('resultsList');
+			
+			// 1. DUAL-TRIGGER LOCK: If already processing a batch, ignore concurrent calls
+			if (isRenderingBatch) {
+				return;
+			}
+			
+			// 2. SAFETY CHECK: Stop if no cache is loaded yet
+			if (!allCachedResults || allCachedResults.length === 0) {
+				return; 
+			}
+
+			// Activate the lock
+			isRenderingBatch = true;
+
+			// 3. SELF-CORRECTION: Count using 'video-card' to sync with the current DOM state
+			const itemsInDOM = list.getElementsByClassName('video-card').length;
+			currentShownCount = itemsInDOM;
+
+			const start = currentShownCount;
+			const end = Math.min(start + 15, allCachedResults.length);
+			
+			if (start >= allCachedResults.length) {
+				alert("There are no further results in memory.");
+				isRenderingBatch = false; // Release lock before exiting
+				return;
+			}
+			
+			const imgPrefix = atob("aHR0cHM6Ly9pbWcueW91dHViZS5jb20vdmkv");
+			const batch = allCachedResults.slice(start, end);
+			
+			batch.forEach(video => {
+				const thumbUrl = imgPrefix + video.id + "/mqdefault.jpg";
+				const card = document.createElement('div');
+				card.className = (video.id === currentVideoId) ? 'video-card playing-now' : 'video-card';
+
+				card.onclick = function() { 
+				currentQueueType = "search"; 
+				startPlayback(video.id, video.title); 
+				};
+				
+				card.innerHTML = `
+			<div class="thumbnail-wrapper">
+				<img src="${thumbUrl}" alt="thumb">
+				<span class="duration-badge">${video.duration}</span>
+			</div>
+			<div class="video-info">
+				<p class="video-title">${video.title}</p>
+				<p class="video-channel">${video.channel}</p>
+			</div>
+					`;
+					list.appendChild(card);
+			});
+
+			// 4. Update the layout tracking values sequentially
+			currentShownCount = end;
+			document.getElementById("resultsTitle").innerText = "Results (" + currentShownCount + ")";
+
+			// 5. RELEASE LOCK: Use a tiny timeout to absorb the duplicate background click event
+			setTimeout(() => {
+				isRenderingBatch = false;
+			}, 100);
+		}
+			
+			function startPlayback(id, title) {
+				clearInterval(progressInterval);
+				currentVideoId = id;
+				currentVideoTitle = title;
+				
+				document.getElementById('progressBarContainer').style.display = 'none';
+				document.getElementById('currentTitle').innerText = title;
+				
+				updatePlayerSrc();
+				document.getElementById('mainPlayer').style.display = 'block';
+				
+				// FIXED: Force re-render execution loops to apply highlights dynamically across both list trays
+				renderFavorites();
+				
+				// Safely re-apply search layout highlights if results are actively loaded in memory cache
+				const resultsList = document.getElementById('resultsList');
+				if (resultsList && resultsList.innerHTML !== "") {
+					// Loop through all currently rendered video elements on screen
+					const cards = resultsList.getElementsByClassName('video-card');
+					for (let i = 0; i < cards.length; i++) {
+						// Check if this specific card matches our active video index
+						const isCurrent = allCachedResults[i] && allCachedResults[i].id === id;
+						cards[i].className = isCurrent ? 'video-card playing-now' : 'video-card';
+					}
+				}
+				
+				document.getElementById('dlMp3').onclick = function() { triggerDownload(id, 'mp3'); };
+				document.getElementById('dlMp4').onclick = function() { triggerDownload(id, 'mp4'); };
+			}
 
         
         function updatePlayerSrc() {
@@ -604,7 +650,8 @@
                 alert("You are already at the first song of the list!");
             }
         }
-	function changeVolume(volume) {
+        
+		function changeVolume(volume) {
             currentVolume = volume;
             document.getElementById('volumeLabel').innerText = volume + "%";
             const iframe = document.getElementById('youtubeEmbed');
