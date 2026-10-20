@@ -316,7 +316,6 @@
 			`Each click on "Search" button returns more results, ranging from 15 up to a maximum of ${MAX_RESULTS}.`;
 
         const baseApiUrl = window.location.origin + "/ytapp";
-
 		document.addEventListener("DOMContentLoaded", function() {
 			// 1. INTERCEPTOR: Kept exactly as it is to handle mobile bypass
 			(function() {
@@ -327,9 +326,7 @@
 				
 				Object.defineProperty(iframe, 'src', {
 					set: function(value) {
-						// CHANGED: Fixed the include filter to strictly match 'youtube.com' safely
 						if (value && value.includes('youtube.com') && !value.includes('cver=Desktop')) {
-						//if (value && value.includes('://youtube.com') && !value.includes('cver=Desktop')) {
 							const separator = value.includes('?') ? '&' : '?';
 							value = value + separator + "html5=1&cbr=Chrome&cver=Desktop&autoplay=1";
 						}
@@ -366,65 +363,65 @@
 				} catch (e) {}
 			});
 			
-            let lastCheckedTime = -1;
+			let lastCheckedTime = -1;
 			let trackEndedTriggered = false;
 
+			// The interval routine only pings the target iframe once per second
 			setInterval(function() {
 				const iframe = document.getElementById('youtubeEmbed');
 				if (!iframe || !iframe.src) return;
-
 				try {
 					iframe.contentWindow.postMessage('{"event":"listening","id":1,"channel":"widget"}', '*');
 				} catch(e) {}
+			}, 1000);
 
-				window.addEventListener('message', function(e) {
-					try {
-						const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
-						if (data.event === "infoDelivery" && data.info) {
-							const currentTime = data.info.currentTime;
-							const duration = data.info.duration;
-							const state = data.info.playerState;
+			// The standalone listener handles player status messages globally
+			window.addEventListener('message', function(e) {
+				try {
+					const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+					if (data.event === "infoDelivery" && data.info) {
+						const currentTime = data.info.currentTime;
+						const duration = data.info.duration;
+						const state = data.info.playerState;
 
-							if (Math.abs(currentTime - lastCheckedTime) > 2.0) {
-								trackEndedTriggered = false;
-							}
-							
-							if (currentTime < lastCheckedTime) {
-								trackEndedTriggered = false;
-							}
-							lastCheckedTime = currentTime;
+						if (Math.abs(currentTime - lastCheckedTime) > 2.0 || currentTime < lastCheckedTime) {
+							trackEndedTriggered = false;
+						}
+						lastCheckedTime = currentTime;
 
-							const isAtFinalSecond = (currentTime && duration && (duration - currentTime <= 1.0));
-							const isStateEnded = (state === 0);
+						const isAtFinalSecond = (currentTime && duration && (duration - currentTime <= 1.0));
+						const isStateEnded = (state === 0);
 
-							if (isStateEnded || isAtFinalSecond) {
-								if (!trackEndedTriggered && currentTime > 0) {
-									trackEndedTriggered = true;
-									
-									if (isLoopActive) {
-										updatePlayerSrc();
-									} else if (isAutoplayActive) {
-										// FIXED: Only advances to the next track if Autoplay is switched ON
-										playNextVideo();
-									} else {
-										console.log("Autoplay is OFF. Stopping playback flow.");
-									}
+						if (isStateEnded || isAtFinalSecond) {
+							if (!trackEndedTriggered && currentTime > 0) {
+								trackEndedTriggered = true; 
+								
+								if (isLoopActive) {
+									updatePlayerSrc();
+								} else if (isAutoplayActive) {
+									lastCheckedTime = -1;
+									trackEndedTriggered = false; 
+									playNextVideo();
+								} else {
+									console.log("Autoplay is OFF. Stopping playback flow.");
 								}
 							}
-
 						}
-					} catch(err) {}
-				});
-			}, 1000);
+					}
+				} catch(err) {}
+			});
+
+			// The search form submission listener is now correctly contained inside DOMContentLoaded
 			document.getElementById('searchForm').addEventListener('submit', function(event) {
-				event.preventDefault(); // Stops the page from reloading
+				event.preventDefault(); 
 				
 				let query = document.getElementById('queryInput').value;
-				if (query.trim() !== "") { // Changed to .trim() because JS does not have .strip()
+				if (query.trim() !== "") { 
 					executeSearch(query); 
 				}
 			});
 		});
+
 
         function toggleTheme() {
             document.body.classList.toggle("light-theme");
@@ -588,42 +585,46 @@
             document.getElementById('youtubeEmbed').src = finalUrl;
         }
 
-        // UPDATED: Symmetrically handles both Favorites playlist queues and Search result cache streams
-		async function playNextVideo() {
-			if (!currentVideoId) {
-				console.log("No active playing video.");
-				return;
-			}
-			try {
-				let targetUrl = baseApiUrl + "/next?current_id=" + currentVideoId + "&list_type=" + currentQueueType;
-				
-				if (currentQueueType === "favorites") {
-					const localFavs = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
-					if (localFavs.length === 0) return;
-					
-					// CORRECTION: Combine all IDs into a single comma-separated string (e.g., id1,id2,id3)
-					const favIdsString = localFavs.map(item => item.id).join(",");
-					targetUrl += "&fav_ids_string=" + encodeURIComponent(favIdsString);
-				} else {
-					if (!lastQuery) return;
-					targetUrl += "&q=" + encodeURIComponent(lastQuery);
+			 async function playNextVideo() {
+				if (!currentVideoId) {
+					console.log("No active playing video.");
+					return;
 				}
+				
+				trackEndedTriggered = false;
+				lastCheckedTime = -1;
 
-				const response = await fetch(targetUrl);
-				if (!response.ok) throw new Error("HTTP error! status: " + response.status);
-				
-				const data = await response.json();
-				if (data.status === "success") {
-					startPlayback(data.next_video.id, data.next_video.title);
-				} else if (data.status === "end_of_playlist") {
-					alert("You have reached the end of the current playlist!");
-				} else {
-					console.error("API Error: ", data.message);
+				try {
+					let targetUrl = baseApiUrl + "/next?current_id=" + currentVideoId + "&list_type=" + currentQueueType;
+					
+					if (currentQueueType === "favorites") {
+						const localFavs = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
+						if (localFavs.length === 0) return;
+						const favIdsString = localFavs.map(item => item.id).join(",");
+						targetUrl += "&fav_ids_string=" + encodeURIComponent(favIdsString);
+					} else {
+						if (!lastQuery) return;
+						targetUrl += "&q=" + encodeURIComponent(lastQuery);
+					}
+
+					const response = await fetch(targetUrl);
+					if (!response.ok) throw new Error("HTTP error! status: " + response.status);
+					
+					const data = await response.json();
+					if (data.status === "success") {
+						trackEndedTriggered = false;
+						lastCheckedTime = -1;
+						startPlayback(data.next_video.id, data.next_video.title);
+					} else if (data.status === "end_of_playlist") {
+						alert("You have reached the end of the current playlist!");
+					} else {
+						console.error("API Error: ", data.message);
+					}
+				} catch (error) {
+					console.error("Network error during Play Next: ", error.message);
 				}
-			} catch (error) {
-				console.error("Network error during Play Next: ", error.message);
 			}
-		}
+
 
 
         function playPreviousVideo() {
