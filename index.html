@@ -175,30 +175,27 @@
             display: none;
         }
 
+		/* Master button text compression rule */
+		.buttons-row button,
+		.buttons-row .btn-dl,
+		.buttons-row .btn-dll {
+			display: inline-flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+			font-size: 10px !important; /* Slightly smaller text envelope so long words fit */
+			font-weight: bold !important;
+			padding-left: 2px !important; /* Drops internal side margins to maximum compress text */
+			padding-right: 2px !important;
+			text-align: center !important;
+			white-space: nowrap !important;
+			box-sizing: border-box !important;
+			min-width: 0 !important;
+		}
 
-/* Master button text compression rule */
-.buttons-row button,
-.buttons-row .btn-dl,
-.buttons-row .btn-dll {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 10px !important; /* Slightly smaller text envelope so long words fit */
-    font-weight: bold !important;
-    padding-left: 2px !important; /* Drops internal side margins to maximum compress text */
-    padding-right: 2px !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-    min-width: 0 !important;
-}
-
-/* Dedicated background padding cushion for the Autoplay button */
-.btn-autoplay {
-    padding-right: 8px !important; 
-}
-
-
+		/* Dedicated background padding cushion for the Autoplay button */
+		.btn-autoplay {
+			padding-right: 8px !important; 
+		}
 
         .btn-dl { 
             background: #2ba640; 
@@ -218,8 +215,6 @@
             width: auto !important; /* Kills any hardcoded 'width: 140px' overrides */
 			min-width: 0 !important; /* Allows items to shrink below text boundary safely */
 			max-width: none !important;
-
-
         } 
         
         .btn-dl:hover { background: #1e782c; }
@@ -363,7 +358,7 @@
     <div class="footer">
         &copy; 2026 Developed by <strong>Dimitris Tzemos</strong>. All rights reserved 
     </div>
-<script>
+	<script>
         let progressInterval = null;
         let isLoopActive = false;
         let currentVideoId = "";
@@ -925,6 +920,6 @@
 		}
 
         function clearFavorites() { if(confirm("Clear all favorites?")) { localStorage.removeItem("yt_favorites"); renderFavorites(); } }
-    </script>
+	</script>
 </body>
 </html>
