@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>YouTube Browser App</title>
     <style>
-         :root {
+       /*  :root {
             --bg-body: #0f0f0f;
             --bg-box: #1f1f1f;
             --bg-card: #282828;
@@ -21,7 +21,38 @@
             --text-main: #000;
             --text-sub: #606060;
             --border-input: #ccc;
-        }
+        } */
+        
+		:root {
+			--bg-body: #0f0f0f;
+			--bg-box: #1f1f1f;
+			--bg-card: #282828;
+			--bg-card-hover: #383838;
+			--text-main: #fff;
+			--text-sub: #aaa;
+			--border-input: #3c3c3c;
+			--text-hover: #38bdf8; /* Bright Sky Blue for Dark Theme */
+			
+			/* Button Colors for Dark Theme */
+			--btn-bg: #0066cc;       /* Royal Blue */
+			--btn-hover: #0052a3;    /* Darker Blue for hover */
+		}
+
+		.light-theme {
+			--bg-body: #f9f9f9;
+			--bg-box: #ffffff;
+			--bg-card: #f1f1f1;
+			--bg-card-hover: #e5e5e5;
+			--text-main: #000;
+			--text-sub: #606060;
+			--border-input: #ccc;
+			--text-hover: #cc0000; /* Red that you like for Light Theme */
+			
+			/* Button Colors for Light Theme */
+			--btn-bg: #cc0000;       /* Red */
+			--btn-hover: #990000;    /* Darker Red for hover */
+		}
+
 
         html, body {
             height: 100%;
@@ -52,8 +83,24 @@
             flex-wrap: wrap; 
         }
         input { padding: 12px; width: 400px; border-radius: 20px; border: 1px solid var(--border-input); background: var(--bg-box); color: var(--text-main); padding-left: 20px; font-size: 16px; }
-        button { padding: 12px 24px; background: #cc0000; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        button:hover { background: #990000; }
+       /* button { padding: 12px 24px; background: #cc0000; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #990000; }*/
+        button { 
+				padding: 12px 24px; 
+				background: var(--btn-bg); /* Changes automatically based on theme */
+				color: white; 
+				border: none; 
+				border-radius: 20px; 
+				cursor: pointer; 
+				font-weight: bold; 
+				font-size: 16px; 
+				transition: background 0.2s ease; /* Smooth hover animation */
+			}
+
+			button:hover { 
+				background: var(--btn-hover); /* Changes automatically based on theme */
+			}
+
         
         .btn-theme { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-input); border-radius: 20px; }
         .btn-theme:hover { background: var(--bg-card-hover); }
@@ -85,7 +132,8 @@
         .btn-clear-action { background: transparent; color: var(--text-sub); border: none; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0; margin: 0; }
         .btn-clear-action:hover { color: #ff0000; }
         .history-item, .fav-item { padding: 8px; margin-bottom: 5px; background: var(--bg-card); border-radius: 6px; cursor: pointer; font-size: 13px; word-break: break-all; }
-        .history-item:hover, .fav-item:hover { background: var(--bg-card-hover); color: #cc0000; }
+        .history-item:hover, .fav-item:hover { background: var(--bg-card-hover); color: var(--text-hover);/* color: #cc0000;*/ } 
+
         
         .video-card { display: flex; gap: 12px; padding: 10px; margin-bottom: 12px; background: var(--bg-card); border-radius: 8px; cursor: pointer; transition: background 0.2s; }
         .video-card:hover { background: var(--bg-card-hover); }
