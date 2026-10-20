@@ -317,26 +317,40 @@
 
         const baseApiUrl = window.location.origin + "/ytapp";
 		document.addEventListener("DOMContentLoaded", function() {
-			// 1. INTERCEPTOR: Kept exactly as it is to handle mobile bypass
-			(function() {
-				const iframe = document.getElementById('youtubeEmbed');
-				if (!iframe) return;
+		// 1. INTERCEPTOR: Modified to block deep linking and prevent opening the YouTube app on mobile phones
+		(function() {
+			const iframe = document.getElementById('youtubeEmbed');
+			if (!iframe) return;
 
-				const descriptor = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'src');
-				
-				Object.defineProperty(iframe, 'src', {
-					set: function(value) {
-						if (value && value.includes('youtube.com') && !value.includes('cver=Desktop')) {
-							const separator = value.includes('?') ? '&' : '?';
-							value = value + separator + "html5=1&cbr=Chrome&cver=Desktop&autoplay=1";
+			const descriptor = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'src');
+			
+			Object.defineProperty(iframe, 'src', {
+				set: function(value) {
+					if (value && value.includes('youtube.com')) {
+						// Convert to embed format and swap to the nocookie domain to isolate inside the browser
+						if (!value.includes('/embed/')) {
+							const urlParams = new URLSearchParams(value.substring(value.indexOf('?')));
+							const videoId = urlParams.get('v');
+							if (videoId) {
+								value = `https://youtube-nocookie.com{videoId}`;
+							}
+						} else {
+							value = value.replace('youtube.com', 'youtube-nocookie.com');
 						}
-						descriptor.set.call(this, value);
-					},
-					get: function() {
-						return descriptor.get.call(this);
+
+						// Append required desktop bypass and autoplay parameters securely
+						const separator = value.includes('?') ? '&' : '?';
+						if (!value.includes('cver=Desktop')) {
+							value = value + separator + "html5=1&cbr=Chrome&cver=Desktop&autoplay=1&origin=" + encodeURIComponent(window.location.origin);
+						}
 					}
-				});
-			})();
+					descriptor.set.call(this, value);
+				},
+				get: function() {
+					return descriptor.get.call(this);
+				}
+			});
+		})();
 
 			// 2. Your original app initialization logic
 			renderHistory();
@@ -421,7 +435,6 @@
 				}
 			});
 		});
-
 
         function toggleTheme() {
             document.body.classList.toggle("light-theme");
@@ -624,8 +637,6 @@
 					console.error("Network error during Play Next: ", error.message);
 				}
 			}
-
-
 
         function playPreviousVideo() {
             if (!currentVideoId) {
@@ -847,7 +858,5 @@
 
         function clearFavorites() { if(confirm("Clear all favorites?")) { localStorage.removeItem("yt_favorites"); renderFavorites(); } }
     </script>
-
-
 </body>
 </html>
