@@ -252,7 +252,7 @@
         .progress-bar { background: #2ba640; height: 100%; width: 0%; transition: width 0.2s ease; }
         .progress-text { position: absolute; width: 100%; text-align: center; top: 0; left: 0; font-size: 12px; line-height: 20px; font-weight: bold; color: #fff; }
         
-        .footer {
+      /*  .footer {
             position: fixed;
             left: 0;
             bottom: 0;
@@ -267,8 +267,28 @@
             border-top: 1px solid var(--border-input);
             box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
         }
-        .mobile-spacer { height: 60px; }
+        .mobile-spacer { height: 60px; } */
         
+        .footer {
+			position: fixed;
+			left: 0;
+			bottom: 0;
+			width: 100%;
+			/* These variables automatically switch colors with the theme */
+			background-color: var(--bg-box); 
+			color: var(--text-main);             
+			border-top: 1px solid var(--border-input);
+			
+			text-align: center;         
+			padding: 15px 0;            
+			font-family: Arial, sans-serif;
+			font-size: 13px;
+			z-index: 9999;
+			box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08); /* Softened shadow so it looks clean on white backgrounds too */
+		}
+		.mobile-spacer { 
+			height: 60px; }
+
         /* Highlights the active playing track element in list views */
 		.video-card.playing-now,
 		.fav-item.playing-now {
