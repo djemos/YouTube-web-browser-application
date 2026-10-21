@@ -292,6 +292,1109 @@
 			box-shadow: 0 0 8px rgba(0, 123, 255, 0.3) !important;
 			font-weight: bold !important;
 		}
+		
+		/* The item currently being dragged */
+		.fav-item.dragging-now {
+			background: #222 !important;
+			opacity: 0.6;
+			border-left: 3px solid #00bcd4; /* Blue line on the left side for visual feedback */
+		}
+
+		/* The card over which the dragged item is currently hovering */
+		.fav-item.drag-over {
+			background: #111;
+			border-top: 2px dashed #555;
+		}
+
+   </style>
+</head>
+<body>
+<div class="search-container">
+    <button class="btn-theme" onclick="toggleTheme()">🌓 Theme</button>
+    
+    <!-- Using a <form> to automatically capture Enter and clicks -->
+    <!--  <form id="searchForm" onsubmit="event.preventDefault(); executeSearch(document.getElementById('queryInput').value);" style="display: flex; flex-grow: 1; gap: inherit; align-items: center; margin: 0;">-->
+		<form id="searchForm" style="display: flex; flex-grow: 1; gap: inherit; align-items: center; margin: 0;">
+        <input type="text" id="queryInput" placeholder="Search...">
+        <button type="submit">Search</button>
+    </form>
+    
+    <div id="search-message" style="display: block; width: 100%; flex-basis: 100%; text-align: center; margin-top: 10px; color: var(--text-sub); font-size: 14px;">
+        <!-- JavaScript will insert the text here -->
+    </div>
+</div>
+
+    <div class="main-layout">
+        <div class="box">
+            <div class="box-header"><h3>History</h3><button class="btn-clear-action" onclick="clearHistory()">Clear All</button></div>
+            <div id="historyList"></div>
+        </div>
+        <div class="box">
+            <div class="box-header"><h3>⭐ Favorites</h3><button class="btn-clear-action" onclick="clearFavorites()">Clear All</button></div>
+            <div id="favoritesList"></div>
+        </div>
+        <div class="box" id="resultsBox" style="opacity: 0.5;">
+            <h3 style="margin-top:0;" id="resultsTitle">Results</h3>
+            <div id="resultsList">Perform a search...</div>
+        </div>
+        <div class="box player-box" id="mainPlayer">
+            <h2 id="currentTitle" style="font-size:18px; text-align:left; margin-top:0;"></h2>
+            
+            <div class="iframe-container">
+                <iframe id="youtubeEmbed" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+
+            <div class="volume-container">
+                <span>🔊</span>
+                <input type="range" id="volumeSlider" min="0" max="100" value="100" oninput="changeVolume(this.value)">
+                <span id="volumeLabel">100%</span>
+            </div>
+            <div class="download-zone">
+                <!--ALL buttons were placed in a SINGLE row, without an Autoplay checkbox -->
+                <div class="buttons-row">
+                    <button class="btn-dl btn-fav" id="favButton" onclick="addCurrentToFavorites()">⭐ Favorite</button>
+                    <button class="btn-dl btn-loop" id="loopToggle" onclick="toggleLoop()">🔁 Loop: OFF</button>
+                    <button id="autoplayToggle" class="btn-dl btn-autoplay active" onclick="toggleAutoplay()">⏭️ Autoplay: ON</button>
+                    <button class="btn-dl" id="dlMp3">Download MP3</button>
+                    <button class="btn-dl" id="dlMp4">Download MP4</button>
+                    <button class="btn-dl" id="prevButton" onclick="playPreviousVideo()">⏮️ Prev</button>
+                    <button class="btn-dl" id="nextButton" onclick="playNextVideo()">⏭️ Next</button>
+                </div>
+                <div class="progress-container" id="progressBarContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mobile-spacer"></div>
+    <div class="footer">
+        &copy; 2026 Developed by <strong>Dimitris Tzemos</strong>. All rights reserved 
+    </div>
+	<script>
+        let progressInterval = null;
+        let isLoopActive = false;
+        let currentVideoId = "";
+        let currentVideoTitle = "";
+        let currentVolume = 100;
+        let isAutoplayActive = true; // Autoplay is enabled by default
+        
+        // ADDED FOR FAVORITES AUTOPLAY ROUTING:
+        let currentQueueType = "search"; // Tracks current playback context: 'search' or 'favorites'
+
+        let lastQuery = "";
+        let currentShownCount = 0;
+        let allCachedResults = [];
+        let MAX_HISTORY_ITEMS = 100;
+		let MAX_RESULTS = 100;
+		
+		document.getElementById('search-message').textContent = 
+			`Each click on "Search" button returns more results, ranging from 15 up to a maximum of ${MAX_RESULTS}.`;
+
+        const baseApiUrl = window.location.origin + "/ytapp";
+		document.addEventListener("DOMContentLoaded", function() {
+		// 1. INTERCEPTOR: Modified to block deep linking and prevent opening the YouTube app on mobile phones
+		(function() {
+			const iframe = document.getElementById('youtubeEmbed');
+			if (!iframe) return;
+
+			const descriptor = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'src');
+			
+			Object.defineProperty(iframe, 'src', {
+				set: function(value) {
+					if (value && value.includes('youtube.com')) {
+						// Convert to embed format and swap to the nocookie domain to isolate inside the browser
+						if (!value.includes('/embed/')) {
+							const urlParams = new URLSearchParams(value.substring(value.indexOf('?')));
+							const videoId = urlParams.get('v');
+							if (videoId) {
+								value = `https://youtube-nocookie.com{videoId}`;
+							}
+						} else {
+							value = value.replace('youtube.com', 'youtube-nocookie.com');
+						}
+
+						// Append required desktop bypass and autoplay parameters securely
+						const separator = value.includes('?') ? '&' : '?';
+						if (!value.includes('cver=Desktop')) {
+							value = value + separator + "html5=1&cbr=Chrome&cver=Desktop&autoplay=1&origin=" + encodeURIComponent(window.location.origin);
+						}
+					}
+					descriptor.set.call(this, value);
+				},
+				get: function() {
+					return descriptor.get.call(this);
+				}
+			});
+		})();
+
+			// 2. Your original app initialization logic
+			renderHistory();
+			renderFavorites();
+			if(localStorage.getItem("theme") === "light") {
+				document.body.classList.add("light-theme");
+			}
+			
+			// Your working volume listener
+			document.getElementById('youtubeEmbed').addEventListener('load', function() {
+				setTimeout(() => { changeVolume(currentVolume); }, 1000);
+			});
+
+			// 3. FIXED MESSAGE LISTENER: Standard loop-only behavior remains un-touched
+			window.addEventListener('message', function(event) {
+				try {
+					const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+					if (data.event === "infoDelivery" && data.info && data.info.playerState !== undefined) {
+						const state = data.info.playerState;
+						if (state === 0 && isLoopActive) {
+							updatePlayerSrc();
+						}
+					}
+				} catch (e) {}
+			});
+			
+			let lastCheckedTime = -1;
+			let trackEndedTriggered = false;
+
+			// The interval routine only pings the target iframe once per second
+			setInterval(function() {
+				const iframe = document.getElementById('youtubeEmbed');
+				if (!iframe || !iframe.src) return;
+				try {
+					iframe.contentWindow.postMessage('{"event":"listening","id":1,"channel":"widget"}', '*');
+				} catch(e) {}
+			}, 1000);
+
+			// The standalone listener handles player status messages globally
+			window.addEventListener('message', function(e) {
+				try {
+					const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+					if (data.event === "infoDelivery" && data.info) {
+						const currentTime = data.info.currentTime;
+						const duration = data.info.duration;
+						const state = data.info.playerState;
+
+						if (Math.abs(currentTime - lastCheckedTime) > 2.0 || currentTime < lastCheckedTime) {
+							trackEndedTriggered = false;
+						}
+						lastCheckedTime = currentTime;
+
+						const isAtFinalSecond = (currentTime && duration && (duration - currentTime <= 1.0));
+						const isStateEnded = (state === 0);
+
+						if (isStateEnded || isAtFinalSecond) {
+							if (!trackEndedTriggered && currentTime > 0) {
+								trackEndedTriggered = true; 
+								
+								if (isLoopActive) {
+									updatePlayerSrc();
+								} else if (isAutoplayActive) {
+									lastCheckedTime = -1;
+									trackEndedTriggered = false; 
+									playNextVideo();
+								} else {
+									console.log("Autoplay is OFF. Stopping playback flow.");
+								}
+							}
+						}
+					}
+				} catch(err) {}
+			});
+
+			// The search form submission listener is now correctly contained inside DOMContentLoaded
+			document.getElementById('searchForm').addEventListener('submit', function(event) {
+				event.preventDefault(); 
+				
+				let query = document.getElementById('queryInput').value;
+				if (query.trim() !== "") { 
+					executeSearch(query); 
+				}
+			});
+		});
+
+        function toggleTheme() {
+            document.body.classList.toggle("light-theme");
+            localStorage.setItem("theme", document.body.classList.contains("light-theme") ? "light" : "dark");
+        }
+
+		async function executeSearch(query) {
+			if(!query) return;
+			const list = document.getElementById('resultsList');
+			document.getElementById('resultsBox').style.opacity = "1";
+
+			if (query === lastQuery && allCachedResults.length > 0) {
+				renderNextBatch();
+				return;
+			}
+			
+			// Reset layout rules for a NEW query execution
+			currentShownCount = 0;
+			allCachedResults = [];
+			lastQuery = query;
+			
+			saveToHistory(query);
+			list.innerHTML = "<p>Searching...</p>";
+			document.getElementById('queryInput').value = query;
+
+			// === ADD THIS LINE HERE ===
+			// Instantly wipes the old counter out as soon as Enter/Search is triggered
+			document.getElementById("resultsTitle").innerText = "Results (...)"; 
+
+			try {
+				const targetUrl = baseApiUrl + "/search?q=" + encodeURIComponent(query);
+				const response = await fetch(targetUrl);
+				if (!response.ok) throw new Error("HTTP error! status: " + response.status);
+				
+				const data = await response.json();
+				list.innerHTML = "";
+
+				if(data.status === "success" && data.results && data.results.length > 0) {
+					allCachedResults = data.results;
+					renderNextBatch(); // This will automatically display "Results (15)" when elements render
+				} else {
+					list.innerHTML = "<p style='color:red;'>No results found on YouTube.</p>";
+					document.getElementById("resultsTitle").innerText = "Results (0)";
+				}
+			} catch (error) {
+				list.innerHTML = "<p style='color:red;'>API connection error: " + error.message + "</p>";
+				document.getElementById("resultsTitle").innerText = "Results (Error)";
+			}
+		}
+
+		// Add this variable globally at the top of your script block, outside functions
+		let isRenderingBatch = false;
+
+		function renderNextBatch() {
+			const list = document.getElementById('resultsList');
+			
+			// 1. DUAL-TRIGGER LOCK: If already processing a batch, ignore concurrent calls
+			if (isRenderingBatch) {
+				return;
+			}
+			
+			// 2. SAFETY CHECK: Stop if no cache is loaded yet
+			if (!allCachedResults || allCachedResults.length === 0) {
+				return; 
+			}
+
+			// Activate the lock
+			isRenderingBatch = true;
+
+			// 3. SELF-CORRECTION: Count using 'video-card' to sync with the current DOM state
+			const itemsInDOM = list.getElementsByClassName('video-card').length;
+			currentShownCount = itemsInDOM;
+
+			const start = currentShownCount;
+			const end = Math.min(start + 15, allCachedResults.length);
+			
+			if (start >= allCachedResults.length) {
+				alert("There are no further results in memory.");
+				isRenderingBatch = false; // Release lock before exiting
+				return;
+			}
+			
+			const imgPrefix = atob("aHR0cHM6Ly9pbWcueW91dHViZS5jb20vdmkv");
+			const batch = allCachedResults.slice(start, end);
+			
+			batch.forEach(video => {
+				const thumbUrl = imgPrefix + video.id + "/mqdefault.jpg";
+				const card = document.createElement('div');
+				card.className = (video.id === currentVideoId) ? 'video-card playing-now' : 'video-card';
+				
+				// FIX: Attach the video ID to the DOM element so startPlayback() can safely read it
+				card.setAttribute('data-id', video.id);
+
+				card.onclick = function() { 
+					currentQueueType = "search"; 
+					startPlayback(video.id, video.title); 
+				};
+				
+				card.innerHTML = `
+					<div class="thumbnail-wrapper">
+						<img src="${thumbUrl}" alt="thumb">
+						<span class="duration-badge">${video.duration}</span>
+					</div>
+					<div class="video-info">
+						<p class="video-title">${video.title}</p>
+						<p class="video-channel">${video.channel}</p>
+					</div>
+				`;
+				list.appendChild(card);
+			});
+
+			// 4. Update the layout tracking values sequentially
+			currentShownCount = end;
+			document.getElementById("resultsTitle").innerText = "Results (" + currentShownCount + ")";
+
+			// 5. RELEASE LOCK: Use a tiny timeout to absorb the duplicate background click event
+			setTimeout(() => {
+				isRenderingBatch = false;
+			}, 100);
+		}
+			
+		function startPlayback(id, title) { 
+			clearInterval(progressInterval); 
+			currentVideoId = id; 
+			currentVideoTitle = title; 
+			
+			document.getElementById('progressBarContainer').style.display = 'none'; 
+			document.getElementById('currentTitle').innerText = title; 
+			
+			updatePlayerSrc(); 
+			document.getElementById('mainPlayer').style.display = 'block'; 
+			
+			// Force re-render execution loops to apply highlights dynamically across both list trays 
+			renderFavorites(); 
+			
+			// Safely re-apply search layout highlights if results are actively loaded in memory cache 
+			const resultsList = document.getElementById('resultsList'); 
+			if (resultsList && resultsList.innerHTML !== "") { 
+				// Loop through all currently rendered video elements on screen 
+				const cards = resultsList.getElementsByClassName('video-card'); 
+				for (let i = 0; i < cards.length; i++) { 
+					
+					// FIX: Retrieve the video ID directly from the card element
+					const cardId = cards[i].getAttribute('data-id');
+					
+					// Check if this card's ID matches the newly playing video ID
+					const isCurrent = (cardId === String(id)); 
+					cards[i].className = isCurrent ? 'video-card playing-now' : 'video-card'; 
+				} 
+			}
+		}
+        
+        function updatePlayerSrc() {
+            const embedPrefix = atob("aHR0cHM6Ly93d3cueW91dHViZS5jb20vZW1iZWQv");
+            const currentOrigin = window.location.origin;
+            
+            // Clean URL for an individual video (Autoplay logic has been completely removed)
+            let finalUrl = embedPrefix + currentVideoId + "?autoplay=1&enablejsapi=1&origin=" + encodeURIComponent(currentOrigin) + "&rel=0";
+            
+            /* if (isLoopActive) {
+                finalUrl += "&loop=1&playlist=" + currentVideoId;
+            } */
+            
+            document.getElementById('youtubeEmbed').src = finalUrl;
+        }
+
+			 async function playNextVideo() {
+				if (!currentVideoId) {
+					console.log("No active playing video.");
+					return;
+				}
+				
+				trackEndedTriggered = false;
+				lastCheckedTime = -1;
+
+				try {
+					let targetUrl = baseApiUrl + "/next?current_id=" + currentVideoId + "&list_type=" + currentQueueType;
+					
+					if (currentQueueType === "favorites") {
+						const localFavs = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
+						if (localFavs.length === 0) return;
+						const favIdsString = localFavs.map(item => item.id).join(",");
+						targetUrl += "&fav_ids_string=" + encodeURIComponent(favIdsString);
+					} else {
+						if (!lastQuery) return;
+						targetUrl += "&q=" + encodeURIComponent(lastQuery);
+					}
+
+					const response = await fetch(targetUrl);
+					if (!response.ok) throw new Error("HTTP error! status: " + response.status);
+					
+					const data = await response.json();
+					if (data.status === "success") {
+						trackEndedTriggered = false;
+						lastCheckedTime = -1;
+						startPlayback(data.next_video.id, data.next_video.title);
+					} else if (data.status === "end_of_playlist") {
+						alert("You have reached the end of the current playlist!");
+					} else {
+						console.error("API Error: ", data.message);
+					}
+				} catch (error) {
+					console.error("Network error during Play Next: ", error.message);
+				}
+			}
+
+        function playPreviousVideo() {
+            if (!currentVideoId) {
+                console.log("No active video.");
+                return;
+            }
+            
+            let videosList = [];
+            if (currentQueueType === "favorites") {
+                videosList = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
+            } else {
+                videosList = allCachedResults;
+            }
+
+            if (videosList.length === 0) return;
+            const currentIdx = videosList.findIndex(video => video.id === currentVideoId);
+            
+            if (currentIdx > 0) {
+                const prevVideo = videosList[currentIdx - 1];
+                console.log("⏮️ Playing previous video: " + prevVideo.title);
+                startPlayback(prevVideo.id, prevVideo.title);
+            } else {
+                alert("You are already at the first song of the list!");
+            }
+        }
+        
+		function changeVolume(volume) {
+            currentVolume = volume;
+            document.getElementById('volumeLabel').innerText = volume + "%";
+            const iframe = document.getElementById('youtubeEmbed');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage(JSON.stringify({
+                    "event": "command", "func": "setVolume", "args": [volume]
+                }), "*");
+            }
+        }
+
+		function toggleAutoplay() {
+			isAutoplayActive = !isAutoplayActive;
+			const btn = document.getElementById('autoplayToggle');
+			btn.className = isAutoplayActive ? "btn-dl btn-autoplay active" : "btn-dl btn-autoplay";
+            // FIXED: Using shorter text layouts to completely stop letters from spilling out of background boxes
+			btn.innerText = isAutoplayActive ? "⏭️ Autoplay: ON" : "⏭️ Autoplay: OFF";
+		}
+
+        function toggleLoop() {
+            isLoopActive = !isLoopActive;
+            const btn = document.getElementById('loopToggle');
+            btn.className = isLoopActive ? "btn-dl btn-loop active" : "btn-dl btn-loop";
+            btn.innerText = isLoopActive ? "🔁 Loop: ON" : "🔁 Loop: OFF";
+            // if(currentVideoId) updatePlayerSrc();
+            
+        }
+
+        async function triggerDownload(id, mode) {
+            document.getElementById('progressBarContainer').style.display = 'block';
+            updateProgressBar(0, "Requesting conversion on server...");
+            try {
+                const targetUrl = baseApiUrl + "/download?video_id=" + id + "&mode=" + mode;
+                await fetch(targetUrl);
+                clearInterval(progressInterval);
+                progressInterval = setInterval(function() { checkProgress(id); }, 1000);
+            } catch (e) { console.error(e); }
+        }
+
+        async function checkProgress(id) {
+            try {
+                const targetUrl = baseApiUrl + "/progress?video_id=" + id;
+                const response = await fetch(targetUrl);
+                const data = await response.json();
+                
+                if (data.status === "downloading") {
+                    updateProgressBar(data.percent, "Conversion on Server: " + data.percent + "%");
+                } 
+                else if (data.status === "finished") {
+                    clearInterval(progressInterval);
+                    updateProgressBar(100, "Ready! Downloading to your device...");
+                    
+                    const downloadUrl = baseApiUrl + "/get-file?file_name=" + encodeURIComponent(data.file);
+                    const nativeLink = document.createElement("a");
+                    nativeLink.href = downloadUrl;
+                    nativeLink.style.display = "none";
+                    document.body.appendChild(nativeLink);
+                    nativeLink.click(); 
+                    document.body.removeChild(nativeLink);
+                    
+                    setTimeout(() => {
+                        document.getElementById('progressBarContainer').style.display = 'none';
+                    }, 4000);
+                } 
+                else if (data.status === "error") {
+                    updateProgressBar(0, "Error during conversion.");
+                    clearInterval(progressInterval);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function updateProgressBar(percent, text) {
+            document.getElementById('progressBar').style.width = percent + "%";
+            document.getElementById('progressText').innerText = text;
+        }
+		
+        function saveToHistory(query) {
+            let history = JSON.parse(localStorage.getItem("yt_history")) || [];
+            history = history.filter(item => item !== query);
+            history.unshift(query);
+            if(history.length > MAX_HISTORY_ITEMS) history.pop();
+            localStorage.setItem("yt_history", JSON.stringify(history));
+            renderHistory();
+        }
+
+		function removeFromHistory(query) {
+			let history = JSON.parse(localStorage.getItem("yt_history")) || [];
+			history = history.filter(item => item !== query);
+			localStorage.setItem("yt_history", JSON.stringify(history));
+			renderHistory();
+		}
+
+		function renderHistory() {
+			const container = document.getElementById('historyList');
+			let history = JSON.parse(localStorage.getItem("yt_history")) || [];
+			container.innerHTML = history.length === 0 ? "<span style='color:#555;font-size:13px;'>Empty history</span>" : "";
+			
+			history.forEach(item => {
+				const div = document.createElement('div'); 
+				div.className = 'history-item'; 
+				div.style.display = 'flex'; 
+				div.style.justifyContent = 'space-between';
+				div.style.alignItems = 'center';
+
+				const textSpan = document.createElement('span');
+				textSpan.innerText = item;
+				textSpan.style.cursor = 'pointer';
+				textSpan.style.flexGrow = '1';
+				textSpan.onclick = () => executeSearch(item);
+				div.appendChild(textSpan);
+				const removeBtn = document.createElement('span');
+				removeBtn.innerText = '❌';
+				removeBtn.style.cursor = 'pointer';
+				removeBtn.style.padding = '0 5px';
+				removeBtn.style.fontSize = '12px';
+				removeBtn.onclick = (e) => {
+					e.stopPropagation();
+					removeFromHistory(item);
+				};
+				div.appendChild(removeBtn);
+				container.appendChild(div);
+			});
+		}
+
+        function clearHistory() { localStorage.removeItem("yt_history"); renderHistory(); }
+
+        function addCurrentToFavorites() {
+			if(!currentVideoId) return;
+			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+    
+			if(favorites.some(item => item.id === currentVideoId)) { 
+				alert("It already exists!"); 
+				return; 
+			}
+    
+			favorites.push({ id: currentVideoId, title: currentVideoTitle });
+    
+			try {
+				localStorage.setItem("yt_favorites", JSON.stringify(favorites));
+				renderFavorites();
+			} catch (e) {
+				alert("Your browser's local storage is full! Cannot add more favorites.");
+			}
+		}
+
+        function removeFromFavorites(id) {
+			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+			favorites = favorites.filter(item => item.id !== id);
+			localStorage.setItem("yt_favorites", JSON.stringify(favorites));
+			renderFavorites();
+		}
+
+		function renderFavorites() {
+			const container = document.getElementById('favoritesList');
+			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+			container.innerHTML = favorites.length === 0 ? "<span style='color:#555;font-size:12px;'>Empty</span>" : "";
+			
+			favorites.forEach((video, i) => {
+				const div = document.createElement('div'); 
+				div.className = (video.id === currentVideoId) ? 'fav-item playing-now' : 'fav-item'; 
+				
+				div.style.display = 'flex'; 
+				div.style.justifyContent = 'space-between';
+				div.style.alignItems = 'center';
+				div.style.transition = 'background 0.2s ease';
+
+				// --- NATIVE DESKTOP DRAG EVENTS ---
+				div.ondragover = (e) => { 
+					e.preventDefault(); 
+					div.classList.add('drag-over'); 
+				};
+				div.ondragleave = () => { div.classList.remove('drag-over'); };
+				div.ondrop = (e) => {
+					e.preventDefault();
+					div.classList.remove('drag-over');
+					const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+					if (draggedIndex !== i) {
+						let favs = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+						const [item] = favs.splice(draggedIndex, 1);
+						favs.splice(i, 0, item);
+						localStorage.setItem("yt_favorites", JSON.stringify(favs));
+						renderFavorites(); 
+					}
+				};
+
+				// 1. ISOLATED DRAG HANDLE (With robust Touch isolation)
+				const dragHandle = document.createElement('span');
+				dragHandle.innerText = '☰ ';
+				dragHandle.style.cursor = 'move';
+				dragHandle.style.padding = '12px 16px'; 
+				dragHandle.style.color = '#888';
+				dragHandle.draggable = true; 
+				
+				dragHandle.style.userSelect = 'none';
+				dragHandle.style.webkitUserSelect = 'none';
+				dragHandle.style.webkitTouchCallout = 'none';
+				dragHandle.oncontextmenu = (e) => { e.preventDefault(); };
+
+				// MOBILE TOUCH IMPLEMENTATION (Fixed for Firefox Touch Persistence)
+				let activeTouchIndex = i;
+
+				dragHandle.ontouchstart = (e) => {
+					if (e.cancelable) e.preventDefault();
+					div.classList.add('dragging-now');
+					activeTouchIndex = i;
+				};
+
+				dragHandle.ontouchmove = (e) => {
+					if (e.cancelable) e.preventDefault();
+					const touch = e.touches[0]; // Read exact current touch coordinate node safely
+					
+					const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+					if (!elementUnderTouch) return;
+					
+					const targetRow = elementUnderTouch.closest('.fav-item');
+					if (targetRow && targetRow !== div) {
+						const allRows = Array.from(container.children);
+						const targetIndex = allRows.indexOf(targetRow);
+						
+						if (targetIndex !== -1 && activeTouchIndex !== targetIndex) {
+							activeTouchIndex = targetIndex;
+							
+							// Modify database structure seamlessly in the background
+							let favs = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+							const [item] = favs.splice(i, 1);
+							favs.splice(targetIndex, 0, item);
+							localStorage.setItem("yt_favorites", JSON.stringify(favs));
+							
+							// Visually insert the row into its new place on screen without breaking focus state
+							if (targetIndex > i) {
+								container.insertBefore(div, targetRow.nextSibling);
+							} else {
+								container.insertBefore(div, targetRow);
+							}
+						}
+					}
+				};
+
+				dragHandle.ontouchend = () => {
+					// Clean up selections and highlights explicitly
+					div.classList.remove('dragging-now');
+					if (window.getSelection) { window.getSelection().removeAllRanges(); }
+					if (document.activeElement) { document.activeElement.blur(); }
+					
+					// Re-sync layout indexes to the manual arrow buttons cleanly
+					renderFavorites();
+				};
+
+				// DESKTOP MOUSE CODES
+				dragHandle.ondragstart = (e) => {
+					e.dataTransfer.setData('text/plain', i);
+					div.classList.add('dragging-now'); 
+				};
+				dragHandle.ondragend = () => { 
+					div.classList.remove('dragging-now'); 
+				};
+				div.appendChild(dragHandle);
+
+				// 2. Title Element
+				const titleSpan = document.createElement('span');
+				titleSpan.innerText = video.title;
+				titleSpan.style.cursor = 'pointer';
+				titleSpan.style.flexGrow = '1';
+				titleSpan.onclick = () => {
+					currentQueueType = "favorites";
+					startPlayback(video.id, video.title);
+				};
+				div.appendChild(titleSpan);
+
+				// 3. Arrow Control Elements
+				const reorderContainer = document.createElement('span');
+				reorderContainer.style.display = 'flex';
+				reorderContainer.style.gap = '5px';
+				reorderContainer.style.marginRight = '10px';
+
+				const upBtn = document.createElement('span');
+				upBtn.innerText = '▲';
+				upBtn.style.cursor = 'pointer';
+				upBtn.style.fontSize = '12px';
+				if (i === 0) {
+					upBtn.style.visibility = 'hidden';
+				} else {
+					upBtn.onclick = () => moveFavorite(i, -1);
+				}
+
+				const downBtn = document.createElement('span');
+				downBtn.innerText = '▼';
+				downBtn.style.cursor = 'pointer';
+				downBtn.style.fontSize = '12px';
+				if (i === favorites.length - 1) {
+					downBtn.style.visibility = 'hidden';
+				} else {
+					downBtn.onclick = () => moveFavorite(i, 1);
+				}
+
+				reorderContainer.appendChild(upBtn);
+				reorderContainer.appendChild(downBtn);
+				div.appendChild(reorderContainer);
+
+				// 4. Delete Action Control Span
+				const removeBtn = document.createElement('span');
+				removeBtn.innerText = ' ❌';
+				removeBtn.style.cursor = 'pointer';
+				removeBtn.style.padding = '0 5px';
+				removeBtn.onclick = (e) => {
+					e.stopPropagation();
+					removeFromFavorites(video.id);
+				};
+				div.appendChild(removeBtn);
+				
+				container.appendChild(div);
+			});
+		}
+
+		// =========================================================================
+		// Single-Step Manual Array Shift Logic Block
+		// =========================================================================
+		function moveFavorite(index, direction) {
+			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+			const newIndex = index + direction;
+			
+			if (newIndex < 0 || newIndex >= favorites.length) {
+				return; 
+			}
+			
+			const temp = favorites[index];
+			favorites[index] = favorites[newIndex];
+			favorites[newIndex] = temp;
+			
+			localStorage.setItem("yt_favorites", JSON.stringify(favorites));
+			renderFavorites();
+		}
+
+        function clearFavorites() { if(confirm("Clear all favorites?")) { localStorage.removeItem("yt_favorites"); renderFavorites(); } }
+        
+        // Monitor fullscreen layout shifts to force rotation on mobile Chrome
+		document.addEventListener('fullscreenchange', function() {
+			const iframeContainer = document.querySelector('.iframe-container');
+			
+			// Check if any element inside your player is currently in fullscreen mode
+			if (document.fullscreenElement) {
+				// Force the mobile browser to open horizontally
+				if (screen.orientation && screen.orientation.lock) {
+					screen.orientation.lock('landscape').catch(function(error) {
+						console.log("Orientation lock ignored by browser setup:", error);
+					});
+				}
+			} else {
+				// Safely return to normal scrolling layout when exiting fullscreen
+				if (screen.orientation && screen.orientation.unlock) {
+					screen.orientation.unlock();
+				}
+			}
+		});
+		
+	</script>
+</body>
+
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Browser App</title>
+    <style>
+       /*  :root {
+            --bg-body: #0f0f0f;
+            --bg-box: #1f1f1f;
+            --bg-card: #282828;
+            --bg-card-hover: #383838;
+            --text-main: #fff;
+            --text-sub: #aaa;
+            --border-input: #3c3c3c;
+        }
+        .light-theme {
+            --bg-body: #f9f9f9;
+            --bg-box: #ffffff;
+            --bg-card: #f1f1f1;
+            --bg-card-hover: #e5e5e5;
+            --text-main: #000;
+            --text-sub: #606060;
+            --border-input: #ccc;
+        } */
+        
+		:root {
+			--bg-body: #0f0f0f;
+			--bg-box: #1f1f1f;
+			--bg-card: #282828;
+			--bg-card-hover: #383838;
+			--text-main: #fff;
+			--text-sub: #aaa;
+			--border-input: #3c3c3c;
+			--text-hover: #38bdf8; /* Bright Sky Blue for Dark Theme */
+			
+			/* Button Colors for Dark Theme */
+			--btn-bg: #0066cc;       /* Royal Blue */
+			--btn-hover: #0052a3;    /* Darker Blue for hover */
+		}
+
+		.light-theme {
+			--bg-body: #f9f9f9;
+			--bg-box: #ffffff;
+			--bg-card: #f1f1f1;
+			--bg-card-hover: #e5e5e5;
+			--text-main: #000;
+			--text-sub: #606060;
+			--border-input: #ccc;
+			--text-hover: #cc0000; /* Red that you like for Light Theme */
+			
+			/* Button Colors for Light Theme */
+			--btn-bg: #cc0000;       /* Red */
+			--btn-hover: #990000;    /* Darker Red for hover */
+		}
+
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg-body); 
+            color: var(--text-main); 
+            padding: 20px; 
+            padding-bottom: 90px; 
+            transition: background 0.3s, color 0.3s; 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-container { 
+            max-width: 1400px; 
+            margin: 0 auto 20px auto; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 10px; 
+            flex-shrink: 0; 
+            flex-wrap: wrap; 
+        }
+        input { padding: 12px; width: 400px; border-radius: 20px; border: 1px solid var(--border-input); background: var(--bg-box); color: var(--text-main); padding-left: 20px; font-size: 16px; }
+       /* button { padding: 12px 24px; background: #cc0000; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #990000; } */
+        button { 
+				padding: 12px 24px; 
+				background: var(--btn-bg); /* Changes automatically based on theme */
+				color: white; 
+				border: none; 
+				border-radius: 20px; 
+				cursor: pointer; 
+				font-weight: bold; 
+				font-size: 16px; 
+				transition: background 0.2s ease; /* Smooth hover animation */
+			}
+
+			button:hover { 
+				background: var(--btn-hover); /* Changes automatically based on theme */
+			}
+
+        
+        .btn-theme { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-input); border-radius: 20px; }
+        .btn-theme:hover { background: var(--bg-card-hover); }
+        
+        .main-layout { 
+            display: grid; 
+            grid-template-columns: 220px 250px 420px 700px; 
+            max-width: 1850px; 
+            margin: 0 auto; 
+            gap: 15px; 
+            flex-grow: 1; 
+            width: 100%;
+            overflow-x: auto; 
+            padding-bottom: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .box { 
+            background: var(--bg-box); 
+            padding: 15px; 
+            border-radius: 12px; 
+            height: calc(100vh - 180px); 
+            min-height: 400px;
+            overflow-y: auto; 
+            border: 1px solid var(--border-input); 
+            box-sizing: border-box;
+        }
+        .box-header { display: flex; justify-content: space-between; align-items: center; margin-top: 0; }
+        .btn-clear-action { background: transparent; color: var(--text-sub); border: none; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0; margin: 0; }
+        .btn-clear-action:hover { color: #ff0000; }
+        .history-item, .fav-item { padding: 8px; margin-bottom: 5px; background: var(--bg-card); border-radius: 6px; cursor: pointer; font-size: 13px; word-break: break-all; }
+        .history-item:hover, .fav-item:hover { background: var(--bg-card-hover); color: var(--text-hover);/* color: #cc0000;*/ } 
+
+        
+        .video-card { display: flex; gap: 12px; padding: 10px; margin-bottom: 12px; background: var(--bg-card); border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .video-card:hover { background: var(--bg-card-hover); }
+        .thumbnail-wrapper { position: relative; width: 140px; height: 80px; flex-shrink: 0; }
+        .thumbnail-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+        .duration-badge { position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.8); padding: 2px 6px; font-size: 11px; border-radius: 4px; font-weight: bold; color: #fff; }
+        .video-title { font-size: 13px; font-weight: 600; margin: 0 0 5px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .video-channel { font-size: 11px; color: var(--text-sub); margin: 0; }
+        
+        .player-box { display: none; text-align: center; }
+        
+        .iframe-container { width: 100%; height: 394px; border-radius: 8px; overflow: hidden; background: #000; margin-bottom: 15px; }
+        .iframe-container iframe { width: 100%; height: 100%; border: none; }
+        
+        .volume-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        #volumeSlider { width: 150px; }
+        #volumeLabel { font-size: 13px; width: 45px; text-align: left; }
+
+        .download-zone { margin-top: 15px; padding: 15px; background: var(--bg-card); border-radius: 8px; display: flex; flex-direction: column; gap: 15px; }
+        
+         /* All buttons in a single row WITHOUT a visible scroll bar */
+      .buttons-row { 
+            display: flex;  !important;
+            justify-content: flex-start; 
+            gap: 8px; 
+            flex-wrap: wrap; 
+            width: 100%;
+            box-sizing: border-box;
+            align-items: center;
+            overflow-x: auto; 
+            padding-bottom: 5px;
+            /* Κρύβει τη μπάρα σε Firefox και IE/Edge */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;  
+        }
+
+        /* Hides the bar in Chrome, Safari, and Opera (Webkit) */
+        .buttons-row::-webkit-scrollbar {
+            display: none;
+        }
+
+		/* Master button text compression rule */
+		.buttons-row button,
+		.buttons-row .btn-dl,
+		.buttons-row .btn-dll {
+			display: inline-flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+			font-size: 10px !important; /* Slightly smaller text envelope so long words fit */
+			font-weight: bold !important;
+			padding-left: 2px !important; /* Drops internal side margins to maximum compress text */
+			padding-right: 2px !important;
+			text-align: center !important;
+			white-space: nowrap !important;
+			box-sizing: border-box !important;
+			min-width: 0 !important;
+		}
+
+		/* Dedicated background padding cushion for the Autoplay button */
+		.btn-autoplay {
+			padding-right: 8px !important; 
+		}
+
+        .btn-dl { 
+            background: #2ba640; 
+            border-radius: 6px; 
+            padding: 10px; 
+            font-size: 12px !important;
+            border: none; 
+            color: white; 
+            cursor: pointer; 
+            font-weight: bold; 
+            flex: 1; 
+            min-width: 100px;
+            text-align: center  !important;
+            white-space: nowrap !important;
+            min-height: 45px;
+            box-sizing: border-box;
+            width: auto !important; /* Kills any hardcoded 'width: 140px' overrides */
+			min-width: 0 !important; /* Allows items to shrink below text boundary safely */
+			max-width: none !important;
+        } 
+        
+        .btn-dl:hover { background: #1e782c; }
+        .btn-fav { background: #e6a23c; }
+        .btn-fav:hover { background: #cf8e29; }
+        .btn-loop { background: #2ba640; }
+        .btn-loop.active { background: #007bff; box-shadow: 0 0 8px #007bff; }
+		.btn-autoplay.active {background: #007bff; box-shadow: 0 0 8px #007bff;}
+
+
+       .btn-dll { 
+            background: #0056b3; 
+            border-radius: 6px; 
+            padding: 10px; 
+            font-size: 12px; 
+            border: none; 
+            color: white; 
+            cursor: pointer; 
+            font-weight: bold; 
+            flex: 1; 
+            min-width: 100px;
+            text-align: center;
+            white-space: nowrap; 
+            min-height: 45px;
+            box-sizing: border-box;
+        }
+        .btn-dll:hover { background: #004085; }
+
+        .progress-container { display: none; background: #444; border-radius: 10px; height: 20px; width: 80%; margin: 0 auto; position: relative; overflow: hidden; }
+        .progress-bar { background: #2ba640; height: 100%; width: 0%; transition: width 0.2s ease; }
+        .progress-text { position: absolute; width: 100%; text-align: center; top: 0; left: 0; font-size: 12px; line-height: 20px; font-weight: bold; color: #fff; }
+        
+      /*  .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #1a1a1a; 
+            color: #ffffff;             
+            text-align: center;         
+            padding: 15px 0;            
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            z-index: 9999;
+            border-top: 1px solid var(--border-input);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
+        }
+        .mobile-spacer { height: 60px; } */
+        
+        .footer {
+			position: fixed;
+			left: 0;
+			bottom: 0;
+			width: 100%;
+			/* These variables automatically switch colors with the theme */
+			background-color: var(--bg-box); 
+			color: var(--text-main);             
+			border-top: 1px solid var(--border-input);
+			
+			text-align: center;         
+			padding: 15px 0;            
+			font-family: Arial, sans-serif;
+			font-size: 13px;
+			z-index: 9999;
+			box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08); /* Softened shadow so it looks clean on white backgrounds too */
+		}
+		.mobile-spacer { 
+			height: 60px; }
+
+        /* Highlights the active playing track element in list views */
+		.video-card.playing-now,
+		.fav-item.playing-now {
+			border: 2px solid #007bff !important;
+			background: rgba(0, 123, 255, 0.1) !important;
+			box-shadow: 0 0 8px rgba(0, 123, 255, 0.3) !important;
+			font-weight: bold !important;
+		}
 
    </style>
 </head>
