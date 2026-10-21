@@ -587,24 +587,28 @@
 				const thumbUrl = imgPrefix + video.id + "/mqdefault.jpg";
 				const card = document.createElement('div');
 				card.className = (video.id === currentVideoId) ? 'video-card playing-now' : 'video-card';
+				
+				// FIX: Attach the video ID to the DOM element so startPlayback() can safely read it
+				card.setAttribute('data-id', video.id);
 
 				card.onclick = function() { 
-				currentQueueType = "search"; 
-				startPlayback(video.id, video.title); 
+					currentQueueType = "search"; 
+					startPlayback(video.id, video.title); 
 				};
 				
 				card.innerHTML = `
-			<div class="thumbnail-wrapper">
-				<img src="${thumbUrl}" alt="thumb">
-				<span class="duration-badge">${video.duration}</span>
-			</div>
-			<div class="video-info">
-				<p class="video-title">${video.title}</p>
-				<p class="video-channel">${video.channel}</p>
-			</div>
-					`;
-					list.appendChild(card);
+					<div class="thumbnail-wrapper">
+						<img src="${thumbUrl}" alt="thumb">
+						<span class="duration-badge">${video.duration}</span>
+					</div>
+					<div class="video-info">
+						<p class="video-title">${video.title}</p>
+						<p class="video-channel">${video.channel}</p>
+					</div>
+				`;
+				list.appendChild(card);
 			});
+
 
 			// 4. Update the layout tracking values sequentially
 			currentShownCount = end;
@@ -616,36 +620,36 @@
 			}, 100);
 		}
 			
-			function startPlayback(id, title) {
-				clearInterval(progressInterval);
-				currentVideoId = id;
-				currentVideoTitle = title;
-				
-				document.getElementById('progressBarContainer').style.display = 'none';
-				document.getElementById('currentTitle').innerText = title;
-				
-				updatePlayerSrc();
-				document.getElementById('mainPlayer').style.display = 'block';
-				
-				// FIXED: Force re-render execution loops to apply highlights dynamically across both list trays
-				renderFavorites();
-				
-				// Safely re-apply search layout highlights if results are actively loaded in memory cache
-				const resultsList = document.getElementById('resultsList');
-				if (resultsList && resultsList.innerHTML !== "") {
-					// Loop through all currently rendered video elements on screen
-					const cards = resultsList.getElementsByClassName('video-card');
-					for (let i = 0; i < cards.length; i++) {
-						// Check if this specific card matches our active video index
-						const isCurrent = allCachedResults[i] && allCachedResults[i].id === id;
-						cards[i].className = isCurrent ? 'video-card playing-now' : 'video-card';
-					}
-				}
-				
-				document.getElementById('dlMp3').onclick = function() { triggerDownload(id, 'mp3'); };
-				document.getElementById('dlMp4').onclick = function() { triggerDownload(id, 'mp4'); };
+		function startPlayback(id, title) { 
+			clearInterval(progressInterval); 
+			currentVideoId = id; 
+			currentVideoTitle = title; 
+			
+			document.getElementById('progressBarContainer').style.display = 'none'; 
+			document.getElementById('currentTitle').innerText = title; 
+			
+			updatePlayerSrc(); 
+			document.getElementById('mainPlayer').style.display = 'block'; 
+			
+			// Force re-render execution loops to apply highlights dynamically across both list trays 
+			renderFavorites(); 
+			
+			// Safely re-apply search layout highlights if results are actively loaded in memory cache 
+			const resultsList = document.getElementById('resultsList'); 
+			if (resultsList && resultsList.innerHTML !== "") { 
+				// Loop through all currently rendered video elements on screen 
+				const cards = resultsList.getElementsByClassName('video-card'); 
+				for (let i = 0; i < cards.length; i++) { 
+					
+					// FIX: Retrieve the video ID directly from the card element
+					const cardId = cards[i].getAttribute('data-id');
+					
+					// Check if this card's ID matches the newly playing video ID
+					const isCurrent = (cardId === String(id)); 
+					cards[i].className = isCurrent ? 'video-card playing-now' : 'video-card'; 
+				} 
 			}
-
+		}
         
         function updatePlayerSrc() {
             const embedPrefix = atob("aHR0cHM6Ly93d3cueW91dHViZS5jb20vZW1iZWQv");
@@ -884,28 +888,90 @@
 			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
 			container.innerHTML = favorites.length === 0 ? "<span style='color:#555;font-size:12px;'>Empty</span>" : "";
 			
-			favorites.forEach(video => {
+			favorites.forEach((video, i) => {
 				const div = document.createElement('div'); 
-				// div.className = 'fav-item'; 
-				 // FIXED: Dynamically appends the highlighting token class on favorite list matches
 				div.className = (video.id === currentVideoId) ? 'fav-item playing-now' : 'fav-item'; 
-        
+				
 				div.style.display = 'flex'; 
 				div.style.justifyContent = 'space-between';
 				div.style.alignItems = 'center';
 
+				// --- NATIVE DRAG TARGET RECEIVERS ---
+				div.ondragover = (e) => { 
+					e.preventDefault(); 
+				};
+				
+				div.ondrop = (e) => {
+					e.preventDefault();
+					const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+					if (draggedIndex !== i) {
+						let favs = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+						const [item] = favs.splice(draggedIndex, 1);
+						favs.splice(i, 0, item);
+						localStorage.setItem("yt_favorites", JSON.stringify(favs));
+						renderFavorites(); // Instantly rebuild elements to re-sync indices
+					}
+				};
+
+				// 1. ISOLATED DRAG HANDLE (Only grabbing this icon initializes a move operation)
+				const dragHandle = document.createElement('span');
+				dragHandle.innerText = '☰ ';
+				dragHandle.style.cursor = 'move';
+				dragHandle.style.padding = '0 6px';
+				dragHandle.style.color = '#888';
+				dragHandle.draggable = true; // Draggable lock applied ONLY to the icon node
+				
+				dragHandle.ondragstart = (e) => {
+					e.dataTransfer.setData('text/plain', i);
+					div.style.opacity = '0.4'; // Visual response opacity feedback shift
+				};
+				dragHandle.ondragend = () => { 
+					div.style.opacity = '1'; 
+				};
+				div.appendChild(dragHandle);
+
+				// 2. Title Element (Reliable standard playback routing clicks)
 				const titleSpan = document.createElement('span');
 				titleSpan.innerText = video.title;
 				titleSpan.style.cursor = 'pointer';
 				titleSpan.style.flexGrow = '1';
-                
-				// FIXED: Updates playback routing state variable context explicitly to 'favorites' on tap
 				titleSpan.onclick = () => {
-                    currentQueueType = "favorites";
-                    startPlayback(video.id, video.title);
-                };
+					currentQueueType = "favorites";
+					startPlayback(video.id, video.title);
+				};
 				div.appendChild(titleSpan);
 
+				// 3. Arrow Control Elements (Reliable step-by-step clicks)
+				const reorderContainer = document.createElement('span');
+				reorderContainer.style.display = 'flex';
+				reorderContainer.style.gap = '5px';
+				reorderContainer.style.marginRight = '10px';
+
+				const upBtn = document.createElement('span');
+				upBtn.innerText = '▲';
+				upBtn.style.cursor = 'pointer';
+				upBtn.style.fontSize = '12px';
+				if (i === 0) {
+					upBtn.style.visibility = 'hidden';
+				} else {
+					upBtn.onclick = () => moveFavorite(i, -1);
+				}
+
+				const downBtn = document.createElement('span');
+				downBtn.innerText = '▼';
+				downBtn.style.cursor = 'pointer';
+				downBtn.style.fontSize = '12px';
+				if (i === favorites.length - 1) {
+					downBtn.style.visibility = 'hidden';
+				} else {
+					downBtn.onclick = () => moveFavorite(i, 1);
+				}
+
+				reorderContainer.appendChild(upBtn);
+				reorderContainer.appendChild(downBtn);
+				div.appendChild(reorderContainer);
+
+				// 4. Delete Action Control Span (Reliable click bounds)
 				const removeBtn = document.createElement('span');
 				removeBtn.innerText = ' ❌';
 				removeBtn.style.cursor = 'pointer';
@@ -915,11 +981,54 @@
 					removeFromFavorites(video.id);
 				};
 				div.appendChild(removeBtn);
+				
 				container.appendChild(div);
 			});
 		}
 
+		// =========================================================================
+		// Single-Step Manual Array Shift Logic Block
+		// =========================================================================
+		function moveFavorite(index, direction) {
+			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+			const newIndex = index + direction;
+			
+			if (newIndex < 0 || newIndex >= favorites.length) {
+				return; 
+			}
+			
+			const temp = favorites[index];
+			favorites[index] = favorites[newIndex];
+			favorites[newIndex] = temp;
+			
+			localStorage.setItem("yt_favorites", JSON.stringify(favorites));
+			renderFavorites();
+		}
+
+
         function clearFavorites() { if(confirm("Clear all favorites?")) { localStorage.removeItem("yt_favorites"); renderFavorites(); } }
+        
+        // Monitor fullscreen layout shifts to force rotation on mobile Chrome
+		document.addEventListener('fullscreenchange', function() {
+			const iframeContainer = document.querySelector('.iframe-container');
+			
+			// Check if any element inside your player is currently in fullscreen mode
+			if (document.fullscreenElement) {
+				// Force the mobile browser to open horizontally
+				if (screen.orientation && screen.orientation.lock) {
+					screen.orientation.lock('landscape').catch(function(error) {
+						console.log("Orientation lock ignored by browser setup:", error);
+					});
+				}
+			} else {
+				// Safely return to normal scrolling layout when exiting fullscreen
+				if (screen.orientation && screen.orientation.unlock) {
+					screen.orientation.unlock();
+				}
+			}
+		});
+
 	</script>
 </body>
+
 </html>
