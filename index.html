@@ -609,7 +609,6 @@
 				list.appendChild(card);
 			});
 
-
 			// 4. Update the layout tracking values sequentially
 			currentShownCount = end;
 			document.getElementById("resultsTitle").innerText = "Results (" + currentShownCount + ")";
@@ -748,7 +747,6 @@
             // FIXED: Using shorter text layouts to completely stop letters from spilling out of background boxes
 			btn.innerText = isAutoplayActive ? "⏭️ Autoplay: ON" : "⏭️ Autoplay: OFF";
 		}
-
 
         function toggleLoop() {
             isLoopActive = !isLoopActive;
@@ -1005,7 +1003,6 @@
 			renderFavorites();
 		}
 
-
         function clearFavorites() { if(confirm("Clear all favorites?")) { localStorage.removeItem("yt_favorites"); renderFavorites(); } }
         
         // Monitor fullscreen layout shifts to force rotation on mobile Chrome
@@ -1027,7 +1024,7 @@
 				}
 			}
 		});
-
+		
 	</script>
 </body>
 
