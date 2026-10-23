@@ -812,7 +812,10 @@
 					currentQueueType = "search"; 
 					startPlayback(video.id, video.title); 
 				};
-				
+			
+				// Add these 2 lines right BEFORE defining card.innerHTML
+				card.classList.add('video-item');
+				card.setAttribute('data-id', video.id); 
 				card.innerHTML = `
 					<div class="thumbnail-wrapper">
 						<img src="${thumbUrl}" alt="thumb">
@@ -932,6 +935,7 @@
 					trackEndedTriggered = false;
 					lastCheckedTime = -1;
 					startPlayback(nextVideo.id, nextVideo.title);
+					scrollToActiveTrack(nextVideo.id); // <--- Added: Scroll list to next track
 				} else {
 					alert("You have reached the end of the current playlist!");
 				}
@@ -956,6 +960,7 @@
 					trackEndedTriggered = false;
 					lastCheckedTime = -1;
 					startPlayback(data.next_video.id, data.next_video.title);
+					scrollToActiveTrack(data.next_video.id); // <--- Added: Scroll list to next track
 					return;
 				} else if (data.status === "end_of_playlist") {
 					alert("You have reached the end of the search results!");
@@ -965,7 +970,7 @@
 				console.error("Network error during Play Next, falling back to local cache: ", error.message);
 			}
 
-			// FALLBACK: Αν το API αποτύχει ή δεν υπάρχει lastQuery, αλλάζει το τραγούδι τοπικά από την αναζήτηση
+			// FALLBACK: If the API fails or lastQuery doesn't exist, the song changes locally from the search results
 			if (typeof allCachedResults !== 'undefined' && allCachedResults.length > 0) {
 				const currentIdx = allCachedResults.findIndex(video => video.id === currentVideoId);
 				if (currentIdx !== -1 && currentIdx < allCachedResults.length - 1) {
@@ -973,6 +978,7 @@
 					trackEndedTriggered = false;
 					lastCheckedTime = -1;
 					startPlayback(nextVideo.id, nextVideo.title);
+					scrollToActiveTrack(nextVideo.id); // <--- Added: Scroll list to next track
 				} else {
 					alert("You have reached the end of search results!");
 				}
@@ -1009,6 +1015,7 @@
 				const prevVideo = videosList[currentIdx - 1];
 				console.log("⏮️ Playing previous video: " + prevVideo.title);
 				startPlayback(prevVideo.id, prevVideo.title);
+				scrollToActiveTrack(prevVideo.id); // <--- Added: Scroll list to previous track
 			} else {
 				alert("You are already at the first song of the list!");
 			}
@@ -1025,6 +1032,31 @@
                 }), "*");
             }
         }
+
+		// ==========================================
+		// NEW HELPER FUNCTION FOR UI AUTO-SCROLLING
+		// ==========================================
+		function scrollToActiveTrack(videoId) {
+			// 1. Αφαιρούμε το active highlight από το προηγούμενο τραγούδι σε όλες τις λίστες
+			const previousActive = document.querySelectorAll('.video-item.active, .playlist-item.active, .song-item.active');
+			previousActive.forEach(el => el.classList.remove('active'));
+
+			// 2. Βρίσκουμε ΟΛΑ τα στοιχεία που έχουν αυτό το videoId (και στη Search List και στη λίστα stratos)
+			const currentElements = document.querySelectorAll(`[data-id="${videoId}"], [id="video-${videoId}"]`);
+			
+			// 3. Κάνουμε ακριβώς το ίδιο scrollIntoView για ΚΑΘΕ στοιχείο ξεχωριστά
+			currentElements.forEach(element => {
+				// Προσθέτουμε την κλάση active για το visual εφέ
+				element.classList.add('active');
+				
+				// Χρησιμοποιούμε την ίδια ακριβώς εντολή που δούλεψε στη Search List
+				// Ο browser θα αναλάβει να σκρολάρει τον αντίστοιχο container της κάθε λίστας
+				element.scrollIntoView({
+					behavior: 'smooth',
+					block: 'center'
+				});
+			});
+		}
 
 		function toggleAutoplay() {
 			isAutoplayActive = !isAutoplayActive;
@@ -1212,7 +1244,6 @@
 			renderFavorites();
 		}
 
-
         function removeFromFavorites(id) {
 			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
 			favorites = favorites.filter(item => item.id !== id);
@@ -1232,6 +1263,9 @@
 			
 			favorites.forEach((video, i) => {
 				const div = document.createElement('div'); 
+				
+				// 🌟 ADDED: We give the ID to the element so that auto-scroll can find it
+				div.setAttribute('data-id', video.id);
 				
 				// SAFE CHECK: Avoid crashing if currentVideoId has not been initialized
 				const isCurrentPlaying = (typeof currentVideoId !== 'undefined' && video.id === currentVideoId);
