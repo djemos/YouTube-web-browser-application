@@ -1160,7 +1160,7 @@
             
         }
 
-        async function triggerDownload(id, mode) {
+       /* async function triggerDownload(id, mode) {
             document.getElementById('progressBarContainer').style.display = 'block';
             updateProgressBar(0, "Requesting conversion on server...");
             try {
@@ -1169,7 +1169,33 @@
                 clearInterval(progressInterval);
                 progressInterval = setInterval(function() { checkProgress(id); }, 1000);
             } catch (e) { console.error(e); }
-        }
+        } */
+        
+		async function triggerDownload(id, mode) {
+			document.getElementById('progressBarContainer').style.display = 'block';
+			updateProgressBar(0, "Requesting conversion on server...");
+			
+			// 1. CLEAR ANY EXISTING INTERVAL IMMEDIATELY
+			if (typeof progressInterval !== 'undefined') {
+				clearInterval(progressInterval);
+			}
+
+			try {
+				const targetUrl = baseApiUrl + "/download?video_id=" + id + "&mode=" + mode;
+				
+				// 2. Wait for the server to initiate the download/conversion
+				await fetch(targetUrl);
+				
+				// 3. Start the new interval to check progress every second
+				progressInterval = setInterval(function() { 
+					checkProgress(id); 
+				}, 1000);
+
+			} catch (e) { 
+				console.error(e); 
+				updateProgressBar(0, "Error connecting to server.");
+			}
+		}
 
         async function checkProgress(id) {
             try {
