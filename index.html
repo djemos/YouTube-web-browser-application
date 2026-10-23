@@ -1541,91 +1541,91 @@
 			URL.revokeObjectURL(url);
 		}
 
-function importPlaylists(event) {
-    const file = event.target.files[0]; // Παίρνουμε ρητά το πρώτο αρχείο
-    if (!file) {
-        console.log("No file selected.");
-        return;
-    }
+		function importPlaylists(event) {
+			const file = event.target.files[0]; // Explicitly get the first file
+			if (!file) {
+				console.log("No file selected.");
+				return;
+			}
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            console.log("File loaded successfully. Parsing JSON...");
-            let importedData = JSON.parse(e.target.result);
-            console.log("Imported Data:", importedData);
-            
-            // Αν το αρχείο προέρχεται από το export μιας μεμονωμένης λίστας, το μετατρέπουμε στη σωστή δομή
-            if (importedData && importedData.type === "single_playlist_export") {
-                const normalized = {};
-                normalized[importedData.playlistName] = importedData.tracks;
-                importedData = normalized;
-            }
+			const reader = new FileReader();
+			reader.onload = function(e) {
+				try {
+					console.log("File loaded successfully. Parsing JSON...");
+					let importedData = JSON.parse(e.target.result);
+					console.log("Imported Data:", importedData);
+					
+					// If the file comes from a single playlist export, we convert it to the correct structure
+					if (importedData && importedData.type === "single_playlist_export") {
+						const normalized = {};
+						normalized[importedData.playlistName] = importedData.tracks;
+						importedData = normalized;
+					}
 
-            // Έλεγχος αν είναι έγκυρο αντικείμενο
-            if (importedData && typeof importedData === 'object' && !Array.isArray(importedData)) {
-                
-                // Εμφάνιση του παραθύρου επιλογής
-                const choice = prompt(
-                    "How would you like to import your playlists?\n\n" +
-                    "Type '1' to SMART MERGE (Combines tracks inside lists, avoids duplicates 🌟)\n" +
-                    "Type '2' to OVERWRITE (Completely replaces everything with this backup)\n\n" +
-                    "Cancel or leave blank to abort."
-                );
+					// Check if it is a valid object
+					if (importedData && typeof importedData === 'object' && !Array.isArray(importedData)) {
+						
+						// Display the selection window
+						const choice = prompt(
+							"How would you like to import your playlists?\n\n" +
+							"Type '1' to SMART MERGE (Combines tracks inside lists, avoids duplicates 🌟)\n" +
+							"Type '2' to OVERWRITE (Completely replaces everything with this backup)\n\n" +
+							"Cancel or leave blank to abort."
+						);
 
-                console.log("User choice:", choice);
-                let currentPlaylists = getAllPlaylists();
+						console.log("User choice:", choice);
+						let currentPlaylists = getAllPlaylists();
 
-                if (choice === "1") {
-                    // 🌟 ΠΡΑΓΜΑΤΙΚΟ SMART MERGE: Μπαίνουμε μέσα σε κάθε λίστα ξεχωριστά
-                    for (const listName in importedData) {
-                        if (importedData.hasOwnProperty(listName)) {
-                            
-                            // Αν η λίστα δεν υπάρχει ήδη στην εφαρμογή, τη δημιουργούμε άδεια
-                            if (!currentPlaylists[listName]) {
-                                currentPlaylists[listName] = [];
-                            }
-                            
-                            const importedTracks = importedData[listName];
-                            if (Array.isArray(importedTracks)) {
-                                importedTracks.forEach(newVideo => {
-                                    // 🔍 Έλεγχος ανά τραγούδι: Υπάρχει ήδη αυτό το video.id στη συγκεκριμένη λίστα;
-                                    const isDuplicate = currentPlaylists[listName].some(existingVideo => existingVideo.id === newVideo.id);
-                                    
-                                    // Αν ΔΕΝ είναι διπλότυπο, τότε μόνο το προσθέτουμε στο τέλος της λίστας!
-                                    if (!isDuplicate) {
-                                        currentPlaylists[listName].push(newVideo);
-                                    }
-                                });
-                            }
-                        }
-                    }
-                    
-                    localStorage.setItem("yt_playlists", JSON.stringify(currentPlaylists));
-                    alert("Playlists merged successfully! All new tracks added, duplicates filtered out.");
-                    window.location.reload();
-                    
-                } else if (choice === "2") {
-                    // ⚠️ OVERWRITE (Πλήρης αντικατάσταση)
-                    if (confirm("Are you absolutely sure? This will wipe out all your current playlists and replace them.")) {
-                        localStorage.setItem("yt_playlists", JSON.stringify(importedData));
-                        alert("Database overwritten successfully!");
-                        window.location.reload();
-                    }
-                } else {
-                    alert("Import canceled.");
-                }
-            } else {
-                alert("Invalid backup file structure. Please ensure it's a valid playlists JSON.");
-            }
-        } catch (err) {
-            console.error("Error during import:", err);
-            alert("Error parsing backup file: " + err.message);
-        }
-    };
-    reader.readAsText(file);
-    event.target.value = ''; 
-}
+						if (choice === "1") {
+							// 🌟 TRUE SMART MERGE: Iterate through each playlist individually
+							for (const listName in importedData) {
+								if (importedData.hasOwnProperty(listName)) {
+									
+									// If the playlist doesn't exist in the app yet, create it empty
+									if (!currentPlaylists[listName]) {
+										currentPlaylists[listName] = [];
+									}
+									
+									const importedTracks = importedData[listName];
+									if (Array.isArray(importedTracks)) {
+										importedTracks.forEach(newVideo => {
+											// 🔍 Track check: Does this video.id already exist in this specific playlist?
+											const isDuplicate = currentPlaylists[listName].some(existingVideo => existingVideo.id === newVideo.id);
+											
+											// Only append to the list if it is NOT a duplicate!
+											if (!isDuplicate) {
+												currentPlaylists[listName].push(newVideo);
+											}
+										});
+									}
+								}
+							}
+							
+							localStorage.setItem("yt_playlists", JSON.stringify(currentPlaylists));
+							alert("Playlists merged successfully! All new tracks added, duplicates filtered out.");
+							window.location.reload();
+							
+						} else if (choice === "2") {
+							// ⚠️ OVERWRITE (Full replacement)
+							if (confirm("Are you absolutely sure? This will wipe out all your current playlists and replace them.")) {
+								localStorage.setItem("yt_playlists", JSON.stringify(importedData));
+								alert("Database overwritten successfully!");
+								window.location.reload();
+							}
+						} else {
+							alert("Import canceled.");
+						}
+					} else {
+						alert("Invalid backup file structure. Please ensure it's a valid playlists JSON.");
+					}
+				} catch (err) {
+					console.error("Error during import:", err);
+					alert("Error parsing backup file: " + err.message);
+				}
+			};
+			reader.readAsText(file);
+			event.target.value = ''; 
+		}
 
 	</script>
 </body>
