@@ -946,10 +946,13 @@
 				} 
 			}
 
-			// 🌟 Εκτελούμε το αυτόματο scroll στο τέλος της συνάρτησης
+			// We execute the automatic scroll at the end of the function
 			if (typeof scrollToActiveTrack === 'function') {
 				scrollToActiveTrack(id);
 			}
+			
+			document.getElementById('dlMp3').onclick = function() { triggerDownload(id, 'mp3'); };
+			document.getElementById('dlMp4').onclick = function() { triggerDownload(id, 'mp4'); };
 		}
 
         function updatePlayerSrc() {
