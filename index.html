@@ -339,23 +339,68 @@
                         <!-- Will be populated dynamically by JavaScript -->
                     </select>
                     <!-- Button to Add a New Playlist -->
-					<!-- We remove the underline from the whole button using text-decoration: none -->
-					<button class="btn-clear-action" onclick="createNewPlaylist()" style="padding: 4px 8px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none !important;">
+					<!-- Τοπικό στυλ αποκλειστικά για το κουμπί New List -->
+					<style>
+						.btn-new-list-special {
+							color: #4da6ff !important; /* Αρχικό χρώμα: Μπλε */
+							border: 1px solid rgba(77, 166, 255, 0.3) !important; /* Απαλό μπλε περίγραμμα */
+						}
+						.btn-new-list-special:hover {
+							color: #ff0000 !important; /* Όταν μπαίνει το ποντίκι: Κόκκινο και επιστρέφει αυτόματα μετά */
+						}
+					</style>
+
+					<!-- Το κουμπί σας με τη νέα κλάση ενσωματωμένη -->
+					<button class="btn-clear-action btn-new-list-special" onclick="createNewPlaylist()" style="padding: 4px 8px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none !important;">
 						<!-- The ➕ is now 100% clean with no line underneath -->
 						<span style="filter: var(--emoji-filter, none); display: inline-block;">➕</span> 
 						<!-- We apply the underline ONLY to the "New List" text string -->
 						<span style="text-decoration: underline;">New List</span>
 					</button>
-
                 </div>
-                
+             
                 <!-- Right section: Rename, Clear and Delete grouped together -->
-                <div style="display: flex; gap: 6px; align-items: center;">
-                    <!-- The Rename button was moved here to the right next to the other controls -->
-                    <button class="btn-clear-action" onclick="renameCurrentPlaylist()" style="padding: 4px 8px;"><!-- ✏️--> Rename List</button>
-                    <button class="btn-clear-action" onclick="clearCurrentPlaylist()" style="padding: 4px 8px;">Clear List</button>
-                    <button class="btn-clear-action" onclick="deleteCurrentPlaylist()" style="color: #ff4d4d; border-color: rgba(255,77,77,0.3);">Delete List</button>
-                </div>
+				<div style="display: flex; flex-direction: column; gap: 6px; width: 100%; justify-content: flex-start;">
+					
+					<!-- ROW 1: Rename, Clear, Delete (Συμπυκνωμένα για να χωράνε 100% σε 1 γραμμή) -->
+					<div style="display: flex; gap: 4px; align-items: center; justify-content: flex-start; width: 100%;">
+						<!-- 📝 Rename Button -->
+						<button class="btn-clear-action" onclick="renameCurrentPlaylist()" style="color: #4da6ff; border: 1px solid rgba(77,166,255,0.4) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
+							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">📝</span> 
+							<span style="text-decoration: underline;">Rename</span>
+						</button>
+
+						<!-- 🧹 Clear Button -->
+						<button class="btn-clear-action" onclick="clearCurrentPlaylist()" style="border: 1px solid var(--border, rgba(255,255,255,0.2)) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
+							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">🧹</span> 
+							<span style="text-decoration: underline;">Clear</span>
+						</button>
+
+						<!-- 🗑️ Delete Button -->
+						<button class="btn-clear-action" onclick="deleteCurrentPlaylist()" style="color: #ff4d4d; border: 1px solid rgba(255,77,77,0.4) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
+							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">🗑️</span> 
+							<span style="text-decoration: underline;">Delete</span>
+						</button>
+					</div>
+
+					<!-- ROW 2: Export and Import -->
+					<div style="display: flex; gap: 4px; align-items: center; justify-content: flex-start; width: 100%;">
+						<!-- 📥 Export Button -->
+						<button class="btn-clear-action" onclick="exportPlaylists()" style="color: #4da6ff; border: 1px solid rgba(77,166,255,0.4) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
+							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">📥</span> 
+							<span style="text-decoration: underline;">Export</span>
+						</button>
+						
+						<!-- 📤 Import Button -->
+						<button class="btn-clear-action" onclick="document.getElementById('importFileHidden').click()" style="color: #2ecc71; border: 1px solid rgba(46,204,113,0.4) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
+							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">📤</span> 
+							<span style="text-decoration: underline;">Import</span>
+						</button>
+						
+						<!-- Hidden File Input -->
+						<input type="file" id="importFileHidden" accept=".json" onchange="importPlaylists(event)" style="display: none !important;">
+					</div>
+				</div>
             </div>
             <!-- The videos of the selected playlist will be displayed here -->
             <div id="favoritesList"></div>
@@ -868,8 +913,13 @@
 					cards[i].className = isCurrent ? 'video-card playing-now' : 'video-card'; 
 				} 
 			}
+
+			// 🌟 Εκτελούμε το αυτόματο scroll στο τέλος της συνάρτησης
+			if (typeof scrollToActiveTrack === 'function') {
+				scrollToActiveTrack(id);
+			}
 		}
-        
+
         function updatePlayerSrc() {
             const embedPrefix = atob("aHR0cHM6Ly93d3cueW91dHViZS5jb20vZW1iZWQv");
             const currentOrigin = window.location.origin;
@@ -1469,6 +1519,114 @@
 			}
 		});
 		
+		// 📥 EXPORT SYSTEM: Always packages everything into ONE clean file
+		function exportPlaylists() {
+			const playlists = localStorage.getItem("yt_playlists");
+			if (!playlists) {
+				alert("No playlists found to export!");
+				return;
+			}
+			
+			const blob = new Blob([playlists], { type: "application/json" });
+			const url = URL.createObjectURL(blob);
+			
+			const a = document.createElement("a");
+			a.href = url;
+			// Saves as one global backup file
+			a.download = "youtube_playlists_backup.json"; 
+			document.body.appendChild(a);
+			a.click();
+			
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		}
+
+function importPlaylists(event) {
+    const file = event.target.files[0]; // Παίρνουμε ρητά το πρώτο αρχείο
+    if (!file) {
+        console.log("No file selected.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            console.log("File loaded successfully. Parsing JSON...");
+            let importedData = JSON.parse(e.target.result);
+            console.log("Imported Data:", importedData);
+            
+            // Αν το αρχείο προέρχεται από το export μιας μεμονωμένης λίστας, το μετατρέπουμε στη σωστή δομή
+            if (importedData && importedData.type === "single_playlist_export") {
+                const normalized = {};
+                normalized[importedData.playlistName] = importedData.tracks;
+                importedData = normalized;
+            }
+
+            // Έλεγχος αν είναι έγκυρο αντικείμενο
+            if (importedData && typeof importedData === 'object' && !Array.isArray(importedData)) {
+                
+                // Εμφάνιση του παραθύρου επιλογής
+                const choice = prompt(
+                    "How would you like to import your playlists?\n\n" +
+                    "Type '1' to SMART MERGE (Combines tracks inside lists, avoids duplicates 🌟)\n" +
+                    "Type '2' to OVERWRITE (Completely replaces everything with this backup)\n\n" +
+                    "Cancel or leave blank to abort."
+                );
+
+                console.log("User choice:", choice);
+                let currentPlaylists = getAllPlaylists();
+
+                if (choice === "1") {
+                    // 🌟 ΠΡΑΓΜΑΤΙΚΟ SMART MERGE: Μπαίνουμε μέσα σε κάθε λίστα ξεχωριστά
+                    for (const listName in importedData) {
+                        if (importedData.hasOwnProperty(listName)) {
+                            
+                            // Αν η λίστα δεν υπάρχει ήδη στην εφαρμογή, τη δημιουργούμε άδεια
+                            if (!currentPlaylists[listName]) {
+                                currentPlaylists[listName] = [];
+                            }
+                            
+                            const importedTracks = importedData[listName];
+                            if (Array.isArray(importedTracks)) {
+                                importedTracks.forEach(newVideo => {
+                                    // 🔍 Έλεγχος ανά τραγούδι: Υπάρχει ήδη αυτό το video.id στη συγκεκριμένη λίστα;
+                                    const isDuplicate = currentPlaylists[listName].some(existingVideo => existingVideo.id === newVideo.id);
+                                    
+                                    // Αν ΔΕΝ είναι διπλότυπο, τότε μόνο το προσθέτουμε στο τέλος της λίστας!
+                                    if (!isDuplicate) {
+                                        currentPlaylists[listName].push(newVideo);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    
+                    localStorage.setItem("yt_playlists", JSON.stringify(currentPlaylists));
+                    alert("Playlists merged successfully! All new tracks added, duplicates filtered out.");
+                    window.location.reload();
+                    
+                } else if (choice === "2") {
+                    // ⚠️ OVERWRITE (Πλήρης αντικατάσταση)
+                    if (confirm("Are you absolutely sure? This will wipe out all your current playlists and replace them.")) {
+                        localStorage.setItem("yt_playlists", JSON.stringify(importedData));
+                        alert("Database overwritten successfully!");
+                        window.location.reload();
+                    }
+                } else {
+                    alert("Import canceled.");
+                }
+            } else {
+                alert("Invalid backup file structure. Please ensure it's a valid playlists JSON.");
+            }
+        } catch (err) {
+            console.error("Error during import:", err);
+            alert("Error parsing backup file: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = ''; 
+}
+
 	</script>
 </body>
 </html>
