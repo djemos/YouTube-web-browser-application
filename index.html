@@ -328,10 +328,39 @@
             <div class="box-header"><h3>History</h3><button class="btn-clear-action" onclick="clearHistory()">Clear All</button></div>
             <div id="historyList"></div>
         </div>
+        
+         <!-- New Playlists / Favorites Box -->
         <div class="box">
-            <div class="box-header"><h3>⭐ Favorites</h3><button class="btn-clear-action" onclick="clearFavorites()">Clear All</button></div>
+            <div class="box-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <!-- Left section: Playlist Selector and New only -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- Playlist Selector instead of simple text -->
+                    <select id="playlistSelector" onchange="changePlaylist(this.value)" style="padding: 4px 8px; font-size: 16px; font-weight: bold; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; max-width: 140px;">
+                        <!-- Will be populated dynamically by JavaScript -->
+                    </select>
+                    <!-- Button to Add a New Playlist -->
+					<!-- We remove the underline from the whole button using text-decoration: none -->
+					<button class="btn-clear-action" onclick="createNewPlaylist()" style="padding: 4px 8px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none !important;">
+						<!-- The ➕ is now 100% clean with no line underneath -->
+						<span style="filter: var(--emoji-filter, none); display: inline-block;">➕</span> 
+						<!-- We apply the underline ONLY to the "New List" text string -->
+						<span style="text-decoration: underline;">New List</span>
+					</button>
+
+                </div>
+                
+                <!-- Right section: Rename, Clear and Delete grouped together -->
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <!-- The Rename button was moved here to the right next to the other controls -->
+                    <button class="btn-clear-action" onclick="renameCurrentPlaylist()" style="padding: 4px 8px;"><!-- ✏️--> Rename List</button>
+                    <button class="btn-clear-action" onclick="clearCurrentPlaylist()" style="padding: 4px 8px;">Clear List</button>
+                    <button class="btn-clear-action" onclick="deleteCurrentPlaylist()" style="color: #ff4d4d; border-color: rgba(255,77,77,0.3);">Delete List</button>
+                </div>
+            </div>
+            <!-- The videos of the selected playlist will be displayed here -->
             <div id="favoritesList"></div>
         </div>
+
         <div class="box" id="resultsBox" style="opacity: 0.5;">
             <h3 style="margin-top:0;" id="resultsTitle">Results</h3>
             <div id="resultsList">Perform a search...</div>
@@ -371,6 +400,14 @@
         &copy; 2026 Developed by <strong>Dimitris Tzemos</strong>. All rights reserved 
     </div>
 	<script>
+		
+		const savedTheme = localStorage.getItem("theme");
+		if (savedTheme === "dark" || !savedTheme) { // αν είναι dark ή αν δεν έχει επιλεγεί τίποτα ακόμα
+			document.documentElement.style.setProperty('--emoji-filter', 'invert(1) brightness(2)');
+		} else {
+			document.documentElement.style.setProperty('--emoji-filter', 'none');
+		}
+
         let progressInterval = null;
         let isLoopActive = false;
         let currentVideoId = "";
@@ -430,6 +467,8 @@
 			// 2. Your original app initialization logic
 			renderHistory();
 			renderFavorites();
+			renderPlaylistSelector();
+			renderFavorites(); 
 			if(localStorage.getItem("theme") === "light") {
 				document.body.classList.add("light-theme");
 			}
@@ -511,10 +550,179 @@
 			});
 		});
 
-        function toggleTheme() {
-            document.body.classList.toggle("light-theme");
-            localStorage.setItem("theme", document.body.classList.contains("light-theme") ? "light" : "dark");
-        }
+
+
+		// 1. DEFINE THE GLOBAL VARIABLE AT THE BEGINNING OF THE CODE
+		if (typeof currentPlaylist === 'undefined') {
+			window.currentPlaylist = "Favorites"; 
+		}
+
+		// 2. SAFE LOADING OF ALL PLAYLISTS
+		function getAllPlaylists() {
+			let playlists = null;
+			try {
+				playlists = JSON.parse(localStorage.getItem("yt_playlists"));
+			} catch(e) {
+				playlists = null;
+			}
+			
+			// If the new structure doesn't exist or is in the old format (Array instead of Object), we build it correctly
+			if (!playlists || Array.isArray(playlists) || typeof playlists !== 'object') {
+				playlists = { "Favorites": [] };
+				localStorage.setItem("yt_playlists", JSON.stringify(playlists));
+			}
+			return playlists;
+		}
+
+		// 3. ADD VIDEO TO THE SELECTED PLAYLIST (⭐ Favorite Button)
+		function addCurrentToFavorites() {
+			// Making sure the variable has a valid value
+			if (!window.currentPlaylist) {
+				window.currentPlaylist = "Favorites";
+			}
+
+			// Check if a video is currently playing
+			if (typeof currentVideoId === 'undefined' || !currentVideoId) {
+				alert("No video is currently playing!");
+				return;
+			}
+			
+			let playlists = getAllPlaylists();
+			
+			// Making sure the specific playlist exists as an array
+			if (!playlists[window.currentPlaylist]) {
+				playlists[window.currentPlaylist] = [];
+			}
+			
+			// Check if the video already exists in the SPECIFIC selected playlist
+			const exists = playlists[window.currentPlaylist].some(v => v.id === currentVideoId);
+			if (exists) {
+				alert(`This video is already in your "${window.currentPlaylist}" playlist!`);
+				return;
+			}
+			
+			// Getting the video title from your UI
+			let videoTitle = "Untitled Video";
+			const titleEl = document.getElementById('currentTitle');
+			if (titleEl && titleEl.innerText.trim() !== "") {
+				videoTitle = titleEl.innerText.trim();
+			} else if (typeof currentVideoTitle !== 'undefined' && currentVideoTitle) {
+				videoTitle = currentVideoTitle;
+			}
+			
+			// Add to the selected playlist
+			playlists[window.currentPlaylist].push({ 
+				id: currentVideoId, 
+				title: videoTitle 
+			});
+			
+			// Save and immediately refresh the UI
+			localStorage.setItem("yt_playlists", JSON.stringify(playlists));
+			renderFavorites();
+		}
+
+		// 4. CHANGE PLAYLIST FROM THE DROPDOWN
+		function changePlaylist(playlistName) {
+			window.currentPlaylist = playlistName;
+			renderFavorites();
+		}
+
+		// 5. CREATE A NEW PLAYLIST
+		function createNewPlaylist() {
+			const name = prompt("Enter a name for your new playlist:");
+			if (!name || name.trim() === "") return;
+			
+			const cleanName = name.trim();
+			let playlists = getAllPlaylists();
+			
+			if (playlists[cleanName]) {
+				alert("This playlist already exists!");
+				return;
+			}
+			
+			playlists[cleanName] = [];
+			localStorage.setItem("yt_playlists", JSON.stringify(playlists));
+			
+			window.currentPlaylist = cleanName; // Move to the new playlist
+			
+			renderPlaylistSelector();
+			renderFavorites();
+		}
+
+		function renameCurrentPlaylist() {
+			// 1. Protect the default Favorites playlist
+			if (window.currentPlaylist === "Favorites") {
+				alert("The default 'Favorites' playlist cannot be renamed!");
+				return;
+			}
+
+			const oldName = window.currentPlaylist;
+			// Show prompt window with the old name pre-filled
+			const newName = prompt(`Enter a new name for playlist "${oldName}":`, oldName);
+			
+			// If the user cancels, leaves it empty, or enters the exact same name, we stop
+			if (!newName || newName.trim() === "" || newName.trim() === oldName) return;
+			
+			const cleanNewName = newName.trim();
+			let playlists = getAllPlaylists();
+			
+			// 2. Check if the new name already exists in another playlist
+			if (playlists[cleanNewName]) {
+				alert("A playlist with this name already exists!");
+				return;
+			}
+			
+			// 3. Transfer the songs to the new name and delete the old one
+			playlists[cleanNewName] = playlists[oldName];
+			delete playlists[oldName];
+			
+			// 4. Save to storage
+			localStorage.setItem("yt_playlists", JSON.stringify(playlists));
+			
+			// 5. Update the global variable and refresh the screen layout
+			window.currentPlaylist = cleanNewName;
+			renderPlaylistSelector();
+			renderFavorites();
+		}
+
+		// 6. CREATE OPTIONS IN THE DROPDOWN
+		function renderPlaylistSelector() {
+			const selector = document.getElementById('playlistSelector');
+			if (!selector) return;
+			
+			const playlists = getAllPlaylists();
+			selector.innerHTML = "";
+			
+			Object.keys(playlists).forEach(name => {
+				const option = document.createElement('option');
+				option.value = name;
+				option.innerText = "⭐ " + name;
+				if (name === window.currentPlaylist) option.selected = true;
+				selector.appendChild(option);
+			});
+		}
+
+		// Clear the entire current playlist (replaces the old clearFavorites)
+		function clearCurrentPlaylist() {
+			if (confirm(`Clear all videos from "${currentPlaylist}"?`)) {
+				let playlists = getAllPlaylists();
+				playlists[currentPlaylist] = [];
+				localStorage.setItem("yt_playlists", JSON.stringify(playlists));
+				renderFavorites();
+			}
+		}
+
+		function toggleTheme() {
+			document.body.classList.toggle("light-theme");
+			
+			const isLight = document.body.classList.contains("light-theme");
+			localStorage.setItem("theme", isLight ? "light" : "dark");
+			
+			// CORRECTION: If Light -> none (black), if Dark -> invert (white)
+			const filterValue = isLight ? 'none' : 'invert(1) brightness(2)';
+			document.documentElement.style.setProperty('--emoji-filter', filterValue);
+		}
+
 
 		async function executeSearch(query) {
 			if(!query) return;
@@ -675,71 +883,140 @@
             
             document.getElementById('youtubeEmbed').src = finalUrl;
         }
-
-			 async function playNextVideo() {
-				if (!currentVideoId) {
-					console.log("No active playing video.");
-					return;
-				}
-				
-				trackEndedTriggered = false;
-				lastCheckedTime = -1;
-
-				try {
-					let targetUrl = baseApiUrl + "/next?current_id=" + currentVideoId + "&list_type=" + currentQueueType;
-					
-					if (currentQueueType === "favorites") {
-						const localFavs = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
-						if (localFavs.length === 0) return;
-						const favIdsString = localFavs.map(item => item.id).join(",");
-						targetUrl += "&fav_ids_string=" + encodeURIComponent(favIdsString);
-					} else {
-						if (!lastQuery) return;
-						targetUrl += "&q=" + encodeURIComponent(lastQuery);
-					}
-
-					const response = await fetch(targetUrl);
-					if (!response.ok) throw new Error("HTTP error! status: " + response.status);
-					
-					const data = await response.json();
-					if (data.status === "success") {
-						trackEndedTriggered = false;
-						lastCheckedTime = -1;
-						startPlayback(data.next_video.id, data.next_video.title);
-					} else if (data.status === "end_of_playlist") {
-						alert("You have reached the end of the current playlist!");
-					} else {
-						console.error("API Error: ", data.message);
-					}
-				} catch (error) {
-					console.error("Network error during Play Next: ", error.message);
-				}
+        
+		function deleteCurrentPlaylist() {
+			// 1. Protect the default Favorites playlist
+			if (window.currentPlaylist === "Favorites") {
+				alert("The default 'Favorites' playlist cannot be deleted!");
+				return;
 			}
 
-        function playPreviousVideo() {
-            if (!currentVideoId) {
-                console.log("No active video.");
-                return;
-            }
-            
-            let videosList = [];
-            if (currentQueueType === "favorites") {
-                videosList = JSON.parse(localStorage.getItem("yt_favorites") || "[]");
-            } else {
-                videosList = allCachedResults;
-            }
+			// 2. User confirmation
+			if (confirm(`Are you sure you want to permanently DELETE the entire playlist "${window.currentPlaylist}" and all its videos?`)) {
+				let playlists = getAllPlaylists();
+				
+				// Remove the playlist (key) from the object
+				delete playlists[window.currentPlaylist];
+				
+				// Save the updated playlists to LocalStorage
+				localStorage.setItem("yt_playlists", JSON.stringify(playlists));
+				
+				// 3. Reset the user back to the default Favorites playlist
+				window.currentPlaylist = "Favorites";
+				
+				// 4. Refresh the UI (Dropdown menu and video list)
+				renderPlaylistSelector();
+				renderFavorites();
+			}
+		}
 
-            if (videosList.length === 0) return;
-            const currentIdx = videosList.findIndex(video => video.id === currentVideoId);
-            
-            if (currentIdx > 0) {
-                const prevVideo = videosList[currentIdx - 1];
-                console.log("⏮️ Playing previous video: " + prevVideo.title);
-                startPlayback(prevVideo.id, prevVideo.title);
-            } else {
-                alert("You are already at the first song of the list!");
-            }
-        }
+		async function playNextVideo() {
+			if (!currentVideoId) {
+				console.log("No active playing video.");
+				return;
+			}
+			
+			trackEndedTriggered = false;
+			lastCheckedTime = -1;
+
+			// 1. PLAYLISTS / FAVORITES MANAGEMENT (Local change without errors)
+			if (typeof currentQueueType !== 'undefined' && currentQueueType === "favorites") {
+				if (!window.currentPlaylist) window.currentPlaylist = "Favorites";
+				
+				let playlists = getAllPlaylists();
+				let currentList = playlists[window.currentPlaylist] || [];
+				
+				if (currentList.length === 0) return;
+				
+				let currentIndex = currentList.findIndex(v => v.id === currentVideoId);
+				
+				if (currentIndex !== -1 && currentIndex < currentList.length - 1) {
+					let nextVideo = currentList[currentIndex + 1];
+					trackEndedTriggered = false;
+					lastCheckedTime = -1;
+					startPlayback(nextVideo.id, nextVideo.title);
+				} else {
+					alert("You have reached the end of the current playlist!");
+				}
+				return; // Stops here for playlists
+			}
+
+			// 2. SEARCH RESULTS MANAGEMENT (SEARCH LIST)
+			try {
+				let targetUrl = baseApiUrl + "/next?current_id=" + currentVideoId + "&list_type=" + currentQueueType;
+				
+				// Ασφάλεια για το query της αναζήτησης
+				let queryParam = (typeof lastQuery !== 'undefined' && lastQuery) ? lastQuery : "";
+				if (queryParam) {
+					targetUrl += "&q=" + encodeURIComponent(queryParam);
+				}
+
+				const response = await fetch(targetUrl);
+				if (!response.ok) throw new Error("HTTP error! status: " + response.status);
+				
+				const data = await response.json();
+				if (data.status === "success") {
+					trackEndedTriggered = false;
+					lastCheckedTime = -1;
+					startPlayback(data.next_video.id, data.next_video.title);
+					return;
+				} else if (data.status === "end_of_playlist") {
+					alert("You have reached the end of the search results!");
+					return;
+				}
+			} catch (error) {
+				console.error("Network error during Play Next, falling back to local cache: ", error.message);
+			}
+
+			// FALLBACK: Αν το API αποτύχει ή δεν υπάρχει lastQuery, αλλάζει το τραγούδι τοπικά από την αναζήτηση
+			if (typeof allCachedResults !== 'undefined' && allCachedResults.length > 0) {
+				const currentIdx = allCachedResults.findIndex(video => video.id === currentVideoId);
+				if (currentIdx !== -1 && currentIdx < allCachedResults.length - 1) {
+					const nextVideo = allCachedResults[currentIdx + 1];
+					trackEndedTriggered = false;
+					lastCheckedTime = -1;
+					startPlayback(nextVideo.id, nextVideo.title);
+				} else {
+					alert("You have reached the end of search results!");
+				}
+			}
+		}
+
+		function playPreviousVideo() {
+			if (!currentVideoId) {
+				console.log("No active video.");
+				return;
+			}
+			
+			let videosList = [];
+			
+			// 1. IF PLAYING FROM PLAYLISTS / FAVORITES
+			if (typeof currentQueueType !== 'undefined' && currentQueueType === "favorites") {
+				if (!window.currentPlaylist) window.currentPlaylist = "Favorites";
+				let playlists = getAllPlaylists();
+				videosList = playlists[window.currentPlaylist] || [];
+			} 
+			// 2. IF PLAYING FROM SEARCH RESULTS (SEARCH LIST)
+			else {
+				videosList = (typeof allCachedResults !== 'undefined') ? allCachedResults : [];
+			}
+
+			if (videosList.length === 0) {
+				console.log("Current playing list is empty.");
+				return;
+			}
+			
+			const currentIdx = videosList.findIndex(video => video.id === currentVideoId);
+			
+			if (currentIdx > 0) {
+				const prevVideo = videosList[currentIdx - 1];
+				console.log("⏮️ Playing previous video: " + prevVideo.title);
+				startPlayback(prevVideo.id, prevVideo.title);
+			} else {
+				alert("You are already at the first song of the list!");
+			}
+		}
+
         
 		function changeVolume(volume) {
             currentVolume = volume;
@@ -867,24 +1144,77 @@
 
         function clearHistory() { localStorage.removeItem("yt_history"); renderHistory(); }
 
-        function addCurrentToFavorites() {
-			if(!currentVideoId) return;
-			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
-    
-			if(favorites.some(item => item.id === currentVideoId)) { 
-				alert("It already exists!"); 
-				return; 
+		function addCurrentToFavorites() {
+			if (!window.currentPlaylist) {
+				window.currentPlaylist = "Favorites";
 			}
-    
-			favorites.push({ id: currentVideoId, title: currentVideoTitle });
-    
-			try {
-				localStorage.setItem("yt_favorites", JSON.stringify(favorites));
-				renderFavorites();
-			} catch (e) {
-				alert("Your browser's local storage is full! Cannot add more favorites.");
+
+			let detectedVideoId = null;
+			const iframe = document.getElementById('youtubeEmbed');
+			
+			// CORRECTION: Smarter extraction of the ID from the iframe URL
+			if (iframe && iframe.src) {
+				const srcText = iframe.src;
+				// If the URL contains /embed/
+				if (srcText.includes('embed/')) {
+					const parts = srcText.split('embed/');
+					if (parts[1]) {
+						// We get the ID by stripping any parameters like ?autoplay=1
+						detectedVideoId = parts[1].split('?')[0].split('&')[0].trim();
+					}
+				} 
+				// If the URL is standard ://youtube.com
+				else if (srcText.includes('v=')) {
+					const parts = srcText.split('v=');
+					if (parts[1]) {
+						detectedVideoId = parts[1].split('&')[0].trim();
+					}
+				}
 			}
+
+			// If the iframe fails, we try the classic global variable (if it exists)
+			if (!detectedVideoId && typeof currentVideoId !== 'undefined' && currentVideoId) {
+				detectedVideoId = currentVideoId;
+			}
+
+			// Critical check: If the ID is empty, we stop to prevent corrupting the storage memory
+			if (!detectedVideoId || detectedVideoId === "") {
+				alert("No valid video ID was found! Please play a song first.");
+				return;
+			}
+			
+			let playlists = getAllPlaylists();
+			
+			if (!playlists[window.currentPlaylist]) {
+				playlists[window.currentPlaylist] = [];
+			}
+			
+			// Check if the video already exists in this specific playlist
+			const exists = playlists[window.currentPlaylist].some(v => v.id === detectedVideoId);
+			if (exists) {
+				alert(`This video is already in your "${window.currentPlaylist}" playlist!`);
+				return;
+			}
+			
+			// Finding the title from your h2 element (#currentTitle)
+			let videoTitle = "YouTube Video";
+			const titleEl = document.getElementById('currentTitle');
+			if (titleEl && titleEl.innerText.trim() !== "") {
+				videoTitle = titleEl.innerText.trim();
+			}
+			
+			// Add to the playlist array
+			playlists[window.currentPlaylist].push({ 
+				id: detectedVideoId, 
+				title: videoTitle 
+			});
+			
+			localStorage.setItem("yt_playlists", JSON.stringify(playlists));
+			
+			// Refresh the screen display
+			renderFavorites();
 		}
+
 
         function removeFromFavorites(id) {
 			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
@@ -895,12 +1225,20 @@
 
 		function renderFavorites() {
 			const container = document.getElementById('favoritesList');
-			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+			if (!container) return;
+
+			// 1. WE READ FROM THE NEW STRUCTURE (yt_playlists) AND NOT FROM yt_favorites
+			let playlists = getAllPlaylists();
+			let favorites = playlists[currentPlaylist] || [];
+			
 			container.innerHTML = favorites.length === 0 ? "<span style='color:#555;font-size:12px;'>Empty</span>" : "";
 			
 			favorites.forEach((video, i) => {
 				const div = document.createElement('div'); 
-				div.className = (video.id === currentVideoId) ? 'fav-item playing-now' : 'fav-item'; 
+				
+				// SAFE CHECK: Avoid crashing if currentVideoId has not been initialized
+				const isCurrentPlaying = (typeof currentVideoId !== 'undefined' && video.id === currentVideoId);
+				div.className = isCurrentPlaying ? 'fav-item playing-now' : 'fav-item'; 
 				
 				div.style.display = 'flex'; 
 				div.style.justifyContent = 'space-between';
@@ -918,10 +1256,11 @@
 					div.classList.remove('drag-over');
 					const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
 					if (draggedIndex !== i) {
-						let favs = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+						let playlistsUpdate = getAllPlaylists();
+						let favs = playlistsUpdate[currentPlaylist];
 						const [item] = favs.splice(draggedIndex, 1);
 						favs.splice(i, 0, item);
-						localStorage.setItem("yt_favorites", JSON.stringify(favs));
+						localStorage.setItem("yt_playlists", JSON.stringify(playlistsUpdate));
 						renderFavorites(); 
 					}
 				};
@@ -950,7 +1289,7 @@
 
 				dragHandle.ontouchmove = (e) => {
 					if (e.cancelable) e.preventDefault();
-					const touch = e.touches[0]; // Read exact current touch coordinate node safely
+					const touch = e.touches[0]; 
 					
 					const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
 					if (!elementUnderTouch) return;
@@ -963,13 +1302,12 @@
 						if (targetIndex !== -1 && activeTouchIndex !== targetIndex) {
 							activeTouchIndex = targetIndex;
 							
-							// Modify database structure seamlessly in the background
-							let favs = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+							let playlistsUpdate = getAllPlaylists();
+							let favs = playlistsUpdate[currentPlaylist];
 							const [item] = favs.splice(i, 1);
 							favs.splice(targetIndex, 0, item);
-							localStorage.setItem("yt_favorites", JSON.stringify(favs));
+							localStorage.setItem("yt_playlists", JSON.stringify(playlistsUpdate));
 							
-							// Visually insert the row into its new place on screen without breaking focus state
 							if (targetIndex > i) {
 								container.insertBefore(div, targetRow.nextSibling);
 							} else {
@@ -978,14 +1316,11 @@
 						}
 					}
 				};
-
+		 
 				dragHandle.ontouchend = () => {
-					// Clean up selections and highlights explicitly
 					div.classList.remove('dragging-now');
 					if (window.getSelection) { window.getSelection().removeAllRanges(); }
 					if (document.activeElement) { document.activeElement.blur(); }
-					
-					// Re-sync layout indexes to the manual arrow buttons cleanly
 					renderFavorites();
 				};
 
@@ -1055,26 +1390,33 @@
 			});
 		}
 
-		// =========================================================================
-		// Single-Step Manual Array Shift Logic Block
-		// =========================================================================
+		// UPDATED REORDERING FUNCTION (Arrows ▲ ▼)
 		function moveFavorite(index, direction) {
-			let favorites = JSON.parse(localStorage.getItem("yt_favorites")) || [];
+			let playlists = getAllPlaylists();
+			let favorites = playlists[currentPlaylist];
 			const newIndex = index + direction;
 			
-			if (newIndex < 0 || newIndex >= favorites.length) {
-				return; 
-			}
+			if (newIndex < 0 || newIndex >= favorites.length) return; 
 			
 			const temp = favorites[index];
 			favorites[index] = favorites[newIndex];
 			favorites[newIndex] = temp;
 			
-			localStorage.setItem("yt_favorites", JSON.stringify(favorites));
+			localStorage.setItem("yt_playlists", JSON.stringify(playlists));
 			renderFavorites();
 		}
 
-        function clearFavorites() { if(confirm("Clear all favorites?")) { localStorage.removeItem("yt_favorites"); renderFavorites(); } }
+		// UPDATED INDIVIDUAL VIDEO REMOVAL FUNCTION
+		function removeFromFavorites(videoId) {
+			let playlists = getAllPlaylists();
+			let favorites = playlists[currentPlaylist] || [];
+			
+			playlists[currentPlaylist] = favorites.filter(video => video.id !== videoId);
+			
+			localStorage.setItem("yt_playlists", JSON.stringify(playlists));
+			renderFavorites();
+		}
+
         
         // Monitor fullscreen layout shifts to force rotation on mobile Chrome
 		document.addEventListener('fullscreenchange', function() {
