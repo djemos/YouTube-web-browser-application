@@ -305,6 +305,28 @@
 			background: #111;
 			border-top: 2px dashed #555;
 		}
+		
+		 /* Base button styling */
+		.btn-clear-action {
+			background-color: transparent;
+			font-size: 14px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			font-family: inherit;
+		}
+
+		/* Your custom special styling with a round border */
+		.btn-clear-special {
+			color: #4da6ff !important; /* Initial color: Blue */
+			border: 1px solid rgba(77, 166, 255, 0.3) !important; /* Soft blue border */
+			border-radius: 20px; /* Perfectly rounded border */
+		}
+
+		/* Hover effect: automatically transitions to red */
+		.btn-clear-special:hover {
+			color: #ff0000 !important; /* Text turns red */
+			border-color: rgba(255, 0, 0, 0.3) !important; /* Border turns red */
+		}
    </style>
 </head>
 <body>
@@ -324,10 +346,20 @@
 </div>
 
     <div class="main-layout">
-        <div class="box">
-            <div class="box-header"><h3>History</h3><button class="btn-clear-action" onclick="clearHistory()">Clear All</button></div>
-            <div id="historyList"></div>
-        </div>
+		<div class="box">
+			<div class="box-header">
+				<h3>History</h3>
+				
+				<!-- Clear All button with the custom style and clean structure -->
+				<button class="btn-clear-action btn-clear-special" onclick="clearHistory()" style="padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none !important;">
+					<!-- The 🗑️ icon is clean with no line underneath -->
+					<span style="filter: var(--emoji-filter, none); display: inline-block;">🗑️</span> 
+					<!-- Underline applies ONLY to the "Clear All" text string -->
+					<span style="text-decoration: underline;">Clear All</span>
+				</button>
+			</div>
+			<div id="historyList"></div>
+		</div>
         
          <!-- New Playlists / Favorites Box -->
         <div class="box">
@@ -360,8 +392,8 @@
                 </div>
              
                 <!-- Right section: Rename, Clear and Delete grouped together -->
-				<div style="display: flex; flex-direction: column; gap: 6px; width: 100%; justify-content: flex-start;">
-					
+				<div style="display: flex; flex-direction: column; gap: 6px; width: 100%; justify-content: flex-start; margin-bottom: 12px;">
+	
 					<!-- ROW 1: Rename, Clear, Delete (Συμπυκνωμένα για να χωράνε 100% σε 1 γραμμή) -->
 					<div style="display: flex; gap: 4px; align-items: center; justify-content: flex-start; width: 100%;">
 						<!-- 📝 Rename Button -->
