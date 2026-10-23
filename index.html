@@ -550,8 +550,6 @@
 			});
 		});
 
-
-
 		// 1. DEFINE THE GLOBAL VARIABLE AT THE BEGINNING OF THE CODE
 		if (typeof currentPlaylist === 'undefined') {
 			window.currentPlaylist = "Favorites"; 
@@ -722,7 +720,6 @@
 			const filterValue = isLight ? 'none' : 'invert(1) brightness(2)';
 			document.documentElement.style.setProperty('--emoji-filter', filterValue);
 		}
-
 
 		async function executeSearch(query) {
 			if(!query) return;
