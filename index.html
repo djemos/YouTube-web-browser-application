@@ -148,14 +148,15 @@
         .iframe-container { width: 100%; height: 394px; border-radius: 8px; overflow: hidden; background: #000; margin-bottom: 15px; }
         .iframe-container iframe { width: 100%; height: 100%; border: none; }
         
-        .volume-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .volume-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 0px; margin-bottom: 4px;}
+
         #volumeSlider { width: 150px; }
         #volumeLabel { font-size: 13px; width: 45px; text-align: left; }
 
-        .download-zone { margin-top: 15px; padding: 15px; background: var(--bg-card); border-radius: 8px; display: flex; flex-direction: column; gap: 15px; }
+        .download-zone { margin-top: 15px; padding: 15px; background: var(--bg-card); border-radius: 8px; display: flex; flex-direction: column; gap: 15px;  margin-top: -15px;}
         
          /* All buttons in a single row WITHOUT a visible scroll bar */
-      .buttons-row { 
+     /* .buttons-row { 
             display: flex;  !important;
             justify-content: flex-start; 
             gap: 8px; 
@@ -168,7 +169,27 @@
             /* Κρύβει τη μπάρα σε Firefox και IE/Edge */
             scrollbar-width: none; 
             -ms-overflow-style: none;  
-        }
+        } */
+
+		/* Enables structural breathing room and protects layout lines */
+		.buttons-row {
+			display: flex;
+			flex-wrap: wrap;       /* Allows buttons to flow to a new line cleanly instead of shrinking */
+			gap: 6px;              /* Sets a guaranteed minimum pixel spacing between adjacent items */
+			justify-content: flex-start; /* Keeps the component button block looking balanced and centered */
+		}
+
+		/* Optimizes uniform spacing configurations on the target actions */
+		.btn-dl {
+			background: #2ba640;
+			font-size: 10px;       /* Stabilizes character height across different font engine renders */
+			padding: 6px 10px;     /* Adjusts padding dimensions to safely preserve button geometry */
+			white-space: nowrap;   /* Safeguards phrases from awkwardly splitting horizontally inside a button wrapper */
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;              /* Provides direct spacing separation between the emoji tag and text label */
+		}
+
 
         /* Hides the bar in Chrome, Safari, and Opera (Webkit) */
         .buttons-row::-webkit-scrollbar {
@@ -176,7 +197,7 @@
         }
 
 		/* Master button text compression rule */
-		.buttons-row button,
+	/*	.buttons-row button,
 		.buttons-row .btn-dl,
 		.buttons-row .btn-dll {
 			display: inline-flex !important;
@@ -190,14 +211,14 @@
 			white-space: nowrap !important;
 			box-sizing: border-box !important;
 			min-width: 0 !important;
-		}
+		}*/
 
 		/* Dedicated background padding cushion for the Autoplay button */
 		.btn-autoplay {
 			padding-right: 8px !important; 
 		}
 
-        .btn-dl { 
+	/*	.btn-dl { 
             background: #2ba640; 
             border-radius: 6px; 
             padding: 10px; 
@@ -215,7 +236,7 @@
             width: auto !important; /* Kills any hardcoded 'width: 140px' overrides */
 			min-width: 0 !important; /* Allows items to shrink below text boundary safely */
 			max-width: none !important;
-        } 
+        } */
         
         .btn-dl:hover { background: #1e782c; }
         .btn-fav { background: #e6a23c; }
@@ -225,7 +246,7 @@
 		.btn-autoplay.active {background: #007bff; box-shadow: 0 0 8px #007bff;}
 
 
-       .btn-dll { 
+    /*   .btn-dll { 
             background: #0056b3; 
             border-radius: 6px; 
             padding: 10px; 
@@ -241,7 +262,7 @@
             min-height: 45px;
             box-sizing: border-box;
         }
-        .btn-dll:hover { background: #004085; }
+        .btn-dll:hover { background: #004085; } */
 
         .progress-container { display: none; background: #444; border-radius: 10px; height: 20px; width: 80%; margin: 0 auto; position: relative; overflow: hidden; }
         .progress-bar { background: #2ba640; height: 100%; width: 0%; transition: width 0.2s ease; }
@@ -331,13 +352,36 @@
 </head>
 <body>
 <div class="search-container">
-    <button class="btn-theme" onclick="toggleTheme()">🌓 Theme</button>
-    
-    <!-- Using a <form> to automatically capture Enter and clicks -->
-    <!--  <form id="searchForm" onsubmit="event.preventDefault(); executeSearch(document.getElementById('queryInput').value);" style="display: flex; flex-grow: 1; gap: inherit; align-items: center; margin: 0;">-->
+		<select id="langSelect" class="btn-theme" onchange="setLanguage(this.value)" style="padding: 4px 8px; cursor: pointer; font-size: 12px; vertical-align: middle;">
+			<option value="en">English</option>
+			<option value="el">Ελληνικά</option>
+			<option value="it">Italiano</option>
+			<option value="fr">Français</option>
+			<option value="es">Español</option>
+			<option value="de">Deutsch</option>
+			<option value="pt">Português (PT)</option>
+			<option value="br">Português (BR)</option>
+			<option value="sq">Shqip</option>
+			<option value="tr">Türkçe</option>
+			<option value="he">עברית</option>
+			<option value="fi">Suomi</option>
+			<option value="hr">Hrvatski</option>
+			<option value="bg">Български</option>
+			<option value="sr">Српски</option>
+			<option value="ar">العربية</option>
+			<option value="hi">हिन्दी</option>
+			<option value="zh">中文</option>
+		</select>
+
+		<button class="btn-theme" onclick="toggleTheme()">
+		<span>🌓</span> 
+		<span data-i18n="theme">Theme</span>
+		</button>
+
 		<form id="searchForm" style="display: flex; flex-grow: 1; gap: inherit; align-items: center; margin: 0;">
-        <input type="text" id="queryInput" placeholder="Search...">
-        <button type="submit">Search</button>
+        <input type="text" id="queryInput" data-i18n-placeholder="search_placeholder" placeholder="Search...">
+		<button type="submit" data-i18n="search_button">Search</button>
+
     </form>
     
     <div id="search-message" style="display: block; width: 100%; flex-basis: 100%; text-align: center; margin-top: 10px; color: var(--text-sub); font-size: 14px;">
@@ -348,14 +392,13 @@
     <div class="main-layout">
 		<div class="box">
 			<div class="box-header">
-				<h3>History</h3>
-				
+				<h3 data-i18n="history">History</h3>			
 				<!-- Clear All button with the custom style and clean structure -->
 				<button class="btn-clear-action btn-clear-special" onclick="clearHistory()" style="padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none !important;">
 					<!-- The 🗑️ icon is clean with no line underneath -->
 					<span style="filter: var(--emoji-filter, none); display: inline-block;">🗑️</span> 
 					<!-- Underline applies ONLY to the "Clear All" text string -->
-					<span style="text-decoration: underline;">Clear All</span>
+					<span data-i18n="clear_all" style="text-decoration: underline;">Clear All</span>
 				</button>
 			</div>
 			<div id="historyList"></div>
@@ -387,7 +430,7 @@
 						<!-- The ➕ is now 100% clean with no line underneath -->
 						<span style="filter: var(--emoji-filter, none); display: inline-block;">➕</span> 
 						<!-- We apply the underline ONLY to the "New List" text string -->
-						<span style="text-decoration: underline;">New List</span>
+						<span data-i18n="new_list" style="text-decoration: underline;">New List</span>
 					</button>
                 </div>
              
@@ -399,19 +442,20 @@
 						<!-- 📝 Rename Button -->
 						<button class="btn-clear-action" onclick="renameCurrentPlaylist()" style="color: #4da6ff; border: 1px solid rgba(77,166,255,0.4) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
 							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">📝</span> 
-							<span style="text-decoration: underline;">Rename</span>
+							<span data-i18n="rename" style="text-decoration: underline;">Rename</span>
 						</button>
-
+					</div>
+					<div style="display: flex; gap: 4px; align-items: center; justify-content: flex-start; width: 100%;">
 						<!-- 🧹 Clear Button -->
 						<button class="btn-clear-action" onclick="clearCurrentPlaylist()" style="color: #4da6ff; border: 1px solid var(--border, rgba(255,255,255,0.2)) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
 							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">🧹</span> 
-							<span style="text-decoration: underline;">Clear</span>
+							<span data-i18n="clear" style="text-decoration: underline;">Clear</span>
 						</button>
 
 						<!-- 🗑️ Delete Button -->
 						<button class="btn-clear-action" onclick="deleteCurrentPlaylist()" style="color: #ff4d4d; border: 1px solid rgba(255,77,77,0.4) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
 							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">🗑️</span> 
-							<span style="text-decoration: underline;">Delete</span>
+							<span data-i18n="delete" style="text-decoration: underline;">Delete</span>
 						</button>
 					</div>
 
@@ -420,13 +464,13 @@
 						<!-- 📥 Export Button -->
 						<button class="btn-clear-action" onclick="exportPlaylists()" style="color: #4da6ff; border: 1px solid rgba(77,166,255,0.4) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
 							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">📥</span> 
-							<span style="text-decoration: underline;">Export</span>
+							<span data-i18n="export" style="text-decoration: underline;">Export</span>
 						</button>
 						
 						<!-- 📤 Import Button -->
 						<button class="btn-clear-action" onclick="document.getElementById('importFileHidden').click()" style="color: #2ecc71; border: 1px solid rgba(46,204,113,0.4) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
 							<span style="filter: var(--emoji-filter, none); display: inline-block; text-decoration: none !important;">📤</span> 
-							<span style="text-decoration: underline;">Import</span>
+							<span data-i18n="import" style="text-decoration: underline;">Import</span>
 						</button>
 						
 						<!-- Hidden File Input -->
@@ -439,8 +483,8 @@
         </div>
 
         <div class="box" id="resultsBox" style="opacity: 0.5;">
-            <h3 style="margin-top:0;" id="resultsTitle">Results</h3>
-            <div id="resultsList">Perform a search...</div>
+            <h3 style="margin-top:0;" id="resultsTitle" data-i18n="results">Results</h3>
+            <div id="resultsList" data-i18n="perform_search">Perform a search...</div>
         </div>
         <div class="box player-box" id="mainPlayer">
             <h2 id="currentTitle" style="font-size:18px; text-align:left; margin-top:0;"></h2>
@@ -448,36 +492,628 @@
             <div class="iframe-container">
                 <iframe id="youtubeEmbed" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
             </div>
-
-            <div class="volume-container">
+			<div class="progress-container" id="progressBarContainer">
+				<div class="progress-bar" id="progressBar"></div>
+				<div class="progress-text" id="progressText">0%</div>
+			</div>
+						<div class="volume-container">
                 <span>🔊</span>
                 <input type="range" id="volumeSlider" min="0" max="100" value="100" oninput="changeVolume(this.value)">
                 <span id="volumeLabel">100%</span>
             </div>
-            <div class="download-zone">
+          <!--  <div class="download-zone">-->
                 <!--ALL buttons were placed in a SINGLE row, without an Autoplay checkbox -->
-                <div class="buttons-row">
-                    <button class="btn-dl btn-fav" id="favButton" onclick="addCurrentToFavorites()">⭐ Favorite</button>
-                    <button class="btn-dl btn-loop" id="loopToggle" onclick="toggleLoop()">🔁 Loop: OFF</button>
-                    <button id="autoplayToggle" class="btn-dl btn-autoplay active" onclick="toggleAutoplay()">⏭️ Autoplay: ON</button>
-                    <button class="btn-dl" id="dlMp3">Download MP3</button>
-                    <button class="btn-dl" id="dlMp4">Download MP4</button>
-                    <button class="btn-dl" id="prevButton" onclick="playPreviousVideo()">⏮️ Prev</button>
-                    <button class="btn-dl" id="nextButton" onclick="playNextVideo()">⏭️ Next</button>
-                </div>
-                <div class="progress-container" id="progressBarContainer">
-                    <div class="progress-bar" id="progressBar"></div>
-                    <div class="progress-text" id="progressText">0%</div>
-                </div>
+              <!--   <div class="buttons-row"><button class="btn-dl btn-fav" id="favButton" onclick="addCurrentToFavorites()"><span>⭐</span> <span data-i18n="favorite">Favorite</span></button>
+				<button class="btn-dl btn-loop" id="loopToggle" onclick="toggleLoop()"><span>🔁</span> <span id="loopText" data-i18n="loop_off">Loop: OFF</span></button>
+				<button id="autoplayToggle" class="btn-dl btn-autoplay active" onclick="toggleAutoplay()"><span>⏭️</span> <span id="autoplayText" data-i18n="autoplay_on">Autoplay: ON</span></button>
+				<button class="btn-dl" id="dlMp3"><span data-i18n="download_mp3">Download MP3</span></button>
+				<button class="btn-dl" id="dlMp4"><span data-i18n="download_mp4">Download MP4</span></button>
+				<button class="btn-dl" id="prevButton" onclick="playPreviousVideo()"><span>⏮️</span> <span data-i18n="prev">Prev</span></button>
+				<button class="btn-dl" id="nextButton" onclick="playNextVideo()"><span>⏭️</span> <span data-i18n="next">Next</span></button>
+            </div>-->
+                       
+            <div class="download-zone">
+				<!-- Row 1: App Settings & Context Toggles -->
+				<div class="buttons-row">
+					<button class="btn-dl btn-fav" id="favButton" onclick="addCurrentToFavorites()">
+						<span>⭐</span> <span data-i18n="favorite">Favorite</span>
+					</button>
+					<button class="btn-dl btn-loop" id="loopToggle" onclick="toggleLoop()">
+						<span>🔁</span> <span id="loopText" data-i18n="loop_off">Loop: OFF</span>
+					</button>
+					<button id="autoplayToggle" class="btn-dl btn-autoplay active" onclick="toggleAutoplay()">
+						<span>⏭️</span> <span id="autoplayText" data-i18n="autoplay_on">Autoplay: ON</span>
+					</button>
+				</div>
+
+				<!-- Row 2: Downloads & Media Track Operations -->
+				<div class="buttons-row" style="margin-top: 8px;">
+					<button class="btn-dl" id="dlMp3">
+						<span data-i18n="download_mp3">Download MP3</span>
+					</button>
+					<button class="btn-dl" id="dlMp4">
+						<span data-i18n="download_mp4">Download MP4</span>
+					</button>
+					<button class="btn-dl" id="prevButton" onclick="playPreviousVideo()">
+						<span>⏮️</span> <span data-i18n="prev">Prev</span>
+					</button>
+					<button class="btn-dl" id="nextButton" onclick="playNextVideo()">
+						<span>⏭️</span> <span data-i18n="next">Next</span>
+					</button>
+				</div>
+			</div>
             </div>
         </div>
     </div>
     <div class="mobile-spacer"></div>
     <div class="footer">
-        &copy; 2026 Developed by <strong>Dimitris Tzemos</strong>. All rights reserved 
+        <div data-i18n="copyright">&copy; 2026 Developed by <strong>Dimitris Tzemos</strong>. All rights reserved.</div>
     </div>
-	<script>
-		
+<script>
+const translations = {
+	en: {
+		theme: "Theme", search: "Search", history: "History", clear_all: "Clear All",
+		new_list: "New List", rename: "Rename", clear: "Clear", delete: "Delete",
+		export: "Export", import: "Import", results: "Results", favorite: "Favorite",
+		download_mp3: "Download MP3", download_mp4: "Download MP4", prev: "Prev", next: "Next",
+		copyright: "&copy; 2026 Developed by <strong>Dimitris Tzemos</strong>. All rights reserved.",
+		search_placeholder: "Search...", search_button: "Search", perform_search: "Perform a search...",
+		empty_history: "Empty history", empty_playlist: "Empty Playlist",
+		loop_on: "Loop: ON", loop_off: "Loop: OFF", autoplay_on: "Autoplay: ON", autoplay_off: "Autoplay: OFF",
+		searching: "Searching...", no_results: "No results found on YouTube.", api_error: "API connection error", error_suffix: "Error",
+		search_tip: 'Each click on "Search" button returns more results, ranging from 15 up to a maximum of {MAX}.',
+		no_more_results: "There are no further results in memory.",
+		import_prompt: "How would you like to import your playlists?\n\nType '1' to SMART MERGE (Combines tracks inside lists, avoids duplicates 🌟)\nType '2' to OVERWRITE (Completely replaces everything with this backup)\n\nCancel or leave blank to abort.",
+		confirm_overwrite: "Are you absolutely sure? This will wipe out all your current playlists and replace them.",
+		success_overwrite: "Database overwritten successfully!",
+		import_canceled: "Import canceled.",
+		invalid_structure: "Invalid backup file structure. Please ensure it's a valid playlists JSON.",
+		success_merge: "Playlists merged successfully! All new tracks added, duplicates filtered out.",
+		create_playlist_prompt: "Enter a name for your new playlist:",
+		playlist_exists_error: "This playlist already exists!",
+		rename_exists_error: "A playlist with this name already exists!",
+		no_list_selected_rename: "No playlist is currently selected to rename!",
+		no_list_selected_delete: "No playlist is currently selected to delete!",
+		confirm_delete_playlist: "Are you sure you want to permanently DELETE the entire playlist \"{NAME}\" and all its videos?",
+		confirm_clear_playlist: "Clear all videos from \"{NAME}\"?",
+		prog_requesting: "Requesting conversion on server...",
+		prog_conn_error: "Error connecting to server.",
+		prog_converting: "Conversion on Server: ",
+		prog_ready: "Ready! Downloading to your device...",
+		prog_conv_error: "Error during conversion."
+	},
+	el: {
+		theme: "Θέμα", search: "Αναζήτηση", history: "Ιστορικό", clear_all: "Καθαρισμός Όλων",
+		new_list: "Νέα Λίστα", rename: "Μετονομασία", clear: "Καθαρισμός", delete: "Διαγραφή",
+		export: "Εξαγωγή", import: "Εισαγωγή", results: "Αποτελέσματα", favorite: "Αγαπημένο",
+		download_mp3: "Λήψη MP3", download_mp4: "Λήψη MP4", prev: "Προηγούμενο", next: "Επόμενο",
+		copyright: "&copy; 2026 Ανάπτυξη από <strong>Δημήτρη Τζέμο</strong>. Με επιφύλαξη παντός δικαιώματος.",
+		search_placeholder: "Αναζήτηση...", search_button: "Αναζήτηση", perform_search: "Πραγματοποιήστε αναζήτηση...",
+		empty_history: "Άδειο ιστορικό", empty_playlist: "Άδεια Λίστα Αναπαραγωγής",
+		loop_on: "Επανάληψη: ΕΝΕΡΓΗ", loop_off: "Επανάληψη: ΚΛΕΙΣΤΗ", autoplay_on: "Αυτόματη Αναπαραγωγή: ΕΝΕΡΓΗ", autoplay_off: "Αυτόματη Αναπαραγωγή: ΚΛΕΙΣΤΗ",
+		searching: "Πραγματοποιείται αναζήτηση...", no_results: "Δεν βρέθηκαν αποτελέσματα στο YouTube.", api_error: "Σφάλμα σύνδεσης API", error_suffix: "Σφάλμα",
+		search_tip: 'Κάθε κλικ στο κουμπί "Αναζήτηση" επιστρέφει περισσότερα αποτελέσματα, από 15 έως το μέγιστο όριο των {MAX}.',
+		no_more_results: "Δεν υπάρχουν επιπλέον αποτελέσματα στη μνήμη.",
+		import_prompt: "Πώς θα θέλατε να εισαγάγετε τις λίστες αναπαραγωγής σας;\n\nΠληκτρολογήστε '1' για ΕΞΥΠΝΗ ΣΥΓΧΩΝΕΥΣΗ (Συνδυάζει τα κομμάτια στις λίστες, αποφεύγει τα διπλότυπα 🌟)\nΠληκτρολογήστε '2' για ΑΝΤΙΚΑТΑΣТΑΣΗ (Αντικαθιστά πλήρως τα πάντα με αυτό το αντίγραφο ασφαλείας)\n\nΑκυρώστε ή αφήστε το κενό για έξοδο.",
+		confirm_overwrite: "Είστε απόλυτα σίγουροι; Αυτό θα διαγράψει όλες τις τρέχουσες λίστες σας και θα τις αντικαταστήσει.",
+		success_overwrite: "Η βάση δεδομένων αντικαταστάθηκε με επιτυχία!",
+		import_canceled: "Η εισαγωγή ακυρώθηκε.",
+		invalid_structure: "Μη έγκυρη δομή αρχείου αντιγράφου ασφαλείας. Παρακαλώ βεβαιωθείτε ότι είναι ένα έγκυρο JSON λιστών.",
+		success_merge: "Οι λίστες αναπαραγωγής συγχωνεύθηκαν με επιτυχία! Όλα τα νέα κομμάτια προστέθηκαν, τα διπλότυπα φιλτραρίστηκαν.",
+		create_playlist_prompt: "Εισαγάγετε ένα όνομα για τη νέα σας λίστα αναπαραγωгής:",
+		playlist_exists_error: "Αυτή η λίστα αναπαραγωγής υπάρχει ήδη!",
+		rename_exists_error: "Μια λίστα αναπαραγωγής με αυτό το όνομα υπάρχει ήδη!",
+		no_list_selected_rename: "Δεν έχει επιλεγεί κάποια λίστα αναπαραγωγής για μετονομασία!",
+		no_list_selected_delete: "Δεν έχει επιλεγεί κάποια λίστα αναπαραγωγής για διαγραφή!",
+		confirm_delete_playlist: "Είστε σίγουροι ότι θέλετε να ΔΙΑΓΡΑΨΕΤΕ μόνιма ολόκληρη τη λίστα αναπαραγωγής \"{NAME}\" και όλα τα βίντεό της;",
+		confirm_clear_playlist: "Εκκαθάριση όλων των βίντεο από τη λίστα \"{NAME}\";",
+		prog_requesting: "Αίτημα μετατροπής στον διαкоμιστή...",
+		prog_conn_error: "Σφάλμα σύνδεσης με τον διακομιστή.",
+		prog_converting: "Μετατροπή στον διακομιστή: ",
+		prog_ready: "Έτοιμο! Λήψη στη συσκευή σας...",
+		prog_conv_error: "Σφάλμα κατά τη μετατροπή."
+	},
+	it: { // Italian
+		theme: "Tema", search: "Cerca", history: "Cronologia", clear_all: "Cancella Tutto",
+		new_list: "Nuova Lista", rename: "Rinomina", clear: "Cancella", delete: "Elimina",
+		export: "Esporta", import: "Importa", results: "Risultati", favorite: "Preferito",
+		download_mp3: "Scarica MP3", download_mp4: "Scarica MP4", prev: "Prec", next: "Succ",
+		copyright: "&copy; 2026 Sviluppato da <strong>Dimitris Tzemos</strong>. Tutti i diritti riservati.",
+		search_placeholder: "Cerca...", search_button: "Cerca", perform_search: "Effettua una ricerca...",
+		empty_history: "Cronologia vuota", empty_playlist: "Playlist vuota",
+		loop_on: "Riproduzione continua: ATTIVA", loop_off: "Riproduzione continua: DISATTIVATA", autoplay_on: "Riproduzione automatica: ATTIVA", autoplay_off: "Riproduzione automatica: DISATTIVATA",
+		searching: "Ricerca in corso...", no_results: "Nessun risultato trovato su YouTube.", api_error: "Errore di connessione API", error_suffix: "Errore",
+		search_tip: 'Ogni clic sul pulsante "Cerca" restituisce più risultati, da 15 fino a un massimo di {MAX}.',
+		no_more_results: "Non ci sono ulteriori risultati in memoria.",
+		import_prompt: "Come vorresti importare le tue playlist?\n\nDigita '1' per UNIONE INTELLIGENTE (Combina i brani nelle liste, evita i duplicati 🌟)\nDigita '2' per SOVRASCRIVERE (Sostituisce completamente tutto con questo backup)\n\nAnnulla o lascia vuoto per interrompere.",
+		confirm_overwrite: "Sei assolutamente sicuro? Questo cancellerà tutte le tue playlist attuali e le sostituirà.",
+		success_overwrite: "Database sovrascritto con successo!",
+		import_canceled: "Importazione annullata.",
+		invalid_structure: "Struttura del file di backup non valida. Assicurati che sia un JSON di playlist valido.",
+		success_merge: "Playlist unite con successo! Tutti i nuovi brani sono stati aggiunti, i duplicati sono stati filtrati.",
+		create_playlist_prompt: "Inserisci un nome per la tua nuova playlist:",
+		playlist_exists_error: "Questa playlist existe già!",
+		rename_exists_error: "Una playlist con questo nome esiste già!",
+		no_list_selected_rename: "Nessuna playlist è attualmente selezionata per essere rinominata!",
+		no_list_selected_delete: "Nessuna playlist è attualmente selezionata per essere eliminata!",
+		confirm_delete_playlist: "Sei sicuro di voler ELIMINARE definitivamente l'intera playlist \"{NAME}\" e tutti i suoi video?",
+		confirm_clear_playlist: "Cancellare tutti i video dalla playlist \"{NAME}\"?",
+		prog_requesting: "Richiesta di conversione sul server...",
+		prog_conn_error: "Errore di connessione al server.",
+		prog_converting: "Conversione sul server: ",
+		prog_ready: "Pronto! Download sul tuo dispositivo...",
+		prog_conv_error: "Errore durante la conversione."
+	},
+	fr: { // French
+		theme: "Thème", search: "Rechercher", history: "Historique", clear_all: "Effacer Tout",
+		new_list: "Nouvelle Liste", rename: "Renommer", clear: "Effacer", delete: "Supprimer",
+		export: "Exporter", import: "Importer", results: "Résultats", favorite: "Favori",
+		download_mp3: "Télécharger MP3", download_mp4: "Télécharger MP4", prev: "Préc", next: "Suiv",
+		copyright: "&copy; 2026 Développé par <strong>Dimitris Tzemos</strong>. Tous droits réservés.",
+		search_placeholder: "Rechercher...", search_button: "Chercher", perform_search: "Effectuez une recherche...",
+		empty_history: "Historique vide", empty_playlist: "Playlist vide",
+		loop_on: "Répétition: ACTIVE", loop_off: "Répétition: DÉSACTIVÉE", autoplay_on: "Lecture auto: ACTIVE", autoplay_off: "Lecture auto: DÉSACTIVÉE",
+		searching: "Recherche en cours...", no_results: "Aucun risultato trouvé sur YouTube.", api_error: "Erreur de connexion API", error_suffix: "Erreur",
+		search_tip: 'Chaque clic sur le bouton "Rechercher" renvoie plus de résultats, allant de 15 jusqu\'à un maximum de {MAX}.',
+		no_more_results: "Il n'y a pas d'autres résultats en mémoire.",
+		import_prompt: "Comment souhaitez-vous importer vos playlists ?\n\nTapez '1' pour FUSION INTELLIGENTE (Combine les pistes dans les listes, évite les doublons 🌟)\nTapez '2' pour ÉCRASER (Remplace complètement tout avec cette sauvegarde)\n\nAnnulez ou laissez vide pour abandonner.",
+		confirm_overwrite: "Êtes-vous absolument sûr ? Cela effacera toutes vos playlists actuelles et les remplacera.",
+		success_overwrite: "Base de données écrasée avec succès !",
+		import_canceled: "Importation annulée.",
+		invalid_structure: "Structure de fichier de sauvegarde invalide. Veuillez vous assurer qu'il s'agit d'un JSON de playlists valide.",
+		success_merge: "Playlists fusionnées avec succès ! Toutes les nouvelles pistes ont été ajoutées, les doublons ont été filtrés.",
+		create_playlist_prompt: "Entrez un nom pour votre nouvelle playlist :",
+		playlist_exists_error: "Cette playlist existe déjà !",
+		rename_exists_error: "Une playlist avec ce nom existe déjà !",
+		no_list_selected_rename: "Aucune playlist n'est actuellement sélectionnée pour être renommée !",
+		no_list_selected_delete: "Aucune playlist n'est actuellement sélectionnée pour être supprimée !",
+		confirm_delete_playlist: "Êtes-vous sûr de vouloir SUPPRIMER définitivement la playlist entière \"{NAME}\" et toutes ses vidéos?",
+		confirm_clear_playlist: "Effacer toutes les vidéos de la playlist \"{NAME}\"?",
+		prog_requesting: "Demande de conversion sur le serveur...",
+		prog_conn_error: "Erreur de connexion au serveur.",
+		prog_converting: "Conversion sur le serveur : ",
+		prog_ready: "Prêt ! Téléchargement sur votre appareil...",
+		prog_conv_error: "Erreur lors de la conversion."
+	},
+	es: { // Spanish
+		theme: "Tema", search: "Buscar", history: "Historial", clear_all: "Borrar Todo",
+		new_list: "Nueva Lista", rename: "Renombrar", clear: "Limpiar", delete: "Eliminar",
+		export: "Exportar", import: "Importar", results: "Resultados", favorite: "Favorito",
+		download_mp3: "Descargar MP3", download_mp4: "Descargar MP4", prev: "Ant", next: "Sig",
+		copyright: "&copy; 2026 Desarrollado por <strong>Dimitris Tzemos</strong>. Todos los derechos reservados.",
+		search_placeholder: "Buscar...", search_button: "Buscar", perform_search: "Realiza una búsqueda...",
+		empty_history: "Historial vacío", empty_playlist: "Playlist vacía",
+		loop_on: "Repetir: ACTIVADO", loop_off: "Repetir: DESACTIVADO", autoplay_on: "Reproducción auto: ACTIVADA", autoplay_off: "Reproducción auto: DESACTIVADA",
+		searching: "Buscando...", no_results: "No se encontraron resultados en YouTube.", api_error: "Error de conexión API", error_suffix: "Error",
+		search_tip: 'Cada clic en el botón "Buscar" genera más resultados, variando desde 15 hasta un máximo de {MAX}.',
+		no_more_results: "No hay más resultados en la memoria.",
+		import_prompt: "¿Cómo te gustaría importar tus listas de reproducción?\n\nEscribe '1' para FUSIÓN INTELIGENTE (Combina las canciones en las listas, evita duplicados 🌟)\nEscribe '2' para SOBREESCRIBIR (Reemplaza por completo todo con esta copia de seguridad)\n\nCancela o deja en blanco para abortar.",
+		confirm_overwrite: "¿Estás absolutamente seguro? Esto borrará todas tus listas de reproducción actuales y las reemplazará.",
+		success_overwrite: "¡Base de datos sobreescrita con éxito!",
+		import_canceled: "Importación cancelada.",
+		invalid_structure: "Estructura de archivo de copia de seguridad no válida. Asegúrate de que sea un JSON de listas de reproducción válido.",
+		success_merge: "¡Listas de reproducción fusionadas con éxito! Se añadieron todas las canciones nuevas y se filtraron los duplicados.",
+		create_playlist_prompt: "Introduce un nombre para tu nueva lista de reproducción:",
+		playlist_exists_error: "¡Esta lista de reproducción ya existe!",
+		rename_exists_error: "¡Ya existe una lista de reproducción con este nombre!",
+		no_list_selected_rename: "¡No hay ninguna lista de reproducción seleccionada actualmente para renombrar!",
+		no_list_selected_delete: "¡No hay ninguna lista de reproducción seleccionada actualmente para eliminar!",
+		confirm_delete_playlist: "¿Estás seguro de que deseas ELIMINAR permanentemente toda la lista de reproducción \"{NAME}\" y todos sus videos?",
+		confirm_clear_playlist: "¿Borrar todos los videos de la lista \"{NAME}\"?",
+		prog_requesting: "Solicitando conversión en el servidor...",
+		prog_conn_error: "Error de conexión con el servidor.",
+		prog_converting: "Conversión en el servidor: ",
+		prog_ready: "¡Listo! Descargando en tu dispositivo...",
+		prog_conv_error: "Error durante la conversión."
+	},
+	de: { // German / Austrian
+		theme: "Design", search: "Suche", history: "Verlauf", clear_all: "Alles Löschen",
+		new_list: "Neue Liste", rename: "Umbenennen", clear: "Leeren", delete: "Löschen",
+		export: "Exportieren", import: "Importieren", results: "Ergebnisse", favorite: "Favorit",
+		download_mp3: "MP3 Herunterladen", download_mp4: "MP4 Herunterladen", prev: "Zurück", next: "Weiter",
+		copyright: "&copy; 2026 Entwickelt von <strong>Dimitris Tzemos</strong>. Alle Rechte vorbehalten.",
+		search_placeholder: "Suchen...", search_button: "Suchen", perform_search: "Führen Sie eine Suche aus...",
+		empty_history: "Verlauf leer", empty_playlist: "Playlist leer",
+		loop_on: "Wiederholung: EIN", loop_off: "Wiederholung: AUS", autoplay_on: "Autoplay: EIN", autoplay_off: "Autoplay: AUS",
+		searching: "Suche läuft...", no_results: "Keine Ergebnisse auf YouTube gefunden.", api_error: "API-Verbindungsfehler", error_suffix: "Fehler",
+		search_tip: 'Jeder Klick auf die Schaltfläche "Suchen" liefert mehr Ergebnisse, von 15 bis maximal {MAX}.',
+		no_more_results: "Es gibt keine weiteren Ergebnisse im Speicher.",
+		import_prompt: "Wie möchten Sie Ihre Playlists importieren?\n\nGeben Sie '1' für INTELLIGENTES ZUSAMMENFÜHREN ein (Kombiniert Titel in Listen, vermeidet Duplikate 🌟)\nGeben Sie '2' für ÜBERSCHREIBEN ein (Ersetzt alles vollständig mit diesem Backup)\n\nAbbrechen oder leer lassen zum Beenden.",
+		confirm_overwrite: "Sind Sie absolut sicher? Dies wird alle Ihre aktuellen Playlists löschen und ersetzen.",
+		success_overwrite: "Datenbank erfolgreich überschrieben!",
+		import_canceled: "Import abgebrochen.",
+		invalid_structure: "Ungültige Sicherungsdateistruktur. Bitte stellen Sie sicher, dass es sich um ein gültiges Playlist-JSON handelt.",
+		success_merge: "Playlists erfolgreich zusammengeführt! Alle neuen Titel wurden hinzugefügt, Duplikate wurden gefiltert.",
+		create_playlist_prompt: "Geben Sie einen Namen für Ihre neue Playlist ein:",
+		playlist_exists_error: "Diese Playlist existiert bereits!",
+		rename_exists_error: "Eine Playlist mit diesem Namen existiert bereits!",
+		no_list_selected_rename: "Es ist derzeit keine Playlist zum Umbenennen ausgewählt!",
+		no_list_selected_delete: "Es ist derzeit keine Playlist zum Löschen ausgewählt!",
+		confirm_delete_playlist: "Sind Sie sicher, dass Sie die gesamte Playlist \"{NAME}\" und alle ihre Videos dauerhaft LÖSCHEN möchten?",
+		confirm_clear_playlist: "Alle Videos aus der Playlist \"{NAME}\" löschen?",
+		prog_requesting: "Konvertierung auf dem Server wird angefordert...",
+		prog_conn_error: "Fehler bei der Verbindung zum Server.",
+		prog_converting: "Konvertierung auf dem Server: ",
+		prog_ready: "Bereit! Herunterladen auf Ihr Gerät...",
+		prog_conv_error: "Fehler bei der Konvertierung."
+	},
+	pt: { // Portugal Portuguese
+		theme: "Tema", search: "Pesquisar", history: "Histórico", clear_all: "Limpar Tudo",
+		new_list: "Nova Lista", rename: "Renomear", clear: "Limpar", delete: "Eliminar",
+		export: "Exportar", import: "Importar", results: "Resultados", favorite: "Favorito",
+		download_mp3: "Descarregar MP3", download_mp4: "Descarregar MP4", prev: "Ant", next: "Seg",
+		copyright: "&copy; 2026 Desenvolvido por <strong>Dimitris Tzemos</strong>. Todos os direitos reservados.",
+		search_placeholder: "Pesquisar...", search_button: "Pesquisar", perform_search: "Efetue uma pesquisa...",
+		empty_history: "Histórico vazio", empty_playlist: "Playlist vazia",
+		loop_on: "Repetir: LIGADO", loop_off: "Repetir: DESLIGADO", autoplay_on: "Reprodução auto: LIGADA", autoplay_off: "Reprodução auto: DESLIGADA",
+		searching: "A pesquisar...", no_results: "Nenhum resultado encontrado no YouTube.", api_error: "Erro de ligação API", error_suffix: "Erro",
+		search_tip: 'Cada clique no botão "Pesquisar" retorna mais resultados, variando de 15 até ao máximo de {MAX}.',
+		no_more_results: "Não existem mais resultados na memória.",
+		import_prompt: "Como gostaria de importar as suas listas de reprodução?\n\nDigite '1' para FUSÃO INTELIGENTE (Combina as faixas dentro das listas, evita duplicados 🌟)\nDigite '2' para SUBSTITUIR (Substitui completamente tudo com este backup)\n\nCancele ou deixe em branco para abortar.",
+		confirm_overwrite: "Tem a certeza absoluta? Isto irá apagar todas as suas listas de reprodução atuais e substituí-las.",
+		success_overwrite: "Base de dados substituída com sucesso!",
+		import_canceled: "Importação cancelada.",
+		invalid_structure: "Estrutura de arquivo de cópia de segurança inválida. Certifique-se de que é um JSON de listas de reprodução válido.",
+		success_merge: "Listas de reprodução fundidas com sucesso! Todas as novas faixas foram adicionadas, duplicados filtrados.",
+		create_playlist_prompt: "Introduza um nome para a sua nova lista de reprodução:",
+		playlist_exists_error: "Esta lista de reprodução já existe!",
+		rename_exists_error: "Uma lista de reprodução com este nome já existe!",
+		no_list_selected_rename: "Nenhuma lista de reprodução está atualmente selecionada para renomear!",
+		no_list_selected_delete: "Nenhuma lista de reprodução está atualmente selecionada para eliminar!",
+		confirm_delete_playlist: "Tem a certeza de que deseja ELIMINAR permanentemente toda a lista de reprodução \"{NAME}\" e todos os seus vídeos?",
+		confirm_clear_playlist: "Limpar todos os vídeos da lista \"{NAME}\"?",
+		prog_requesting: "A solicitar a conversão no servidor...",
+		prog_conn_error: "Erro ao ligar ao servidor.",
+		prog_converting: "Conversão no Servidor: ",
+		prog_ready: "Pronto! A descarregar para o seu dispositivo...",
+		prog_conv_error: "Erro durante a conversão."
+	},
+	br: { // Brazilian Portuguese
+		theme: "Tema", search: "Buscar", history: "Histórico", clear_all: "Limpar Tudo",
+		new_list: "Nova Lista", rename: "Renomear", clear: "Limpar", delete: "Excluir",
+		export: "Exportar", import: "Importar", results: "Resultados", favorite: "Favorito",
+		download_mp3: "Baixar MP3", download_mp4: "Baixar MP4", prev: "Anterior", next: "Próximo",
+		copyright: "&copy; 2026 Desenvolvido por <strong>Dimitris Tzemos</strong>. Todos os direitos reservados.",
+		search_placeholder: "Buscar...", search_button: "Buscar", perform_search: "Realize uma busca...",
+		empty_history: "Histórico vazio", empty_playlist: "Playlist vazia",
+		loop_on: "Repetir: LIGADO", loop_off: "Repetir: DESLIGADO", autoplay_on: "Reprodução auto: LIGADA", autoplay_off: "Reprodução auto: DESLIGADA",
+		searching: "Buscando...", no_results: "Nenhum resultado encontrado no YouTube.", api_error: "Erro de conexão API", error_suffix: "Erro",
+		search_tip: 'Cada clique no botão "Buscar" retorna mais resultados, variando de 15 até o máximo de {MAX}.',
+		no_more_results: "Não há mais resultados na memória.",
+		import_prompt: "Como você gostaria de importar suas listas de reprodução?\n\nDigite '1' para FUSÃO INTELIGENTE (Combina as faixas dentro das listas, evita duplicados 🌟)\nDigite '2' para SOBREESCRIBIR (Substitui completamente tudo com este backup)\n\nCancele ou deixe em branco para abortar.",
+		confirm_overwrite: "Tem certeza absoluta? Isso apagará todas as suas listas de reprodução atuais e as substituirá.",
+		success_overwrite: "Banco de dados sobrescrito com sucesso!",
+		import_canceled: "Importação cancelada.",
+		invalid_structure: "Estrutura de arquivo de backup inválida. Certifique-se de que seja um JSON de listas de reprodução válido.",
+		success_merge: "Listas de reprodução fundidas com sucesso! Todas as novas faixas foram adicionadas, duplicados filtrados.",
+		create_playlist_prompt: "Digite um nome para a sua nova lista de reprodução:",
+		playlist_exists_error: "Esta lista de reprodução já existe!",
+		rename_exists_error: "Uma lista de reprodução com este nome já existe!",
+		no_list_selected_rename: "Nenhuma lista de reprodução está selecionada no momento para renomear!",
+		no_list_selected_delete: "Nenhuma lista de reprodução está selecionada no momento para excluir!",
+		confirm_delete_playlist: "Tem certeza de que deseja EXCLUIR permanentemente toda a lista de reprodução \"{NAME}\" e todos os seus vídeos?",
+		confirm_clear_playlist: "Limpar todos os vídeos da lista \"{NAME}\"?",
+		prog_requesting: "Solicitando conversão no servidor...",
+		prog_conn_error: "Erro de conexão com o servidor.",
+		prog_converting: "Conversão no Servidor: ",
+		prog_ready: "Pronto! Baixando para o seu dispositivo...",
+		prog_conv_error: "Erro durante a conversão."
+	},
+	sq: { // Albanian
+		theme: "Tema", search: "Kërko", history: "Historiku", clear_all: "Pastro Gjithçka",
+		new_list: "Listë e Re", rename: "Riemëro", clear: "Pastro", delete: "Fshi",
+		export: "Eksporto", import: "Importo", results: "Rezultatet", favorite: "I Preferuar",
+		download_mp3: "Shkarko MP3", download_mp4: "Shkarko MP4", prev: "Para", next: "Pas",
+		copyright: "&copy; 2026 Zhvilluar nga <strong>Dimitris Tzemos</strong>. Të gjitha të drejtat e rezervuara.",
+		search_placeholder: "Kërko...", search_button: "Kërko", perform_search: "Kërkoni diçka...",
+		empty_history: "Historiku bosh", empty_playlist: "Lista bosh",
+		loop_on: "Përsëritje: AKTIVE", loop_off: "Përsëritje: JO AKTIVE", autoplay_on: "Luajtja auto: AKTIVE", autoplay_off: "Luajtja auto: JO AKTIVE",
+		searching: "Duke kërkuar...", no_results: "Nuk u gjet asnjë rezultat në YouTube.", api_error: "Gabim në lidhjen e API", error_suffix: "Gabim",
+		search_tip: 'Çdo klikim në butonin "Kërko" kthen më shumë rezultate, duke filluar nga 15 deri në një maksimum prej {MAX}.',
+		no_more_results: "Nuk ka rezultate të tjera në memorie.",
+		import_prompt: "Si dëshironi t'i importoni listat tuaja të riprodhimit?\n\nShtypni '1' për BASHKIM INTELIGJENT (Kombinon këngët brenda listave, shmang dublikatat 🌟)\nShtypni '2' për TË RISHKRUAR (Zëvendëson plotësisht gjithçka me këtë rezervë)\n\nAnuloeni ose lini bosh për të ndërprerë.",
+		confirm_overwrite: "A jeni plotësisht i sigurt? Kjo do të fshijë të gjitha listat tuaja aktuale dhe do t'i zëvendësojë ato.",
+		success_overwrite: "Baza e të dhënave u rishkrua me sukses!",
+		import_canceled: "Importimi u anulua.",
+		invalid_structure: "Strukturë e pavlefshme e skedarit rezervë. Ju lutemi sigurohuni që është një JSON i vlefshëm i listave.",
+		success_merge: "Listat e riprodhimit u bashkuan me sukses! U shtuan të gjitha këngët e reja, u filtruan dublikatat.",
+		create_playlist_prompt: "Shkruani një emër për listën tuaj të re të riprodhimit:",
+		playlist_exists_error: "Kjo listë e riprodhimit ekziston tashmë!",
+		rename_exists_error: "Një listë riprodhimi me këtë emër ekziston tashmë!",
+		no_list_selected_rename: "Asnjë listë riprodhimi nuk është përzgjedhur aktualisht për t'u riemëruar!",
+		no_list_selected_delete: "Asnjë listë riprodhimi nuk është përzgjedhur aktualisht për t'u fshirë!",
+		confirm_delete_playlist: "A jeni i sigurt se dëshironi të FSHINI përgjithmonë të gjithë listën e riprodhimit \"{NAME}\" dhe të gjitha videot e saj?",
+		confirm_clear_playlist: "Të pastrohen të gjitha videot nga lista \"{NAME}\"?",
+		prog_requesting: "Duke kërkuar konvertimin në server...",
+		prog_conn_error: "Gabim gjatë lidhjes me serverin.",
+		prog_converting: "Konvertimi në Server : ",
+		prog_ready: "Gati! Duke e shkarkuar në pajisjen tuaj...",
+		prog_conv_error: "Gabim gjatë konvertimit."
+	},
+	tr: { // Turkish
+		theme: "Tema", search: "Ara", history: "Geçmiş", clear_all: "Tümünü Temizle",
+		new_list: "Yeni Liste", rename: "Yeniden Adlandır", clear: "Temizle", delete: "Sil",
+		export: "Dışa Aktar", import: "İçe Aktar", results: "Sonuçlar", favorite: "Favori",
+		download_mp3: "MP3 İndir", download_mp4: "MP4 İndir", prev: "Geri", next: "İleri",
+		copyright: "&copy; 2026 Dimitris Tzemos tarafından geliştirilmiştir. Tüm hakları saklıdır.",
+		search_placeholder: "Ara...", search_button: "Ara", perform_search: "Bir arama yapın...",
+		empty_history: "Geçmiş boş", empty_playlist: "Oynatma listesi boş",
+		loop_on: "Döngü: AÇIK", loop_off: "Döngü: KAPALI", autoplay_on: "Otomatik oynatma: AÇIK", autoplay_off: "Otomatik oynatma: KAPALI",
+		searching: "Aranıyor...", no_results: "YouTube'da sonuç bulunamadı.", api_error: "API bağlantı hatası", error_suffix: "Hata",
+		search_tip: '"Ara" butonuna her tıklama, 15\'ten başlayarak en fazla {MAX} adede kadar daha fazla sonuç getirir.',
+		no_more_results: "Hafızada başka sonuç yok.",
+		import_prompt: "Oynatma listelerinizi nasıl içe aktarmak istersiniz?\n\nAKILLI BİRLEŞTİRME için '1' yazın (Listelerdeki şarkıları birleştirir, kopyaları önler 🌟)\nÜZERİNE YAZMAK için '2' yazın (Her şeyi tamamen bu yedekle değiştirir)\n\nİptal etmek veya çıkmak için boş bırakın.",
+		confirm_overwrite: "Kesinlikle emin misiniz? Bu işlem mevcut tüm oynatma listelerinizi silecek ve değiştirecektir.",
+		success_overwrite: "Veritabanı başarıyla üzerine yazıldı!",
+		import_canceled: "İçe aktarma iptal edildi.",
+		invalid_structure: "Geçersiz yedekleme dosyası yapısı. Lütfen geçerli bir oynatma listesi JSON'u olduğundan emin olun.",
+		success_merge: "Oynatma listeleri başarıyla birleştirildi! Tüm yeni şarkılar eklendi, kopyalar filtrelendi.",
+		create_playlist_prompt: "Yeni oynatma listeniz için bir isim girin:",
+		playlist_exists_error: "Bu oynatma listesi zaten mevcut!",
+		rename_exists_error: "Bu isimde bir oynatma listesi zaten var!",
+		no_list_selected_rename: "Yeniden adlandırmak için şu anda hiçbir oynatma listesi seçilmedi!",
+		no_list_selected_delete: "Silmek için şu anda hiçbir oynatma listesi seçilmedi!",
+		confirm_delete_playlist: "\"{NAME}\" oynatma listesinin tamamını ve tüm videolarını kalıcı olarak SİLMEK istediğinizden emin misiniz?",
+		confirm_clear_playlist: "\"{NAME}\" oynatma listesindeki tüm videolar temizlensin mi?",
+		prog_requesting: "Sunucuda dönüştürme talep ediliyor...",
+		prog_conn_error: "Sunucuya bağlanırken hata oluştu.",
+		prog_converting: "Sunucuda Dönüştürme: ",
+		prog_ready: "Hazır! Cihazınıza indiriliyor...",
+		prog_conv_error: "Dönüştürme sırasında hata oluştu."
+	},
+	he: { // Israel (Hebrew)
+		theme: "עיצוב", search: "חיפוש", history: "היסטוריה", clear_all: "ניקוי הכל",
+		new_list: "רשימה חדשה", rename: "שנה שם", clear: "נקה", delete: "מחק",
+		export: "ייצוא", import: "ייבוא", results: "תוצאות", favorite: "מועדף",
+		download_mp3: "הורדת MP3", download_mp4: "הורדת MP4", prev: "הקודם", next: "הבא",
+		copyright: "&copy; 2026 פותח על ידי <strong>Dimitris Tzemos</strong>. כל הזכויות שמורות.",
+		search_placeholder: "חיפוש...", search_button: "חפש", perform_search: "בצע חיפוש...",
+		empty_history: "ההיסטוריה ריקה", empty_playlist: "רשימת ההשמעה ריקה",
+		loop_on: "לولאה: פועל", loop_off: "לולאה: כבוי", autoplay_on: "ניגון אוטומטי: פועל", autoplay_off: "ניגון אוטומטי: כבוי",
+		searching: "מחפש...", no_results: "לא נמצאו תוצאות ב-YouTube.", api_error: "שגיאת חיבור API", error_suffix: "שגיאה",
+		search_tip: 'כל לחיצה על כפתור "חיפוש" מחזירה תוצאות נוספות, החל מ-15 ועד למקסימום של {MAX}.',
+		no_more_results: "אין תוצאות נוספות בזיכרון.",
+		import_prompt: "כיצד תרצה לייבא את רשימות ההשמעה שלך?\n\nהקלד '1' למיזוג חכם (משלב רצועות בתוך רשימות, מונע כפילויות 🌟)\nהקלד '2' לדריסה (מחליף לחלוטין את הכל בגיבוי זה)\n\nבטל או השאר ריק כדי לבטל.",
+		confirm_overwrite: "האם אתה בטוח לחלוטין? פעולה זו תמחק את כל רשימות ההשמעה הנוכחיות שלך ותחליף אותן.",
+		success_overwrite: "מסד הנתונים נדרס בהצלחה!",
+		import_canceled: "הייבוא בוטל.",
+		invalid_structure: "מבנה קובץ גיבוי לא תקין. אנא וดא שמדובר ב-JSON תקין של רשימות השמעה.",
+		success_merge: "רשימות ההשמעה מוגזו בהצלחה! כל הרצועות החדשות נוספו, כפילויות סוננו.",
+		create_playlist_prompt: "הזן שם עבור רשימת ההשמעה החדשה שלך:",
+		playlist_exists_error: "רשימת השמעה זו כבר קיימת!",
+		rename_exists_error: "רשימת השמעה בשם זה כבר קיימת!",
+		no_list_selected_rename: "לא נבחרה כעת רשימת השמעה לשינוי שם!",
+		no_list_selected_delete: "לא נבחרה כעת רשימת השמעה למחיקה!",
+		confirm_delete_playlist: "האם אתה בטוח שברצונך למחוק לצמיתות את כל רשימת ההשמעה \"{NAME}\" ואת כל הסרטונים שלה?",
+		confirm_clear_playlist: "האם למחוק את כל הסרטונים מרשימת ההשמעה \"{NAME}\"?",
+		prog_requesting: "מבקש המרה בשרת...",
+		prog_conn_error: "שגיאת חיבור לשרת.",
+		prog_converting: "המרה בשרת: ",
+		prog_ready: "מוכן! מוריד למכשיר שלך...",
+		prog_conv_error: "שגיאה במהלך ההמרה."
+	},
+	fi: { // Finland (Finnish)
+		theme: "Teema", search: "Hae", history: "Historia", clear_all: "Tyhjennä Kaikki",
+		new_list: "Uusi Lista", rename: "Nimeä Uudelleen", clear: "Tyhjennä", delete: "Poista",
+		export: "Vie", import: "Tuo", results: "Tulokset", favorite: "Suosikki",
+		download_mp3: "Lataa MP3", download_mp4: "Lataa MP4", prev: "Edell", next: "Seur",
+		copyright: "&copy; 2026 Kehittänyt <strong>Dimitris Tzemos</strong>. Kaikki oikeudet pidätetään.",
+		search_placeholder: "Hae...", search_button: "Hae", perform_search: "Tee haku...",
+		empty_history: "Historia on tyhjä", empty_playlist: "Soittolista on tyhjä",
+		loop_on: "Toisto: PÄÄLLÄ", loop_off: "Toisto: POIS", autoplay_on: "Automaattinen toisto: PÄÄLLÄ", autoplay_off: "Automaattinen toisto: POIS",
+		searching: "Haetaan...", no_results: "YouTube-tuloksia ei löytynyt.", api_error: "API-yhteysvirhe", error_suffix: "Virhe",
+		search_tip: 'Jokainen "Hae"-painikkeen napsautus palauttaa lisää tuloksia, 15:stä aina enintään {MAX} tulokseen asti.',
+		no_more_results: "Muistissa ei ole enempää tuloksia.",
+		import_prompt: "Miten haluaisit tuoda soittolistasi?\n\nKirjoita '1' ÄLYKKÄÄSEEN YHDISTÄMISEEN (Yhdistää kappaleet listoilla, välttää duplikaatteja 🌟)\nKirjoita '2' KORVAAMISEEN (Korvaa kaiken kokonaan tällä varmuuskopiolla)\n\nPeruuta tai jätä tyhjäksi keskeyttääksesi.",
+		confirm_overwrite: "Oletko aivan varma? Tämä tyhjentää kaikki nykyiset soittolistasi ja korvaa ne.",
+		success_overwrite: "Tietokanta korvattu onnistuneesti!",
+		import_canceled: "Tuonti peruttu.",
+		invalid_structure: "Varmuuskopiotiedoston rakenne on virheellinen. Varmista, että se on pätevä soittolista-JSON.",
+		success_merge: "Soittolistat yhdistetty onnistuneesti! Kaikki uudet kappaleet lisätty, tuplakappaleet suodatettu pois.",
+		create_playlist_prompt: "Syötä nimi uudelle soittolistallesi:",
+		playlist_exists_error: "Tämä soittolista on jo olemassa!",
+		rename_exists_error: "Samanniminen soittolista on jo olemassa!",
+		no_list_selected_rename: "Soittolistaa ei ole tällä hetkellä valittu nimettäväksi uudelleen!",
+		no_list_selected_delete: "Soittolistaa ei ole tällä hetkellä valittu poistettavaksi!",
+		confirm_delete_playlist: "Haluatko varmasti POISTAA pysyvästi koko soittolistan \"{NAME}\" ja kaikki sen videot?",
+		confirm_clear_playlist: "Tyhjennä kaikki videot soittolistasta \"{NAME}\"?",
+		prog_requesting: "Pyydetään muuntoa palvelimelta...",
+		prog_conn_error: "Virhe yhdistettäessä palvelimeen.",
+		prog_converting: "Muunto palvelimella: ",
+		prog_ready: "Valmis! Ladataan laitteellesi...",
+		prog_conv_error: "Virhe muunnon aikana."
+	},
+	hr: { // Croatia (Croatian)
+		theme: "Tema", search: "Pretraži", history: "Povijest", clear_all: "Očisti Sve",
+		new_list: "Nova Lista", rename: "Preimenuj", clear: "Očisti", delete: "Obriši",
+		export: "Izvezi", import: "Uvezi", results: "Rezultati", favorite: "Favorit",
+		download_mp3: "Preuzmi MP3", download_mp4: "Preuzmi MP4", prev: "Preth", next: "Sljedeći",
+		copyright: "&copy; 2026 Razvio <strong>Dimitris Tzemos</strong>. Sva prava pridržana.",
+		search_placeholder: "Pretraži...", search_button: "Traži", perform_search: "Pokrenite pretragu...",
+		empty_history: "Povijest je prazna", empty_playlist: "Playlist je prazan",
+		loop_on: "Ponavljanje: UKLJUČENO", loop_off: "Ponavljanje: ISKLJUČENO", autoplay_on: "Automatsko reproduciranje: UKLJUČENO", autoplay_off: "Automatsko reproduciranje: ISKLJUČENO",
+		searching: "Pretraživanje...", no_results: "Nema rezultata na YouTubeu.", api_error: "Pogreška API veze", error_suffix: "Pogreška",
+		search_tip: 'Svaki klik na gumb "Pretraži" vraća više rezultata, u rasponu od 15 pa do najviše {MAX}.',
+		no_more_results: "Nema daljnjih rezultata u memoriji.",
+		import_prompt: "Kako biste željeli uvesti svoje popise pjesama?\n\nUpišite '1' za PAMETNO SPAJANJE (Kombinira pjesme unutar popisa, izbjegava duplikate 🌟)\nUpišite '2' za PREPIŠI (Potpuno zamjenjuje sve ovom sigurnosnom kopijom)\n\nOtkažite ili ostavite prazno za prekid.",
+		confirm_overwrite: "Jeste li potpuno sigurni? Ovo će izbrisati sve vaše trenutne popise pjesama i zamijeniti ih.",
+		success_overwrite: "Baza podataka uspješno prepisana!",
+		import_canceled: "Uvoz otkazan.",
+		invalid_structure: "Neispravna struktura datoteke sigurnosne kopije. Provjerite je li to valjani JSON popis pjesama.",
+		success_merge: "Popisi pjesama uspješno spojeni! Sve nove pjesme su dodane, duplikati filtrirani.",
+		create_playlist_prompt: "Unesite naziv za svoj novi popis pjesama:",
+		playlist_exists_error: "Ovaj popis pjesama već postoji!",
+		rename_exists_error: "Popis pjesama s ovim nazivom već postoji!",
+		no_list_selected_rename: "Trenutačno nije odabran nijedan popis pjesama za preimenovanje!",
+		no_list_selected_delete: "Trenutačno nije odabran nijedan popis pjesama za brisanje!",
+		confirm_delete_playlist: "Jeste li sigurni da želite trajno IZBRISATI cijeli popis pjesama \"{NAME}\" i sve njegove videozapise?",
+		confirm_clear_playlist: "Obrisati sve videozapise s popisa \"{NAME}\"?",
+		prog_requesting: "Zahtijevanje pretvorbe na poslužitelju...",
+		prog_conn_error: "Pogreška pri povezivanju s poslužiteljem.",
+		prog_converting: "Pretvorba na poslužitelju: ",
+		prog_ready: "Spremno! Preuzimanje na vaš uređaj...",
+		prog_conv_error: "Pogreška tijekom pretvorbe."
+	},
+	bg: { // Bulgarian
+		theme: "Тема", search: "Търсене", history: "История", clear_all: "Изчисти Всичко",
+		new_list: "Нов Списък", rename: "Преименувай", clear: "Изчисти", delete: "Изтрий",
+		export: "Експортиране", import: "Импортиране", results: "Резултати", favorite: "Любимо",
+		download_mp3: "Изтегли MP3", download_mp4: "Изтегли MP4", prev: "Предишно", next: "Следващо",
+		copyright: "&copy; 2026 Разработено от <strong>Dimitris Tzemos</strong>. Всички права запазени.",
+		search_placeholder: "Търсене...", search_button: "Търси", perform_search: "Извършете търсене...",
+		empty_history: "Историята е празна", empty_playlist: "Плейлистът е празен",
+		loop_on: "Повторение: ВКЛЮЧЕНО", loop_off: "Повторение: ИЗКЛЮЧЕНО", autoplay_on: "Автоматично пускане: ВКЛЮЧЕНО", autoplay_off: "Автоматично пускане: ΙЗКЛЮЧЕНО",
+		searching: "Търсене...", no_results: "Не са намерени резултати в YouTube.", api_error: "Грешка при връзка с API", error_suffix: "Грешка",
+		search_tip: 'Всяко кликване върху бутона "Търсене" връща повече резултати, вариращи от 15 до максимум {MAX}.',
+		no_more_results: "Няма повече резултати в паметта.",
+		import_prompt: "Как бихте искали да импортирате плейлистите си?\n\nВъведете '1' за ИНТЕЛИГЕНТНО СЛИВАНЕ (Комбинира песните в списъците, избягва дубликати 🌟)\nВъведете '2' за ЗАМЕНЯНЕ (Напълно заменя всичко с този архив)\n\nОткажете или оставете празно за прекъсване.",
+		confirm_overwrite: "Абсолютно сигурни ли сте? Това ще изтрие всичките ви настоящи плейлисти и ще ги замени.",
+		success_overwrite: "Базата данни е заменена успешно!",
+		import_canceled: "Импортирането е отменено.",
+		invalid_structure: "Невалидна структура на резервния файл. Моля, уверете се, че е валиден JSON на плейлисти.",
+		success_merge: "Плейлистите са сливани успешно! Всички нови песни са добавени, дубликатите са филтрирани.",
+		create_playlist_prompt: "Въведете име за новия си плейлист:",
+		playlist_exists_error: "Този плейлист вече съществува!",
+		rename_exists_error: "Плейлист с това име вече съществува!",
+		no_list_selected_rename: "В момента няма избран плейлист за преименуване!",
+		no_list_selected_delete: "В момента няма избран плейлист за изтриване!",
+		confirm_delete_playlist: "Сигурни ли сте, че искате да ИЗТРИЕТЕ за постоянно целия плейлист \"{NAME}\" и всички видеоклипове в него?",
+		confirm_clear_playlist: "Изчистване на всички видеоклипове από плейлиста \"{NAME}\"?",
+		prog_requesting: "Заявка за конвертиране на сървъра...",
+		prog_conn_error: "Грешка при свързване със сървъра.",
+		prog_converting: "Конвертиране на сървъра: ",
+		prog_ready: "Готово! Изтегляне на вашето устройство...",
+		prog_conv_error: "Грешка по време на конвертирането."
+	},
+	sr: { // Serbian
+		theme: "Тема", search: "Pretraži", history: "Istorija", clear_all: "Očisti Sve",
+		new_list: "Nova Lista", rename: "Preimenuj", clear: "Očisti", delete: "Obriši",
+		export: "Izvezi", import: "Uvezi", results: "Rezultati", favorite: "Favorit",
+		download_mp3: "Preuzmi MP3", download_mp4: "Preuzmi MP4", prev: "Preth", next: "Sled",
+		copyright: "&copy; 2026 Razvio <strong>Dimitris Tzemos</strong>. Sva prava zadržana.",
+		search_placeholder: "Pretraži...", search_button: "Traži", perform_search: "Pokrenite pretragu...",
+		empty_history: "Istorija je prazna", empty_playlist: "Plejlista je prazna",
+		loop_on: "Ponavljanje: UKLJUČENO", loop_off: "Ponavljanje: ISKLJUČENO", autoplay_on: "Automatska reprodukcija: UKLJUČENO", autoplay_off: "Automatska reprodukcija: ISKLJUČENO",
+		searching: "Pretraživanje...", no_results: "Nema rezultata na YouTube-u.", api_error: "Greška u API vezi", error_suffix: "Greška",
+		search_tip: 'Svaki klik na dugme "Pretraži" vraća više rezultata, u rasponu od 15 pa do najviše {MAX}.',
+		no_more_results: "Nema daljnjih rezultata u memoriji.",
+		import_prompt: "Kako biste želeli da uvezete svoje plejliste?\n\nUpišite '1' za PAMETNO SPAJANJE (Kombinuje pesme unutar lista, izbegava duplikate 🌟)\nUpišite '2' za PREPISI (Potpuno zamenjuje sve ovim rezervnim kopijama)\n\nOtkažite ili ostavite prazno za prekid.",
+		confirm_overwrite: "Da li ste apsolutno sigurni? Ovo će izbrisati sve vaše trenutne plejliste i zameniti ih.",
+		success_overwrite: "Baza podataka je uspešno prepisana!",
+		import_canceled: "Uvoz je otkazan.",
+		invalid_structure: "Neispravna struktura datoteke rezervne kopije. Proverite da li je u pitanju važeći JSON sa plejlistama.",
+		success_merge: "Plejliste uspešno spojene! Sve nove pesme su dodate, duplikati filtrirani.",
+		create_playlist_prompt: "Unesite naziv za svoju novu plejlistu:",
+		playlist_exists_error: "Ova plejlista već postoji!",
+		rename_exists_error: "Plejlista sa ovim imenom već postoji!",
+		no_list_selected_rename: "Trenutno nije izabrana nijedna plejlista za preimenovanje!",
+		no_list_selected_delete: "Trenutno nije izabrana nijedna plejlista za brisanje!",
+		confirm_delete_playlist: "Da li ste sigurni da želite trajno da OBRIŠETE celu plejlistu \"{NAME}\" i sve njene video snimke?",
+		confirm_clear_playlist: "Obrisati sve video snimke sa plejliste \"{NAME}\"?",
+		prog_requesting: "Zahtevanje konverzije na serveru...",
+		prog_conn_error: "Greška pri povezivanju sa serverom.",
+		prog_converting: "Konverzija na serveru: ",
+		prog_ready: "Spremno! Preuzimanje na vaš uređaj...",
+		prog_conv_error: "Greška tokom konverzije."
+	},
+	ar: { // Arabic / Egyptian
+		theme: "المظهر", search: "بحث", history: "السجل", clear_all: "مسح الكل",
+		new_list: "قائمة جديدة", rename: "تغيير الاسم", clear: "مسح", delete: "حذف",
+		export: "تصدير", import: "استيراد", results: "النتائج", favorite: "المفضلة",
+		download_mp3: "تحميل MP3", download_mp4: "تحميل MP4", prev: "السابق", next: "التالي",
+		copyright: "&copy; 2026 تطوير <strong>ديميتريس تزيموس</strong>. جميع الحقوق محفوظة.",
+		search_placeholder: "بحث...", search_button: "بحث", perform_search: "أدخل كلمة البحث...",
+		empty_history: "السجل فارغ", empty_playlist: "قائمة التشغيل فارغة",
+		loop_on: "التكرار: مفعل", loop_off: "التكرار: معطل", autoplay_on: "التشغيل التلقائي: مفعل", autoplay_off: "التشغيل التلقائي: معطل",
+		searching: "جاري البحث...", no_results: "لم يتم العثور على نتائج في YouTube.", api_error: "خطأ في اتصال API", error_suffix: "خطأ",
+		search_tip: 'كل نقرة على زر "بحث" تعود بنقاط نتائج إضافية، تتراوح بين 15 وحتى حد أقصى {MAX}.',
+		no_more_results: "لا توجد نتائج أخرى في الذاكرة.",
+		import_prompt: "كيف تريد استيراد قوائم التشغيل الخاصة بك؟\n\nاكتب '1' للدمج الذكي (يجمع المسارات داخل القوائم، ويتجنب التكرار 🌟)\nاكتب '2' للاستبدال (يستبدل كل شيء بالكامل بهذا النسخ الاحتياطي)\n\nألغِ أو اترك الحقل فارغاً للإلغاء.",
+		confirm_overwrite: "هل أنت متأكد تماماً؟ سيؤدي هذا إلى مسح جميع قوائم التشغيل الحالية واستبدالها.",
+		success_overwrite: "تم استبدال قاعدة البيانات بنجاح!",
+		import_canceled: "تم إلغاء الاستيراد.",
+		invalid_structure: "بنية ملف النسخ الاحتياطي غير صالحة. يرجى التأكد من أنه ملف JSON صالح لقوائم التشغيل.",
+		success_merge: "تم دمج قوائم التشغيل بنجاح! تم إضافة جميع المسارات الجديدة وتصفية المكرر.",
+		create_playlist_prompt: "أدخل اسمًا لقائمة التشغيل الجديدة الخاصة بك:",
+		playlist_exists_error: "قائمة التشغيل هذه موجودة بالفعل!",
+		rename_exists_error: "توجد قائمة تشغيل بهذا الاسم بالفعل!",
+		no_list_selected_rename: "لم يتم تحديد أي قائمة تشغيل حاليًا لإعادة تسميتها!",
+		no_list_selected_delete: "لم يتم تحديد أي قائمة تشغيل حاليًا لحذفها!",
+		confirm_delete_playlist: "هل أنت متأكد أنك تريد حذف قائمة التشغيل \"{NAME}\" بالكامل وجميع مقاطع الفيديو التابعة لها نهائيًا؟",
+		confirm_clear_playlist: "هل تريد مسح جميع مقاطع الفيديو من قائمة التشغيل \"{NAME}\"؟",
+		prog_requesting: "جاري طلب التحويل من الخادم...",
+		prog_conn_error: "خطأ في الاتصال بالخادم.",
+		prog_converting: "جاري التحويل على الخادم: ",
+		prog_ready: "جاهز! جاري التحميل إلى جهازك...",
+		prog_conv_error: "حدث خطأ أثناء التحويل."
+	},
+	hi: { // Hindi
+		theme: "थीम", search: "खोजें", history: "इतिहास", clear_all: "सब साफ करें",
+		new_list: "नई सूची", rename: "नाम बदलें", clear: "साफ करें", delete: "हटाएं",
+		export: "निर्यात", import: "आयात", results: "परिणाम", favorite: "पसंदीदा",
+		download_mp3: "MP3 डाउनलोड", download_mp4: "MP4 डाउनलोड", prev: "पिछला", next: "अगला",
+		copyright: "&copy; 2026 <strong>दिमित्री ज़ेमोस</strong> द्वारा विकसित। सर्वाधिकार सुरक्षित।",
+		search_placeholder: "खोजें...", search_button: "खोज", perform_search: "खोज शुरू करें...",
+		empty_history: "इतिहास खाली है", empty_playlist: "प्लेलिस्ट खाली है",
+		loop_on: "लूप: चालू", loop_off: "लूप: बंद", autoplay_on: "ऑटोप्ले: चालू", autoplay_off: "ऑटोप्ले: बंद",
+		searching: "खोज जारी है...", no_results: "YouTube पर कोई परिणाम नहीं मिला।", api_error: "API कनेक्शन त्रुटि", error_suffix: "त्रुटि",
+		search_tip: '"खोज" - बटन पर प्रत्येक क्लिक अधिक परिणाम दिखाता है, जो 15 से लेकर अधिकतम {MAX} तक हो सकते हैं।',
+		no_more_results: "मेमोरी में और कोई परिणाम नहीं हैं।",
+		import_prompt: "आप अपनी प्लेलिस्ट कैसे आयात करना चाहेंगे?\n\nस्मार्ट मर्ज के लिए '1' टाइप करें (सूचियों के अंदर ट्रैक को जोड़ता है, डुप्लिकेट से बचाता है 🌟)\nओवरराइट के लिए '2' टाइप करें (इस बैकअप के साथ सब कुछ पूरी तरह से बदल देता है)\n\nरद्द करने या रद्द करने के लिए खाली छोड़ दें।",
+		confirm_overwrite: "क्या आप पूरी तरह पक्का हैं? इससे आपकी सभी मौजूदा प्लेलिस्ट मिट जाएंगी और बदल जाएंगी।",
+		success_overwrite: "डेटाबेस को सफलतापूर्वक बदल दिया गया!",
+		import_canceled: "आयात रद्द कर दिया गया।",
+		invalid_structure: "अमान्य बैकअप फ़ाइल संरचना। कृपया सुनिश्चित करें कि यह एक मान्य प्लेलिस्ट JSON है।",
+		success_merge: "प्लेलिस्ट सफलतापूर्वक मर्ज की गई! सभी नए ट्रैक जोड़े गए, डुप्लिकेट फ़िल्टर किए गए।",
+		create_playlist_prompt: "अपनी नई प्लेलिस्ट के लिए एक नाम दर्ज करें:",
+		playlist_exists_error: "यह प्लेलिस्ट पहले से मौजूद है!",
+		rename_exists_error: "इस नाम की प्लेलिस्ट पहले से मौजूद है!",
+		no_list_selected_rename: "नाम बदलने के लिए वर्तमान में कोई प्लेलिस्ट चुनी नहीं गई है!",
+		no_list_selected_delete: "हटाने के लिए वर्तमान में कोई प्लेलिस्ट चुनी नहीं गई है!",
+		confirm_delete_playlist: "क्या आप वाकई प्लेलिस्ट \"{NAME}\" और उसके सभी वीडियो को स्थायी रूप से हटाना चाहते हैं?",
+		confirm_clear_playlist: "क्या आप प्लेलिस्ट \"{NAME}\" से सभी वीडियो हटाना चाहते हैं?",
+		prog_requesting: "सर्वर पर रूपांतरण का अनुरोध किया जा रहा है...",
+		prog_conn_error: "सर्वर से कनेक्ट करने में त्रुटि।",
+		prog_converting: "सर्वर पर रूपांतरण: ",
+		prog_ready: "तैयार! आपके डिवाइस पर डाउनलोड हो रहा है...",
+		prog_conv_error: "रूपांतरण के दौरान त्रुटि।"
+	},
+	zh: { // Chinese (Simplified)
+		theme: "主题", search: "搜索", history: "历史记录", clear_all: "清空全部",
+		new_list: "新建列表", rename: "重命名", clear: "清空", delete: "删除",
+		export: "导出", import: "导入", results: "结果", favorite: "收藏",
+		download_mp3: "下载 MP3", download_mp4: "下载 MP4", prev: "上一首", next: "下一首",
+		copyright: "&copy; 2026 由 <strong>Dimitris Tzemos</strong> 开发。保留所有权利。",
+		search_placeholder: "搜索...", search_button: "搜索", perform_search: "请输入关键词进行搜索...",
+		empty_history: "历史记录为空", empty_playlist: "播放列表为空",
+		loop_on: "循环: 开启", loop_off: "循环: 关闭", autoplay_on: "自动播放: 开启", autoplay_off: "自动播放: 关闭",
+		searching: "正在搜索...", no_results: "在YouTube上未找到结果。", api_error: "API 连接错误", error_suffix: "错误",
+		search_tip: '每点击一次“搜索”按钮将返回更多结果，范围从 15 递增到最大值 {MAX}。',
+		no_more_results: "内存中没有更多结果。",
+		import_prompt: "您希望如何导入您的播放列表？\n\n输入 '1' 进行智能合并（合并列表中的曲目，避免重复 🌟）\n输入 '2' 进行覆盖（完全用此备份替换所有内容）\n\n取消或留空以放弃。",
+		confirm_overwrite: "您确定要这样做吗？这将清除您当前所有的播放列表并进行替换。",
+		success_overwrite: "数据库覆盖成功！",
+		import_canceled: "导入已取消。",
+		invalid_structure: "备份文件结构无效。请确保它是有效的播放列表 JSON 文件。",
+		success_merge: "播放列表成功合并！已添加所有新曲目，并过滤掉重复项。",
+		create_playlist_prompt: "请输入新播放列表的名称：",
+		playlist_exists_error: "此播放列表已存在！",
+		rename_exists_error: "已存在同名播放列表！",
+		no_list_selected_rename: "当前未选择任何播放列表进行重命名！",
+		no_list_selected_delete: "当前未选择 any 播放列表进行删除！",
+		confirm_delete_playlist: "您确定要永久删除整个播放列表 \"{NAME}\" 及其中的所有视频吗？",
+		confirm_clear_playlist: "是否清除播放列表 \"{NAME}\" 中的所有视频？",
+		prog_requesting: "正在请求服务器进行转换...",
+		prog_conn_error: "连接服务器时出错。",
+		prog_converting: "服务器端转换中：",
+		prog_ready: "准备就绪！正在下载到您的设备...",
+		prog_conv_error: "转换过程中出错。"
+	}
+};
+
+		// Default language (reads from localStorage if available, otherwise English)
+		let currentLang = localStorage.getItem("app_lang") || "en";
+	
 		const savedTheme = localStorage.getItem("theme");
 		if (savedTheme === "dark" || !savedTheme) { // if it is dark or if nothing has been selected yet
 			document.documentElement.style.setProperty('--emoji-filter', 'invert(1) brightness(2)');
@@ -501,8 +1137,9 @@
         let MAX_HISTORY_ITEMS = 100;
 		let MAX_RESULTS = 100;
 		
-		document.getElementById('search-message').textContent = 
-			`Each click on "Search" button returns more results, ranging from 15 up to a maximum of ${MAX_RESULTS}.`;
+		// 🌟 ΔΥΝΑΜΙΚΗ ΜΕΤΑΦΡΑΣΗ ΤΟΥ ΜΗΝΥΜΑΤΟΣ:
+		const searchTipTemplate = translations[currentLang]["search_tip"] || 'Each click on "Search" button returns more results, ranging from 15 up to a maximum of {MAX}.';
+		document.getElementById('search-message').textContent = searchTipTemplate.replace('{MAX}', MAX_RESULTS);
 
         const baseApiUrl = window.location.origin + "/ytapp";
 		document.addEventListener("DOMContentLoaded", function() {
@@ -541,15 +1178,24 @@
 			});
 		})();
 
-			// 2. Your original app initialization logic
+			// 2. Your original app initialization logic (FIXED FOR REFRESH)
+			// 🌟 ΒΗΜΑ Α: Πρώτα βρίσκουμε ποια είναι η πρώτη διαθέσιμη λίστα και την επιλέγουμε
+			if (typeof getAllPlaylists === 'function') {
+				let playlists = getAllPlaylists();
+				const playlistNames = Object.keys(playlists);
+				if (playlistNames.length > 0 && !window.currentPlaylist) {
+					window.currentPlaylist = playlistNames[0]; // Θέτει αυτόματα την πρώτη λίστα ως ενεργή στο refresh
+				}
+			}
+
+			// 🌟 ΒΗΜΑ Β: Τώρα που η μεταβλητή έχει τη σωστή τιμή, σχεδιάζουμε το UI με τη σωστή σειρά
 			renderHistory();
-			renderFavorites();
-			renderPlaylistSelector();
-			renderFavorites(); 
+			renderPlaylistSelector(); // Σχεδιάζει το dropdown με επιλεγμένη την πρώτη λίστα
+			renderFavorites();        // Σχεδιάζει αμέσως τα τραγούδια της πρώτης λίστας
+			
 			if(localStorage.getItem("theme") === "light") {
 				document.body.classList.add("light-theme");
 			}
-			
 			// Your working volume listener
 			document.getElementById('youtubeEmbed').addEventListener('load', function() {
 				setTimeout(() => { changeVolume(currentVolume); }, 1000);
@@ -625,14 +1271,10 @@
 					executeSearch(query); 
 				}
 			});
+			setLanguage(currentLang);
 		});
 
-		// 1. DEFINE THE GLOBAL VARIABLE AT THE BEGINNING OF THE CODE
-		if (typeof currentPlaylist === 'undefined') {
-			window.currentPlaylist = "Favorites"; 
-		}
-
-		// 2. SAFE LOADING OF ALL PLAYLISTS
+		// 1. SAFE LOADING OF ALL PLAYLISTS (Defined first so it can be safely used below)
 		function getAllPlaylists() {
 			let playlists = null;
 			try {
@@ -641,19 +1283,60 @@
 				playlists = null;
 			}
 			
-			// If the new structure doesn't exist or is in the old format (Array instead of Object), we build it correctly
+			// If storage is missing or corrupt, initialize as a clean object
 			if (!playlists || Array.isArray(playlists) || typeof playlists !== 'object') {
-				playlists = { "Favorites": [] };
+				playlists = {}; 
 				localStorage.setItem("yt_playlists", JSON.stringify(playlists));
 			}
+			
+			// Safety check: Completely scrub "Favorites" out if it leaks from old data
+			if (playlists["Favorites"]) {
+				delete playlists["Favorites"];
+				localStorage.setItem("yt_playlists", JSON.stringify(playlists));
+			}
+			
 			return playlists;
+		}
+
+		// 2. DEFINE THE GLOBAL VARIABLE DYNAMICALLY (FIXED: NO MORE "FAVORITES")
+		// We look up your real lists instantly on load to find the correct default playlist
+		let initialPlaylists = getAllPlaylists();
+		let initialNames = Object.keys(initialPlaylists);
+
+		if (initialNames.length > 0) {
+			window.currentPlaylist = initialNames[0]; // Automatically selects your first real playlist
+		} else {
+			window.currentPlaylist = undefined; // Stays undefined if no playlists exist yet
 		}
 
 		// 3. ADD VIDEO TO THE SELECTED PLAYLIST (⭐ Favorite Button)
 		function addCurrentToFavorites() {
 			// Making sure the variable has a valid value
+			// 1. ΔΥΝΑΜΙΚΟΣ ΕΛΕΓΧΟΣ: Αν δεν υπάρχει επιλεγμένη λίστα, βρες την πρώτη ή ζήτα δημιουργία
+			let playlists = getAllPlaylists();
 			if (!window.currentPlaylist) {
-				window.currentPlaylist = "Favorites";
+				const playlistNames = Object.keys(playlists);
+				
+				if (playlistNames.length > 0) {
+					// Αν υπάρχουν ήδη άλλες λίστες, επίλεξε την πρώτη διαθέσιμη
+					window.currentPlaylist = playlistNames[0];
+				} else {
+					// Αν δεν υπάρχει καμία απολύτως λίστα, ζήτα από τον χρήστη να δώσει ένα όνομα
+					const newListName = prompt("You don't have any playlists. Enter a name to create your first playlist:");
+					if (!newListName || newListName.trim() === "") {
+						alert("You must create a playlist to add videos!");
+						return;
+					}
+					
+					const cleanName = newListName.trim();
+					playlists[cleanName] = [];
+					window.currentPlaylist = cleanName;
+					
+					// Ενημέρωση του selector UI αν υπάρχει η συνάρτηση
+					if (typeof renderPlaylistSelector === 'function') {
+						renderPlaylistSelector();
+					}
+				}
 			}
 
 			// Check if a video is currently playing
@@ -661,9 +1344,7 @@
 				alert("No video is currently playing!");
 				return;
 			}
-			
-			let playlists = getAllPlaylists();
-			
+						
 			// Making sure the specific playlist exists as an array
 			if (!playlists[window.currentPlaylist]) {
 				playlists[window.currentPlaylist] = [];
@@ -704,14 +1385,18 @@
 
 		// 5. CREATE A NEW PLAYLIST
 		function createNewPlaylist() {
-			const name = prompt("Enter a name for your new playlist:");
+			// 🌟 DYNAMIC TRANSLATION: Pulls the prompt message from your language dictionary matrix
+			const createPromptMsg = translations[currentLang]["create_playlist_prompt"] || "Enter a name for your new playlist:";
+			const name = prompt(createPromptMsg);
 			if (!name || name.trim() === "") return;
 			
 			const cleanName = name.trim();
 			let playlists = getAllPlaylists();
 			
 			if (playlists[cleanName]) {
-				alert("This playlist already exists!");
+				// 🌟 DYNAMIC TRANSLATION: Pulls the correct error message from your language dictionary matrix
+				const existsErrorMsg = translations[currentLang]["playlist_exists_error"] || "This playlist already exists!";
+				alert(existsErrorMsg);
 				return;
 			}
 			
@@ -725,15 +1410,18 @@
 		}
 
 		function renameCurrentPlaylist() {
-			// 1. Protect the default Favorites playlist
-			if (window.currentPlaylist === "Favorites") {
-				alert("The default 'Favorites' playlist cannot be renamed!");
+			// 1. SAFE CHECK: Make sure a playlist is actually selected
+			if (!window.currentPlaylist) {
+				const noListRenameMsg = translations[currentLang]["no_list_selected_rename"] || "No playlist is currently selected to rename!";
+				alert(noListRenameMsg);
 				return;
 			}
 
 			const oldName = window.currentPlaylist;
-			// Show prompt window with the old name pre-filled
-			const newName = prompt(`Enter a new name for playlist "${oldName}":`, oldName);
+			
+			// Show localized prompt window with the old name pre-filled
+			const promptTemplate = currentLang === 'el' ? `Εισαγάγετε ένα νέο όνομα για τη λίστα "${oldName}":` : `Enter a new name for playlist "${oldName}":`;
+			const newName = prompt(promptTemplate, oldName);
 			
 			// If the user cancels, leaves it empty, or enters the exact same name, we stop
 			if (!newName || newName.trim() === "" || newName.trim() === oldName) return;
@@ -743,7 +1431,8 @@
 			
 			// 2. Check if the new name already exists in another playlist
 			if (playlists[cleanNewName]) {
-				alert("A playlist with this name already exists!");
+				const renameExistsMsg = translations[currentLang]["rename_exists_error"] || "A playlist with this name already exists!";
+				alert(renameExistsMsg);
 				return;
 			}
 			
@@ -779,7 +1468,11 @@
 
 		// Clear the entire current playlist (replaces the old clearFavorites)
 		function clearCurrentPlaylist() {
-			if (confirm(`Clear all videos from "${currentPlaylist}"?`)) {
+			// 🌟 DYNAMIC TRANSLATION: Pulls the clear confirm template and replaces {NAME} with the actual playlist name
+			const clearTemplate = translations[currentLang]["confirm_clear_playlist"] || 'Clear all videos from "{NAME}"?';
+			const confirmClearMsg = clearTemplate.replace('{NAME}', currentPlaylist);
+
+			if (confirm(confirmClearMsg)) {
 				let playlists = getAllPlaylists();
 				playlists[currentPlaylist] = [];
 				localStorage.setItem("yt_playlists", JSON.stringify(playlists));
@@ -814,12 +1507,19 @@
 			lastQuery = query;
 			
 			saveToHistory(query);
-			list.innerHTML = "<p>Searching...</p>";
+			//list.innerHTML = "<p>Searching...</p>";
+			// Διαβάζει αυτόματα το μήνυμα αναζήτησης στη γλώσσα που έχει επιλέξει ο χρήστης
+			const searchingMsg = translations[currentLang]["searching"] || "Searching...";
+			list.innerHTML = `<p>${searchingMsg}</p>`;
+
 			document.getElementById('queryInput').value = query;
 
 			// === ADD THIS LINE HERE ===
 			// Instantly wipes the old counter out as soon as Enter/Search is triggered
 			document.getElementById("resultsTitle").innerText = "Results (...)"; 
+			// Διαβάζει τη μετάφραση για τη λέξη "Results" ανάλογα με τη γλώσσα και προσθέτει τον αριθμό δυναμικά
+			const resultsLabel = translations[currentLang]["results"] || "Results";
+			document.getElementById("resultsTitle").innerText = `${resultsLabel} (${currentShownCount})`; 
 
 			try {
 				const targetUrl = baseApiUrl + "/search?q=" + encodeURIComponent(query);
@@ -834,11 +1534,25 @@
 					renderNextBatch(); // This will automatically display "Results (15)" when elements render
 				} else {
 					list.innerHTML = "<p style='color:red;'>No results found on YouTube.</p>";
-					document.getElementById("resultsTitle").innerText = "Results (0)";
+					// document.getElementById("resultsTitle").innerText = "Results (0)";
+					// Χρησιμοποιεί τη σωστή μετάφραση της λέξης "Results" και μηδενίζει τον μετρητή
+					const resultsLabel = translations[currentLang]["results"] || "Results";
+					document.getElementById("resultsTitle").innerText = `${resultsLabel} (0)`;
+
 				}
 			} catch (error) {
-				list.innerHTML = "<p style='color:red;'>API connection error: " + error.message + "</p>";
-				document.getElementById("resultsTitle").innerText = "Results (Error)";
+				//list.innerHTML = "<p style='color:red;'>API connection error: " + error.message + "</p>";
+				//document.getElementById("resultsTitle").innerText = "Results (Error)";
+				// Διαβάζει τις σωστές μεταφράσεις για τα μηνύματα σφάλματος από το λεξικό
+				const apiErrorMsg = translations[currentLang]["api_error"] || "API connection error";
+				const resultsLabel = translations[currentLang]["results"] || "Results";
+				const errorSuffix = translations[currentLang]["error_suffix"] || "Error";
+
+				// Εμφανίζει το σφάλμα στη γλώσσα του χρήστη και ενημερώνει τον τίτλο
+				list.innerHTML = `<p style='color:red;'>${apiErrorMsg}: ${error.message}</p>`;
+				document.getElementById("resultsTitle").innerText = `${resultsLabel} (${errorSuffix})`;
+
+	
 			}
 		}
 
@@ -869,11 +1583,14 @@
 			const end = Math.min(start + 15, allCachedResults.length);
 			
 			if (start >= allCachedResults.length) {
-				alert("There are no further results in memory.");
+				// DYNAMIC TRANSLATION: Pulls the correct message text from your localized dictionary matrix
+				const noMoreResultsMsg = translations[currentLang]["no_more_results"] || "There are no further results in memory.";
+				alert(noMoreResultsMsg);
+				
 				isRenderingBatch = false; // Release lock before exiting
 				return;
 			}
-			
+
 			const imgPrefix = atob("aHR0cHM6Ly9pbWcueW91dHViZS5jb20vdmkv");
 			const batch = allCachedResults.slice(start, end);
 			
@@ -908,7 +1625,19 @@
 
 			// 4. Update the layout tracking values sequentially
 			currentShownCount = end;
-			document.getElementById("resultsTitle").innerText = "Results (" + currentShownCount + ")";
+			// 🌟 FIX INSIDE RENDER_NEXT_BATCH: Keep the localization hook safe and fluid
+			const resultsTitleEl = document.getElementById("resultsTitle");
+			if (resultsTitleEl) {
+				// Enforce the tracking data attribute rules for setLanguage loop operations
+				resultsTitleEl.setAttribute('data-i18n', 'results'); 
+				
+				// Fetch the corresponding translation token or fall back cleanly
+				const resultsLabel = translations[currentLang]["results"] || "Results";
+				
+				// Force display matching strictly against the active tracker counter variable
+				resultsTitleEl.innerText = `${resultsLabel} (${currentShownCount})`;
+			}
+
 
 			// 5. RELEASE LOCK: Use a tiny timeout to absorb the duplicate background click event
 			setTimeout(() => {
@@ -970,27 +1699,48 @@
         }
         
 		function deleteCurrentPlaylist() {
-			// 1. Protect the default Favorites playlist
-			if (window.currentPlaylist === "Favorites") {
-				alert("The default 'Favorites' playlist cannot be deleted!");
-				return;
-			}
+			// 1. SAFE CHECK: Make sure a playlist is actually selected
+			 if (!window.currentPlaylist) {
+					const noListDeleteMsg = translations[currentLang]["no_list_selected_delete"] || "No playlist is currently selected to delete!";
+					alert(noListDeleteMsg);
+					return;
+				}
+
+				// Δυναμικό Confirm ανάλογα με τη γλώσσα
+				const deleteTemplate = translations[currentLang]["confirm_delete_playlist"] || 'Are you sure you want to permanently DELETE the entire playlist "{NAME}" and all its videos?';
+				const confirmDeleteMsg = deleteTemplate.replace('{NAME}', window.currentPlaylist);
+
 
 			// 2. User confirmation
-			if (confirm(`Are you sure you want to permanently DELETE the entire playlist "${window.currentPlaylist}" and all its videos?`)) {
+			if (confirm(confirmDeleteMsg)) {
 				let playlists = getAllPlaylists();
+				const oldPlaylist = window.currentPlaylist;
 				
 				// Remove the playlist (key) from the object
-				delete playlists[window.currentPlaylist];
+				delete playlists[oldPlaylist];
 				
 				// Save the updated playlists to LocalStorage
 				localStorage.setItem("yt_playlists", JSON.stringify(playlists));
 				
-				// 3. Reset the user back to the default Favorites playlist
-				window.currentPlaylist = "Favorites";
+				// 3. DYNAMIC FALLBACK: Find the next available custom playlist
+				const remainingPlaylists = Object.keys(playlists);
+				if (remainingPlaylists.length > 0) {
+					window.currentPlaylist = remainingPlaylists[0]; // Set variable to the next valid playlist name
+				} else {
+					window.currentPlaylist = undefined; // No playlists left
+				}
 				
-				// 4. Refresh the UI (Dropdown menu and video list)
+				// 4. REFRESH UI WITH STRICT ORDERING
+				// First, recreate the dropdown menu options completely
 				renderPlaylistSelector();
+				
+				// Second, force the HTML select element to visually match the new window.currentPlaylist value
+				const selector = document.getElementById('playlistSelect'); // Ensure this matches your HTML ID attribute
+				if (selector && window.currentPlaylist) {
+					selector.value = window.currentPlaylist;
+				}
+				
+				// Finally, render the track items of the newly selected active playlist
 				renderFavorites();
 			}
 		}
@@ -1004,11 +1754,21 @@
 			trackEndedTriggered = false;
 			lastCheckedTime = -1;
 
-			// 1. PLAYLISTS / FAVORITES MANAGEMENT (Local change without errors)
-			if (typeof currentQueueType !== 'undefined' && currentQueueType === "favorites") {
-				if (!window.currentPlaylist) window.currentPlaylist = "Favorites";
-				
+			// 1. PLAYLISTS MANAGEMENT (Local change without errors)
+			// 🌟 ΔΙΟΡΘΩΣΗ: Σωστή παρένθεση και έλεγχος αν παίζει από τις λίστες σου (π.χ. "playlists")
+			if (typeof currentQueueType !== 'undefined' && currentQueueType === "playlists") {		
 				let playlists = getAllPlaylists();
+				
+				if (!window.currentPlaylist) {
+					const playlistNames = Object.keys(playlists);
+					if (playlistNames.length > 0) {
+						window.currentPlaylist = playlistNames[0]; // Επιλέγει την πρώτη δική σου λίστα
+					} else {
+						console.log("No active playlist available for autoplay.");
+						return; // Σταματάει αν ο χρήστης δεν έχει καμία απολύτως λίστα
+					}
+				}
+				
 				let currentList = playlists[window.currentPlaylist] || [];
 				
 				if (currentList.length === 0) return;
@@ -1078,10 +1838,21 @@
 			
 			let videosList = [];
 			
-			// 1. IF PLAYING FROM PLAYLISTS / FAVORITES
-			if (typeof currentQueueType !== 'undefined' && currentQueueType === "favorites") {
-				if (!window.currentPlaylist) window.currentPlaylist = "Favorites";
+			// 1. IF PLAYING FROM PLAYLISTS
+			if (typeof currentQueueType !== 'undefined' && currentQueueType === "playlists") {
 				let playlists = getAllPlaylists();
+				
+				// Αν δεν υπάρχει επιλεγμένη λίστα, παίρνει αυτόματα την πρώτη δική σου
+				if (!window.currentPlaylist) {
+					const playlistNames = Object.keys(playlists);
+					if (playlistNames.length > 0) {
+						window.currentPlaylist = playlistNames[0];
+					} else {
+						console.log("No playlists available to play previous track.");
+						return;
+					}
+				}
+				
 				videosList = playlists[window.currentPlaylist] || [];
 			} 
 			// 2. IF PLAYING FROM SEARCH RESULTS (SEARCH LIST)
@@ -1105,8 +1876,7 @@
 				alert("You are already at the first song of the list!");
 			}
 		}
-
-        
+   
 		function changeVolume(volume) {
             currentVolume = volume;
             document.getElementById('volumeLabel').innerText = volume + "%";
@@ -1138,37 +1908,51 @@
 			});
 		}
 
-		function toggleAutoplay() {
-			isAutoplayActive = !isAutoplayActive;
-			const btn = document.getElementById('autoplayToggle');
-			btn.className = isAutoplayActive ? "btn-dl btn-autoplay active" : "btn-dl btn-autoplay";
-            // FIXED: Using shorter text layouts to completely stop letters from spilling out of background boxes
-			btn.innerText = isAutoplayActive ? "⏭️ Autoplay: ON" : "⏭️ Autoplay: OFF";
+		function toggleLoop() {
+			isLoopActive = !isLoopActive; // Flip the loop state boolean
+			
+			// Update the UI text dynamically using the current active language
+			const loopTextEl = document.getElementById('loopText');
+			if (loopTextEl) {
+				const key = isLoopActive ? 'loop_on' : 'loop_off';
+				loopTextEl.setAttribute('data-i18n', key);
+				loopTextEl.innerText = translations[currentLang][key];
+			}
+			
+			// The rest of your native loop execution code (e.g., iframe message postings) continues here...
+			console.log("Loop toggled. Active:", isLoopActive);
 		}
 
-        function toggleLoop() {
-            isLoopActive = !isLoopActive;
-            const btn = document.getElementById('loopToggle');
-            btn.className = isLoopActive ? "btn-dl btn-loop active" : "btn-dl btn-loop";
-            btn.innerText = isLoopActive ? "🔁 Loop: ON" : "🔁 Loop: OFF";
-            // if(currentVideoId) updatePlayerSrc();
-            
-        }
-
-       /* async function triggerDownload(id, mode) {
-            document.getElementById('progressBarContainer').style.display = 'block';
-            updateProgressBar(0, "Requesting conversion on server...");
-            try {
-                const targetUrl = baseApiUrl + "/download?video_id=" + id + "&mode=" + mode;
-                await fetch(targetUrl);
-                clearInterval(progressInterval);
-                progressInterval = setInterval(function() { checkProgress(id); }, 1000);
-            } catch (e) { console.error(e); }
-        } */
+		function toggleAutoplay() {
+			isAutoplayActive = !isAutoplayActive; // Flip the autoplay state boolean
+			
+			// Update the UI text dynamically using the current active language
+			const autoplayTextEl = document.getElementById('autoplayText');
+			if (autoplayTextEl) {
+				const key = isAutoplayActive ? 'autoplay_on' : 'autoplay_off';
+				autoplayTextEl.setAttribute('data-i18n', key);
+				autoplayTextEl.innerText = translations[currentLang][key];
+			}
+			
+			// Manage visual styling indicator classes on the master button container if used
+			const autoplayToggleBtn = document.getElementById('autoplayToggle');
+			if (autoplayToggleBtn) {
+				if (isAutoplayActive) {
+					autoplayToggleBtn.classList.add('active');
+				} else {
+					autoplayToggleBtn.classList.remove('active');
+				}
+			}
+			
+			console.log("Autoplay toggled. Active:", isAutoplayActive);
+		}
         
 		async function triggerDownload(id, mode) {
 			document.getElementById('progressBarContainer').style.display = 'block';
-			updateProgressBar(0, "Requesting conversion on server...");
+			
+			// 🌟 ΔΙΟΡΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_requesting
+			const requestMsg = translations[currentLang]["prog_requesting"] || "Requesting conversion on server...";
+			updateProgressBar(0, requestMsg);
 			
 			// 1. CLEAR ANY EXISTING INTERVAL IMMEDIATELY
 			if (typeof progressInterval !== 'undefined') {
@@ -1188,41 +1972,50 @@
 
 			} catch (e) { 
 				console.error(e); 
-				updateProgressBar(0, "Error connecting to server.");
+				// 🌟 ΔΙΟΡΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_conn_error
+				const connErrorMsg = translations[currentLang]["prog_conn_error"] || "Error connecting to server.";
+				updateProgressBar(0, connErrorMsg);
 			}
 		}
 
-        async function checkProgress(id) {
-            try {
-                const targetUrl = baseApiUrl + "/progress?video_id=" + id;
-                const response = await fetch(targetUrl);
-                const data = await response.json();
-                
-                if (data.status === "downloading") {
-                    updateProgressBar(data.percent, "Conversion on Server: " + data.percent + "%");
-                } 
-                else if (data.status === "finished") {
-                    clearInterval(progressInterval);
-                    updateProgressBar(100, "Ready! Downloading to your device...");
-                    
-                    const downloadUrl = baseApiUrl + "/get-file?file_name=" + encodeURIComponent(data.file);
-                    const nativeLink = document.createElement("a");
-                    nativeLink.href = downloadUrl;
-                    nativeLink.style.display = "none";
-                    document.body.appendChild(nativeLink);
-                    nativeLink.click(); 
-                    document.body.removeChild(nativeLink);
-                    
-                    setTimeout(() => {
-                        document.getElementById('progressBarContainer').style.display = 'none';
-                    }, 4000);
-                } 
-                else if (data.status === "error") {
-                    updateProgressBar(0, "Error during conversion.");
-                    clearInterval(progressInterval);
-                }
-            } catch (e) { console.error(e); }
-        }
+		async function checkProgress(id) {
+			try {
+				const targetUrl = baseApiUrl + "/progress?video_id=" + id;
+				const response = await fetch(targetUrl);
+				const data = await response.json();
+				
+				if (data.status === "downloading") {
+					// 🌟 ΔΙΟРΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_converting
+					const progressPrefix = translations[currentLang]["prog_converting"] || "Conversion on Server: ";
+					updateProgressBar(data.percent, `${progressPrefix}${data.percent}%`);
+				} 
+				else if (data.status === "finished") {
+					clearInterval(progressInterval);
+					
+					// 🌟 ΔΙΟРΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_ready
+					const readyMsg = translations[currentLang]["prog_ready"] || "Ready! Downloading to your device...";
+					updateProgressBar(100, readyMsg);
+					
+					const downloadUrl = baseApiUrl + "/get-file?file_name=" + encodeURIComponent(data.file);
+					const nativeLink = document.createElement("a");
+					nativeLink.href = downloadUrl;
+					nativeLink.style.display = "none";
+					document.body.appendChild(nativeLink);
+					nativeLink.click(); 
+					document.body.removeChild(nativeLink);
+					
+					setTimeout(() => {
+						document.getElementById('progressBarContainer').style.display = 'none';
+					}, 4000);
+				} 
+				else if (data.status === "error") {
+					// 🌟 ΔΙΟРΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_conv_error
+					const convErrorMsg = translations[currentLang]["prog_conv_error"] || "Error during conversion.";
+					updateProgressBar(0, convErrorMsg);
+					clearInterval(progressInterval);
+				}
+			} catch (e) { console.error(e); }
+		}
 
         function updateProgressBar(percent, text) {
             document.getElementById('progressBar').style.width = percent + "%";
@@ -1248,8 +2041,7 @@
 		function renderHistory() {
 			const container = document.getElementById('historyList');
 			let history = JSON.parse(localStorage.getItem("yt_history")) || [];
-			container.innerHTML = history.length === 0 ? "<span style='color:#555;font-size:13px;'>Empty history</span>" : "";
-			
+			container.innerHTML = history.length === 0 ? `<span data-i18n="empty_history" style="color:#555;font-size:13px;">${translations[currentLang]["empty_history"]}</span>` : "";		
 			history.forEach(item => {
 				const div = document.createElement('div'); 
 				div.className = 'history-item'; 
@@ -1280,8 +2072,33 @@
         function clearHistory() { localStorage.removeItem("yt_history"); renderHistory(); }
 
 		function addCurrentToFavorites() {
+			// 🌟 ΔΙΟΡΘΩΣΗ: Φέρνουμε τα playlists στην αρχή για να μπορούμε να τα ελέγξουμε με ασφάλεια
+			let playlists = getAllPlaylists();
+
+			// 1. ΔΥΝΑΜΙΚΟΣ ΕΛΕΓΧΟΣ: Αν δεν υπάρχει επιλεγμένη λίστα, βρες την πρώτη ή ζήτα δημιουργία
 			if (!window.currentPlaylist) {
-				window.currentPlaylist = "Favorites";
+				const playlistNames = Object.keys(playlists);
+				
+				if (playlistNames.length > 0) {
+					// Αν υπάρχουν ήδη άλλες λίστες, επίλεξε την πρώτη διαθέσιμη
+					window.currentPlaylist = playlistNames[0];
+				} else {
+					// Αν δεν υπάρχει καμία απολύτως λίστα, ζήτα από τον χρήστη να δώσει ένα όνομα
+					const newListName = prompt("You don't have any playlists. Enter a name to create your first playlist:");
+					if (!newListName || newListName.trim() === "") {
+						alert("You must create a playlist to add videos!");
+						return;
+					}
+					
+					const cleanName = newListName.trim();
+					playlists[cleanName] = [];
+					window.currentPlaylist = cleanName;
+					
+					// Ενημέρωση του selector UI αν υπάρχει η συνάρτηση
+					if (typeof renderPlaylistSelector === 'function') {
+						renderPlaylistSelector();
+					}
+				}
 			}
 
 			let detectedVideoId = null;
@@ -1317,8 +2134,6 @@
 				alert("No valid video ID was found! Please play a song first.");
 				return;
 			}
-			
-			let playlists = getAllPlaylists();
 			
 			if (!playlists[window.currentPlaylist]) {
 				playlists[window.currentPlaylist] = [];
@@ -1361,12 +2176,20 @@
 			const container = document.getElementById('favoritesList');
 			if (!container) return;
 
+			// 🌟 ΔΙΚΛΕΙΔΑ ΑΣΦΑΛΕΙΑΣ: Αν δεν υπάρχει επιλεγμένη λίστα, σταμάτα για να μην σπάσει το UI
+			if (!window.currentPlaylist) {
+				container.innerHTML = "<span style='color:#888; font-size:12px; padding:10px; display:block;'>No playlist selected. Please select or create one!</span>";
+				return;
+			}
+
+			// Χρησιμοποιούμε με συνέπεια το window.currentPlaylist
+			const activeListKey = window.currentPlaylist;
+
 			// 1. WE READ FROM THE NEW STRUCTURE (yt_playlists) AND NOT FROM yt_favorites
 			let playlists = getAllPlaylists();
-			let favorites = playlists[currentPlaylist] || [];
+			let favorites = playlists[activeListKey] || [];
 			
-			container.innerHTML = favorites.length === 0 ? "<span style='color:#555;font-size:12px;'>Empty</span>" : "";
-			
+			container.innerHTML = favorites.length === 0 ? `<span data-i18n="empty_playlist" style="color:#555;font-size:12px; padding:10px; display:block;">${translations[currentLang]["empty_playlist"]}</span>` : "";		
 			favorites.forEach((video, i) => {
 				const div = document.createElement('div'); 
 				
@@ -1394,11 +2217,13 @@
 					const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
 					if (draggedIndex !== i) {
 						let playlistsUpdate = getAllPlaylists();
-						let favs = playlistsUpdate[currentPlaylist];
-						const [item] = favs.splice(draggedIndex, 1);
-						favs.splice(i, 0, item);
-						localStorage.setItem("yt_playlists", JSON.stringify(playlistsUpdate));
-						renderFavorites(); 
+						let favs = playlistsUpdate[activeListKey]; // 🌟 Διορθώθηκε
+						if (favs) {
+							const [item] = favs.splice(draggedIndex, 1);
+							favs.splice(i, 0, item);
+							localStorage.setItem("yt_playlists", JSON.stringify(playlistsUpdate));
+							renderFavorites(); 
+						}
 					}
 				};
 
@@ -1440,15 +2265,17 @@
 							activeTouchIndex = targetIndex;
 							
 							let playlistsUpdate = getAllPlaylists();
-							let favs = playlistsUpdate[currentPlaylist];
-							const [item] = favs.splice(i, 1);
-							favs.splice(targetIndex, 0, item);
-							localStorage.setItem("yt_playlists", JSON.stringify(playlistsUpdate));
-							
-							if (targetIndex > i) {
-								container.insertBefore(div, targetRow.nextSibling);
-							} else {
-								container.insertBefore(div, targetRow);
+							let favs = playlistsUpdate[activeListKey]; // 🌟 Διορθώθηκε
+							if (favs) {
+								const [item] = favs.splice(i, 1);
+								favs.splice(targetIndex, 0, item);
+								localStorage.setItem("yt_playlists", JSON.stringify(playlistsUpdate));
+								
+								if (targetIndex > i) {
+									container.insertBefore(div, targetRow.nextSibling);
+								} else {
+									container.insertBefore(div, targetRow);
+								}
 							}
 						}
 					}
@@ -1477,7 +2304,7 @@
 				titleSpan.style.cursor = 'pointer';
 				titleSpan.style.flexGrow = '1';
 				titleSpan.onclick = () => {
-					currentQueueType = "favorites";
+					currentQueueType = "playlists"; // 🌟 ΑΛΛΑΓΗ: Από "favorites" έγινε "playlists"
 					startPlayback(video.id, video.title);
 				};
 				div.appendChild(titleSpan);
@@ -1553,8 +2380,7 @@
 			localStorage.setItem("yt_playlists", JSON.stringify(playlists));
 			renderFavorites();
 		}
-
-        
+    
         // Monitor fullscreen layout shifts to force rotation on mobile Chrome
 		document.addEventListener('fullscreenchange', function() {
 			const iframeContainer = document.querySelector('.iframe-container');
@@ -1622,12 +2448,12 @@
 					if (importedData && typeof importedData === 'object' && !Array.isArray(importedData)) {
 						
 						// Display the selection window
-						const choice = prompt(
-							"How would you like to import your playlists?\n\n" +
-							"Type '1' to SMART MERGE (Combines tracks inside lists, avoids duplicates 🌟)\n" +
-							"Type '2' to OVERWRITE (Completely replaces everything with this backup)\n\n" +
-							"Cancel or leave blank to abort."
-						);
+						// 🌟 DYNAMIC TRANSLATION: Pulls the multi-line import prompt from your language dictionary
+						const importMsg = translations[currentLang]["import_prompt"] || 
+							"How would you like to import your playlists?\n\nType '1' to SMART MERGE (Combines tracks inside lists, avoids duplicates 🌟)\nType '2' to OVERWRITE (Completely replaces everything with this backup)\n\nCancel or leave blank to abort.";
+
+						const choice = prompt(importMsg);
+
 
 						console.log("User choice:", choice);
 						let currentPlaylists = getAllPlaylists();
@@ -1658,22 +2484,30 @@
 							}
 							
 							localStorage.setItem("yt_playlists", JSON.stringify(currentPlaylists));
-							alert("Playlists merged successfully! All new tracks added, duplicates filtered out.");
-							window.location.reload();
-							
-						} else if (choice === "2") {
-							// ⚠️ OVERWRITE (Full replacement)
-							if (confirm("Are you absolutely sure? This will wipe out all your current playlists and replace them.")) {
-								localStorage.setItem("yt_playlists", JSON.stringify(importedData));
-								alert("Database overwritten successfully!");
-								window.location.reload();
+							// 🌟 DYNAMIC SUCCESS MERGE MESSAGE:
+							const successMergeMsg = translations[currentLang]["success_merge"] || "Playlists merged successfully! All new tracks added, duplicates filtered out.";
+							alert(successMergeMsg);
+							window.location.reload();					
+						 } else if (choice === "2") {
+								// ⚠️ OVERWRITE (Full replacement)
+								const confirmOverwriteMsg = translations[currentLang]["confirm_overwrite"] || "Are you absolutely sure? This will wipe out all your current playlists and replace them.";
+								
+								if (confirm(confirmOverwriteMsg)) {
+									localStorage.setItem("yt_playlists", JSON.stringify(importedData));
+									
+									const successOverwriteMsg = translations[currentLang]["success_overwrite"] || "Database overwritten successfully!";
+									alert(successOverwriteMsg);
+									window.location.reload();
+								}
+							} else {
+								const importCanceledMsg = translations[currentLang]["import_canceled"] || "Import canceled.";
+								alert(importCanceledMsg);
 							}
-						} else {
-							alert("Import canceled.");
-						}
-					} else {
-						alert("Invalid backup file structure. Please ensure it's a valid playlists JSON.");
-					}
+							} else {
+								const invalidStructureMsg = translations[currentLang]["invalid_structure"] || "Invalid backup file structure. Please ensure it's a valid playlists JSON.";
+								alert(invalidStructureMsg);
+							}
+
 				} catch (err) {
 					console.error("Error during import:", err);
 					alert("Error parsing backup file: " + err.message);
@@ -1683,6 +2517,91 @@
 			event.target.value = ''; 
 		}
 
-	</script>
+		function setLanguage(lang) {
+			currentLang = lang;
+			localStorage.setItem("app_lang", lang); // Save language selection to browser storage
+			
+			// 1. Synchronize the Dropdown selection menu value
+			const langSelect = document.getElementById('langSelect');
+			if (langSelect) {
+				langSelect.value = lang;
+			}
+			
+			// 2. Translate plain text in standard HTML components (PROTECTED)
+			document.querySelectorAll('[data-i18n]').forEach(element => {
+				const id = element.getAttribute('id');
+				
+				// SAFETY BYPASS: If targeting the results layout elements, DO NOT blindly overwrite content here
+				if (id === 'resultsTitle' || id === 'resultsList') {
+					return;
+				}
+				
+				const key = element.getAttribute('data-i18n');
+				if (translations[lang] && translations[lang][key]) {
+					element.innerText = translations[lang][key];
+				}
+			});
+
+			// 3. Translate form Input Placeholders (e.g., search text field prompts)
+			document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+				const key = element.getAttribute('data-i18n-placeholder');
+				if (translations[lang] && translations[lang][key]) {
+					element.placeholder = translations[lang][key];
+				}
+			});
+			
+			// 4. INTELLIGENT SEARCH LAYOUT MANAGEMENT (FIXED FOR GREEK/MULTILINGUAL RENDERERS)
+			const resultsTitleEl = document.getElementById("resultsTitle");
+			const resultsListEl = document.getElementById("resultsList");
+			
+			// Safely pull the correct translated term from dictionary mapping, otherwise default to English "Results"
+			let resultsLabel = "Results";
+			if (translations[lang] && translations[lang]["results"]) {
+				resultsLabel = translations[lang]["results"];
+			}
+
+			// Count live video instances currently drawn inside the container DOM nodes
+			const actualVideosCount = resultsListEl ? resultsListEl.querySelectorAll('.video-item, [data-id], .track-item').length : 0;
+
+			if (actualVideosCount > 0) {
+				// If active video tracks exist on screen, apply the TRANSLATED text tag alongside the counter number
+				if (resultsTitleEl) {
+					resultsTitleEl.innerText = `${resultsLabel} (${actualVideosCount})`;
+				}
+			} else {
+				// If the view layer list is completely empty, append the plain translated label alone onto the title header
+				if (resultsTitleEl) {
+					resultsTitleEl.innerText = resultsLabel;
+				}
+				if (resultsListEl) {
+					const performSearchMsg = (translations[lang] && translations[lang]["perform_search"]) ? translations[lang]["perform_search"] : "Perform a search...";
+					resultsListEl.innerHTML = `<span data-i18n="perform_search">${performSearchMsg}</span>`;
+				}
+			}
+
+			// 5. Dynamic status updates for UI Toggle Indicators (Loop / Autoplay switches)
+			const loopTextEl = document.getElementById('loopText');
+			if (loopTextEl) {
+				const key = isLoopActive ? 'loop_on' : 'loop_off';
+				loopTextEl.setAttribute('data-i18n', key);
+				loopTextEl.innerText = translations[lang][key];
+			}
+
+			const autoplayTextEl = document.getElementById('autoplayText');
+			if (autoplayTextEl) {
+				const key = isAutoplayActive ? 'autoplay_on' : 'autoplay_off';
+				autoplayTextEl.setAttribute('data-i18n', key);
+				autoplayTextEl.innerText = translations[lang][key];
+			}
+
+			// Automatic language conversion wrapper loop for the informational search-message container element
+			const searchMsgEl = document.getElementById('search-message');
+			if (searchMsgEl && typeof MAX_RESULTS !== 'undefined') {
+				const searchTipTemplate = translations[lang]["search_tip"] || 'Each click on "Search" button returns more results, ranging from 15 up to a maximum of {MAX}.';
+				searchMsgEl.textContent = searchTipTemplate.replace('{MAX}', MAX_RESULTS);
+			}
+		}
+
+</script>
 </body>
 </html>
