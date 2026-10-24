@@ -121,7 +121,13 @@ An run rc.ytapp script which run the server.py
 	sudo service restart ytapp 
   
 
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/904c3aa1-b6a2-44dc-8433-10d204b9dfc9" />  
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/4a19a078-4978-4905-becf-ee6ea8a06499" />  
+
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/2eefb759-be8e-47d1-82b4-acdddebb3b78" />  
+
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/eba50a6b-b245-423b-b503-50328b675f48" />  
+
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/fb5a66f6-fa4e-4531-ae73-4d465133e30f" />  
 
 
 Copyright (C) 2026 Dimitris Tzemos <dijemos@gmail.com>
