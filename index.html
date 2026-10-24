@@ -371,18 +371,18 @@
                         <!-- Will be populated dynamically by JavaScript -->
                     </select>
                     <!-- Button to Add a New Playlist -->
-					<!-- Τοπικό στυλ αποκλειστικά για το κουμπί New List -->
+					<!-- Local style exclusively for the New List button -->
 					<style>
 						.btn-new-list-special {
-							color: #4da6ff !important; /* Αρχικό χρώμα: Μπλε */
-							border: 1px solid rgba(77, 166, 255, 0.3) !important; /* Απαλό μπλε περίγραμμα */
+							color: #4da6ff !important; /* Original color: Blue */
+							border: 1px solid rgba(77, 166, 255, 0.3) !important; /* Soft blue border */
 						}
 						.btn-new-list-special:hover {
-							color: #ff0000 !important; /* Όταν μπαίνει το ποντίκι: Κόκκινο και επιστρέφει αυτόματα μετά */
+							color: #ff0000 !important; /* When the mouse enters: Turns red, then automatically reverts afterwards*/
 						}
 					</style>
 
-					<!-- Το κουμπί σας με τη νέα κλάση ενσωματωμένη -->
+					<!-- Τthe button with the new class integrated -->
 					<button class="btn-clear-action btn-new-list-special" onclick="createNewPlaylist()" style="padding: 4px 8px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none !important;">
 						<!-- The ➕ is now 100% clean with no line underneath -->
 						<span style="filter: var(--emoji-filter, none); display: inline-block;">➕</span> 
@@ -394,7 +394,7 @@
                 <!-- Right section: Rename, Clear and Delete grouped together -->
 				<div style="display: flex; flex-direction: column; gap: 6px; width: 100%; justify-content: flex-start; margin-bottom: 12px;">
 	
-					<!-- ROW 1: Rename, Clear, Delete (Συμπυκνωμένα για να χωράνε 100% σε 1 γραμμή) -->
+					<!-- ROW 1: Rename, Clear, Delete (condensed to fit 100% onto a single line) -->
 					<div style="display: flex; gap: 4px; align-items: center; justify-content: flex-start; width: 100%;">
 						<!-- 📝 Rename Button -->
 						<button class="btn-clear-action" onclick="renameCurrentPlaylist()" style="color: #4da6ff; border: 1px solid rgba(77,166,255,0.4) !important; border-radius: 20px !important; padding: 4px 8px; font-size: 12px; text-decoration: none !important; white-space: nowrap;">
@@ -479,7 +479,7 @@
 	<script>
 		
 		const savedTheme = localStorage.getItem("theme");
-		if (savedTheme === "dark" || !savedTheme) { // αν είναι dark ή αν δεν έχει επιλεγεί τίποτα ακόμα
+		if (savedTheme === "dark" || !savedTheme) { // if it is dark or if nothing has been selected yet
 			document.documentElement.style.setProperty('--emoji-filter', 'invert(1) brightness(2)');
 		} else {
 			document.documentElement.style.setProperty('--emoji-filter', 'none');
@@ -1122,20 +1122,15 @@
 		// NEW HELPER FUNCTION FOR UI AUTO-SCROLLING
 		// ==========================================
 		function scrollToActiveTrack(videoId) {
-			// 1. Αφαιρούμε το active highlight από το προηγούμενο τραγούδι σε όλες τις λίστες
 			const previousActive = document.querySelectorAll('.video-item.active, .playlist-item.active, .song-item.active');
 			previousActive.forEach(el => el.classList.remove('active'));
 
-			// 2. Βρίσκουμε ΟΛΑ τα στοιχεία που έχουν αυτό το videoId (και στη Search List και στη λίστα stratos)
 			const currentElements = document.querySelectorAll(`[data-id="${videoId}"], [id="video-${videoId}"]`);
 			
-			// 3. Κάνουμε ακριβώς το ίδιο scrollIntoView για ΚΑΘΕ στοιχείο ξεχωριστά
 			currentElements.forEach(element => {
 				// Προσθέτουμε την κλάση active για το visual εφέ
 				element.classList.add('active');
-				
-				// Χρησιμοποιούμε την ίδια ακριβώς εντολή που δούλεψε στη Search List
-				// Ο browser θα αναλάβει να σκρολάρει τον αντίστοιχο container της κάθε λίστας
+			
 				element.scrollIntoView({
 					behavior: 'smooth',
 					block: 'center'
