@@ -121,16 +121,17 @@ An run rc.ytapp script which run the server.py
 	sudo service restart ytapp 
 
   
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/c886eb80-de40-406d-bbcf-895e501dc92b" />  
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/e4b51fcd-4743-4030-be2e-c83402cbaa89" />  
 
 
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/5d6df98c-7fdd-494e-89cc-a2782e75b4ff" />  
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/a6f54bb3-bf5c-4e95-b46f-ab2dbe497f21" />  
 
 
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/642bc9be-1687-4d31-93a7-e41534c6def3" />  
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/a12ae28d-46b6-42d6-8c71-4003abbfc744" />  
 
 
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/6bbf70ba-3a93-4c00-b70c-a3e5d98fcb23" />  
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/28014b7a-1bc2-403a-91b3-9f7718e9481d" />  
+
 
 
 Copyright (C) 2026 Dimitris Tzemos <dijemos@gmail.com>
