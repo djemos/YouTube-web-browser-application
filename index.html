@@ -394,11 +394,11 @@
 			<div class="box-header">
 				<h3 data-i18n="history">History</h3>			
 				<!-- Clear All button with the custom style and clean structure -->
-				<button class="btn-clear-action btn-clear-special" onclick="clearHistory()" style="padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none !important;">
+				<button class="btn-clear-action btn-clear-special" onclick="clearHistory()" style="padding: 4px 10px; display: block; align-items: center; gap: 4px; text-decoration: none !important;margin-right: 15px; margin-top: -15px;">
 					<!-- The 🗑️ icon is clean with no line underneath -->
-					<span style="filter: var(--emoji-filter, none); display: inline-block;">🗑️</span> 
+					<span style="filter: var(--emoji-filter, none); display: block;">🗑️</span> 
 					<!-- Underline applies ONLY to the "Clear All" text string -->
-					<span data-i18n="clear_all" style="text-decoration: underline;">Clear All</span>
+					<span data-i18n="clear_all" style="text-decoration: underline;font-size: 11px;">Clear All</span>
 				</button>
 			</div>
 			<div id="historyList"></div>
@@ -415,7 +415,7 @@
                     </select>
                     <!-- Button to Add a New Playlist -->
 					<!-- Local style exclusively for the New List button -->
-					<!--<style>
+					<style>
 						.btn-new-list-special {
 							color: #4da6ff !important; /* Original color: Blue */
 							border: 1px solid rgba(77, 166, 255, 0.3) !important; /* Soft blue border */
@@ -426,31 +426,11 @@
 					</style>
 
 					<!-- Τthe button with the new class integrated -->
-				<!--	<button class="btn-clear-action btn-new-list-special" onclick="createNewPlaylist()" style="padding: 4px 8px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none !important;">
-						<span style="filter: var(--emoji-filter, none); display: inline-block;">➕</span> 
-						<span data-i18n="new_list" style="text-decoration: underline; display: block; font-size: 11px;">New List</span>
-					</button> -->
-					
-					<!-- Local style exclusively for the New List button -->
-					<style>
-						.btn-new-list-special {
-							color: #4da6ff !important; /* Original color: Blue */
-							border: 1px solid rgba(77, 166, 255, 0.3) !important; /* Soft blue border */
-							border-radius: 12px !important;
-							text-align: center;
-						}
-						.btn-new-list-special:hover {
-							color: #ff0000 !important; /* When the mouse enters: Turns red */
-							border-color: rgba(255, 0, 0, 0.4) !important;
-						}
-					</style>
-
-					<!-- Added margin-right: 15px; to create space from the right edge of the box -->
-					<button class="btn-clear-action btn-new-list-special" onclick="createNewPlaylist()" style="padding: 6px 10px; display: block; text-decoration: none !important; width: min-content; max-width: 90px; line-height: 1.2; margin-right: 15px;">
-						<!-- The ➕ is clean and centered above the text -->
-						<span style="filter: var(--emoji-filter, none); display: block; margin-bottom: 2px;">➕</span> 
-						<!-- The text will now automatically wrap into two lines -->
-						<span data-i18n="new_list" style="text-decoration: underline; display: block; font-size: 11px;">New List</span>
+					<button class="btn-clear-action btn-new-list-special" onclick="createNewPlaylist()" style="padding: 4px 8px; display: block; align-items: center; gap: 4px; text-decoration: none !important; margin-right: 15px;">
+						<!-- The ➕ is now 100% clean with no line underneath -->
+						<span style="filter: var(--emoji-filter, none); display: block;">➕</span> 
+						<!-- We apply the underline ONLY to the "New List" text string -->
+						<span data-i18n="new_list" style="text-decoration: underline;font-size: 11px;">New List</span>
 					</button>
                 </div>
              
