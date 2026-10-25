@@ -4,25 +4,6 @@
     <meta charset="UTF-8">
     <title>YouTube Browser App</title>
 <style>
-       /*  :root {
-            --bg-body: #0f0f0f;
-            --bg-box: #1f1f1f;
-            --bg-card: #282828;
-            --bg-card-hover: #383838;
-            --text-main: #fff;
-            --text-sub: #aaa;
-            --border-input: #3c3c3c;
-        }
-        .light-theme {
-            --bg-body: #f9f9f9;
-            --bg-box: #ffffff;
-            --bg-card: #f1f1f1;
-            --bg-card-hover: #e5e5e5;
-            --text-main: #000;
-            --text-sub: #606060;
-            --border-input: #ccc;
-        } */
-        
 		:root {
 			--bg-body: #0f0f0f;
 			--bg-box: #1f1f1f;
@@ -83,8 +64,7 @@
             flex-wrap: wrap; 
         }
         input { padding: 12px; width: 400px; border-radius: 20px; border: 1px solid var(--border-input); background: var(--bg-box); color: var(--text-main); padding-left: 20px; font-size: 16px; }
-       /* button { padding: 12px 24px; background: #cc0000; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        button:hover { background: #990000; } */
+ 
         button { 
 				padding: 12px 24px; 
 				background: var(--btn-bg); /* Changes automatically based on theme */
@@ -158,136 +138,87 @@
         #volumeLabel { font-size: 13px; width: 45px; text-align: left; }
 
         .download-zone { margin-top: 15px; padding: 15px; background: var(--bg-card); border-radius: 8px; display: flex; flex-direction: column; gap: 15px;  margin-top: -15px;}
-        
-         /* All buttons in a single row WITHOUT a visible scroll bar */
-     /* .buttons-row { 
-            display: flex;  !important;
-            justify-content: flex-start; 
-            gap: 8px; 
-            flex-wrap: wrap; 
-            width: 100%;
-            box-sizing: border-box;
-            align-items: center;
-            overflow-x: auto; 
-            padding-bottom: 5px;
-            /* Κρύβει τη μπάρα σε Firefox και IE/Edge */
-            scrollbar-width: none; 
-            -ms-overflow-style: none;  
-        } */
-
-		/* Enables structural breathing room and protects layout lines */
-		.buttons-row {
-			display: flex;
-			flex-wrap: wrap;       /* Allows buttons to flow to a new line cleanly instead of shrinking */
-			gap: 6px;              /* Sets a guaranteed minimum pixel spacing between adjacent items */
-			justify-content: flex-start; /* Keeps the component button block looking balanced and centered */
-		}
-
-		/* Optimizes uniform spacing configurations on the target actions */
+       
+		/* --- STRUCTURAL ROW & GENERAL BUTTONS --- */
+		/* Base button styling */
 		.btn-dl {
 			background: #2ba640;
-			font-size: 10px;       /* Stabilizes character height across different font engine renders */
-			padding: 6px 10px;     /* Adjusts padding dimensions to safely preserve button geometry */
-			white-space: nowrap;   /* Safeguards phrases from awkwardly splitting horizontally inside a button wrapper */
+			font-size: 10px;       
+			padding: 6px 10px;     
+			white-space: nowrap;   
 			display: inline-flex;
 			align-items: center;
-			gap: 4px;              /* Provides direct spacing separation between the emoji tag and text label */
+			gap: 4px;              
 		}
 
+		/* General buttons: turn dark green on hover */
+		.buttons-row .btn-dl:hover,
+		.buttons-row button:hover {
+			background: #1e782c !important;
+			box-shadow: none !important;
+			color: #ffffff !important;
+		}
+
+		/* --- FAVORITE BUTTON --- */
+		/* Keeps favorite button orange/yellow and prevents it from turning green */
+		.btn-fav, 
+		.buttons-row .btn-fav,
+		.buttons-row button.btn-fav {
+			background: #e6a23c !important;
+		}
+		.btn-fav:hover, 
+		.buttons-row .btn-fav:hover,
+		.buttons-row button.btn-fav:hover {
+			background: #cf8e29 !important;
+			box-shadow: none !important;
+		}
+
+		/* Loop ON state: Bright Blue with Glow (Stays blue when mouse is not on it) */
+		.btn-loop.active,
+		.buttons-row .btn-loop.active,
+		.buttons-row button.btn-loop.active { 
+			background: #007bff !important; 
+			box-shadow: 0 0 8px #007bff !important; 
+		}
+
+		/* Loop ON state + Mouse Hover: Keeps Blue Background */
+		.btn-loop.active:hover,
+		.buttons-row button.btn-loop.active:hover {
+			background: #007bff !important;
+			box-shadow: none !important;
+		}
+
+		/* --- AUTOPLAY BUTTON --- */
+		.btn-autoplay { background: #2ba640; }
+
+		/* Autoplay ON state: Bright Blue with Glow */
+		.btn-autoplay.active,
+		.buttons-row button.btn-autoplay.active { 
+			background: #007bff !important; 
+			box-shadow: 0 0 8px #007bff !important; 
+		}
+
+		/* Autoplay ON state + Mouse Hover: Dark Green */
+		.btn-autoplay.active:hover,
+		.buttons-row button.btn-autoplay.active:hover {
+			background: #007bff !important;
+			box-shadow: none !important;
+		}
 
         /* Hides the bar in Chrome, Safari, and Opera (Webkit) */
         .buttons-row::-webkit-scrollbar {
             display: none;
         }
 
-		/* Master button text compression rule */
-	/*	.buttons-row button,
-		.buttons-row .btn-dl,
-		.buttons-row .btn-dll {
-			display: inline-flex !important;
-			align-items: center !important;
-			justify-content: center !important;
-			font-size: 10px !important; /* Slightly smaller text envelope so long words fit */
-			font-weight: bold !important;
-			padding-left: 2px !important; /* Drops internal side margins to maximum compress text */
-			padding-right: 2px !important;
-			text-align: center !important;
-			white-space: nowrap !important;
-			box-sizing: border-box !important;
-			min-width: 0 !important;
-		}*/
-
 		/* Dedicated background padding cushion for the Autoplay button */
 		.btn-autoplay {
 			padding-right: 8px !important; 
 		}
 
-	/*	.btn-dl { 
-            background: #2ba640; 
-            border-radius: 6px; 
-            padding: 10px; 
-            font-size: 12px !important;
-            border: none; 
-            color: white; 
-            cursor: pointer; 
-            font-weight: bold; 
-            flex: 1; 
-            min-width: 100px;
-            text-align: center  !important;
-            white-space: nowrap !important;
-            min-height: 45px;
-            box-sizing: border-box;
-            width: auto !important; /* Kills any hardcoded 'width: 140px' overrides */
-			min-width: 0 !important; /* Allows items to shrink below text boundary safely */
-			max-width: none !important;
-        } */
-.btn-dl:hover { background: #1e782c; }
-        .btn-fav { background: #e6a23c; }
-        .btn-fav:hover { background: #cf8e29; }
-        .btn-loop { background: #2ba640; }
-        .btn-loop.active { background: #007bff; box-shadow: 0 0 8px #007bff; }
-		.btn-autoplay.active {background: #007bff; box-shadow: 0 0 8px #007bff;}
-
-
-    /*   .btn-dll { 
-            background: #0056b3; 
-            border-radius: 6px; 
-            padding: 10px; 
-            font-size: 12px; 
-            border: none; 
-            color: white; 
-            cursor: pointer; 
-            font-weight: bold; 
-            flex: 1; 
-            min-width: 100px;
-            text-align: center;
-            white-space: nowrap; 
-            min-height: 45px;
-            box-sizing: border-box;
-        }
-        .btn-dll:hover { background: #004085; } */
-
         .progress-container { display: none; background: #444; border-radius: 10px; height: 20px; width: 80%; margin: 0 auto; position: relative; overflow: hidden; }
         .progress-bar { background: #2ba640; height: 100%; width: 0%; transition: width 0.2s ease; }
         .progress-text { position: absolute; width: 100%; text-align: center; top: 0; left: 0; font-size: 12px; line-height: 20px; font-weight: bold; color: #fff; }
-        
-      /*  .footer {
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            background-color: #1a1a1a; 
-            color: #ffffff;             
-            text-align: center;         
-            padding: 15px 0;            
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-            z-index: 9999;
-            border-top: 1px solid var(--border-input);
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
-        }
-        .mobile-spacer { height: 60px; } */
-        
+         
         .footer {
 			position: fixed;
 			left: 0;
@@ -2099,6 +2030,12 @@ async function playNextVideo() {
 		function toggleLoop() {
 			isLoopActive = !isLoopActive; // Flip the loop state boolean
 			
+			// Toggle the 'active' class on the button itself so the CSS turns it blue
+			const loopButton = document.getElementById('loopToggle');
+			if (loopButton) {
+				loopButton.classList.toggle('active', isLoopActive);
+			}
+			
 			// Update the UI text dynamically using the current active language
 			const loopTextEl = document.getElementById('loopText');
 			if (loopTextEl) {
@@ -2110,6 +2047,7 @@ async function playNextVideo() {
 			// The rest of your native loop execution code (e.g., iframe message postings) continues here...
 			console.log("Loop toggled. Active:", isLoopActive);
 		}
+
 
 		function toggleAutoplay() {
 			isAutoplayActive = !isAutoplayActive; // Flip the autoplay state boolean
