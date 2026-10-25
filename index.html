@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>YouTube Browser App</title>
-<style>
+	<style>
 		:root {
 			--bg-body: #0f0f0f;
 			--bg-box: #1f1f1f;
@@ -283,7 +283,6 @@
 			border-color: rgba(255, 0, 0, 0.3) !important; /* Border turns red */
 		}
    </style>
-
 </head>
 <body>
 <!-- 21 Languages -->
@@ -1530,7 +1529,7 @@ const translations = {
 		}
 
 		// 3. ADD VIDEO TO THE SELECTED PLAYLIST (⭐ Favorite Button)
-//////////////////////////////////////////////
+
 		function addCurrentToFavorites() {
 			// Making sure the variable has a valid value
 			// 1. DYNAMIC CHECK: If no playlist is selected, find the first one or prompt for creation
@@ -1602,7 +1601,6 @@ const translations = {
 			renderFavorites();
 		}
 
-////////////////////////////////////////////////////////////////////////
 		// 4. CHANGE PLAYLIST FROM THE DROPDOWN
 		function changePlaylist(playlistName) {
 			window.currentPlaylist = playlistName;
@@ -1971,7 +1969,7 @@ const translations = {
 			}
 		}
 
-async function playNextVideo() {
+	async function playNextVideo() {
 			if (!currentVideoId) {
 				console.log("No active playing video.");
 				return;
