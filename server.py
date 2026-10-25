@@ -22,7 +22,7 @@ download_progress = {}
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads_temp")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-MAX_RESULTS = 100
+MAX_RESULTS = 200
 
 # IN-MEMORY CACHE: Stores the last search result list per query string
 search_cache = {}
