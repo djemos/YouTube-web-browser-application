@@ -351,6 +351,7 @@
    </style>
 </head>
 <body>
+<!-- 21 Languages -->
 <div class="search-container">
 		<select id="langSelect" class="btn-theme" onchange="setLanguage(this.value)" style="padding: 4px 8px; cursor: pointer; font-size: 12px; vertical-align: middle;">
 			<option value="en">English</option>
@@ -362,6 +363,9 @@
 			<option value="pt">Português (PT)</option>
 			<option value="br">Português (BR)</option>
 			<option value="sq">Shqip</option>
+			<option value="ru">Русский</option>
+			<option value="cs">Čeština</option>
+			<option value="sl">Slovenščina</option>
 			<option value="tr">Türkçe</option>
 			<option value="he">עברית</option>
 			<option value="fi">Suomi</option>
@@ -551,7 +555,7 @@
     </div>
 <script>
 const translations = {
-	en: {
+	en: { // English
 		theme: "Theme", search: "Search", history: "History", clear_all: "Clear All",
 		new_list: "New List", rename: "Rename", clear: "Clear", delete: "Delete",
 		export: "Export", import: "Import", results: "Results", favorite: "Favorite",
@@ -582,7 +586,7 @@ const translations = {
 		prog_ready: "Ready! Downloading to your device...",
 		prog_conv_error: "Error during conversion."
 	},
-	el: {
+	el: { // Greek
 		theme: "Θέμα", search: "Αναζήτηση", history: "Ιστορικό", clear_all: "Καθαρισμός Όλων",
 		new_list: "Νέα Λίστα", rename: "Μετονομασία", clear: "Καθαρισμός", delete: "Διαγραφή",
 		export: "Εξαγωγή", import: "Εισαγωγή", results: "Αποτελέσματα", favorite: "Αγαπημένο",
@@ -829,6 +833,99 @@ const translations = {
 		prog_converting: "Konvertimi në Server : ",
 		prog_ready: "Gati! Duke e shkarkuar në pajisjen tuaj...",
 		prog_conv_error: "Gabim gjatë konvertimit."
+	},
+	ru: { // Russian
+		theme: "Тема", search: "Поиск", history: "История", clear_all: "Очистить всё",
+		new_list: "Новый список", rename: "Переименовать", clear: "Очистить", delete: "Удалить",
+		export: "Экспорт", import: "Импорт", results: "Результаты", favorite: "Избранное",
+		download_mp3: "Скачать MP3", download_mp4: "Скачать MP4", prev: "Пред.", next: "След.",
+		copyright: "Copyright &copy; 2026 Разработано <strong>Dimitris Tzemos</strong>. Все права защищены.",
+		search_placeholder: "Поиск...", search_button: "Найти", perform_search: "Выполните поиск...",
+		empty_history: "История пуста", empty_playlist: "Плейлист пуст",
+		loop_on: "Повтор: ВКЛ", loop_off: "Повтор: ВЫКЛ", autoplay_on: "Автопроизведение: ВКЛ", autoplay_off: "Автопроизведение: ВЫКЛ",
+		searching: "Поиск...", no_results: "Ничего не найдено на YouTube.", api_error: "Ошибка подключения к API", error_suffix: "Ошибка",
+		search_tip: 'Каждый клик по кнопке "Найти" возвращает больше результатов, от 15 до максимум {MAX}.',
+		no_more_results: "В памяти больше нет результатов.",
+		import_prompt: "Как вы хотите импортировать свои плейлисты?\n\nВведите '1' для УМНОГО СЛИЯНИЯ (Объединяет треки внутри списков, исключая дубликаты 🌟)\nВведите '2' для ПЕРЕЗАПИСИ (Полностью заменяет все данные этой резервной копией)\n\nОтмените или оставьте поле пустым для выхода.",
+		confirm_overwrite: "Вы абсолютно уверены? Это действие удалит все ваши текущие плейлисты и заменит их.",
+		success_overwrite: "База данных успешно перезаписана!",
+		import_canceled: "Импорт отменен.",
+		invalid_structure: "Неверная структура файла резервной копии. Пожалуйста, убедитесь, что это корректный JSON с плейлистами.",
+		success_merge: "Плейлисты успешно объединены! Все новые треки добавлены, дубликаты отфильтрованы.",
+		create_playlist_prompt: "Введите название для вашего нового плейлиста:",
+		playlist_exists_error: "Этот плейлист уже существует!",
+		rename_exists_error: "Плейлист с таким названием уже существует!",
+		no_list_selected_rename: "Плейлист для переименования не выбран!",
+		no_list_selected_delete: "Плейлист для удаления не выбран!",
+		confirm_delete_playlist: "Вы уверены, что хотите навсегда УДАЛИТЬ весь плейлист \"{NAME}\" и все видео в нем?",
+		confirm_clear_playlist: "Очистить все видео из плейлиста \"{NAME}\"?",
+		prog_requesting: "Запрос на конвертацию на сервере...",
+		prog_conn_error: "Ошибка подключения к серверу.",
+		prog_converting: "Конвертация на сервере: ",
+		prog_ready: "Готово! Скачивание на ваше устройство...",
+		prog_conv_error: "Ошибка во время конвертации."
+	},
+	cs: { // Czech
+		theme: "Téma", search: "Hledat", history: "Historie", clear_all: "Vymazat vše",
+		new_list: "Nový seznam", rename: "Přejmenovat", clear: "Vymazat", delete: "Smazat",
+		export: "Export", import: "Import", results: "Výsledky", favorite: "Oblíbené",
+		download_mp3: "Stáhnout MP3", download_mp4: "Stáhnout MP4", prev: "Předchozí", next: "Další",
+		copyright: "Copyright &copy; 2026 Vyvinul <strong>Dimitris Tzemos</strong>. Všechna práva vyhrazena.",
+		search_placeholder: "Hledat...", search_button: "Hledat", perform_search: "Proveďte vyhledávání...",
+		empty_history: "Historie je prázdná", empty_playlist: "Prázdný playlist",
+		loop_on: "Opakování: ZAP", loop_off: "Opakování: VYP", autoplay_on: "Autoplay: ZAP", autoplay_off: "Autoplay: VYP",
+		searching: "Vyhledávání...", no_results: "Na YouTube nebyly nalezeny žádné výsledky.", api_error: "Chyba připojení k API", error_suffix: "Chyba",
+		search_tip: 'Každé kliknutí na tlačítko "Hledat" vrátí více výsledků, od 15 až po maximum {MAX}.',
+		no_more_results: "V paměti již nejsou žádné další výsledky.",
+		import_prompt: "Jak si přejete importovat své playlisty?\n\nZadejte '1' pro CHYTRÉ SLOUČENÍ (Spojí skladby v seznamech, zabrání duplicitám 🌟)\nZadejte '2' pro PŘEPSÁNÍ (Zcela nahradí vše touto zálohou)\n\nZrušte nebo ponechte prázdné pro zrušení.",
+		confirm_overwrite: "Jste si naprosto jisti? Tímto smažete všechny své aktuální playlisty a nahradíte je.",
+		success_overwrite: "Databáze byla úspěšně přepsána!",
+		import_canceled: "Import byl zrušen.",
+		invalid_structure: "Neplatná struktura záložního souboru. Ujistěte se, že se jedná o platný JSON formát playlistů.",
+		success_merge: "Playlisty byly úspěšně sloučeny! Všechny nové skladby byly přidány, duplicity odfiltrovány.",
+		create_playlist_prompt: "Zadejte název pro svůj nový playlist:",
+		playlist_exists_error: "Tento playlist již existuje!",
+		rename_exists_error: "Playlist s tímto názvem již existuje!",
+		no_list_selected_rename: "Aktuálně není vybrán žádný playlist k přejmenování!",
+		no_list_selected_delete: "Aktuálně není vybrán žádný playlist ke smazání!",
+		confirm_delete_playlist: "Opravdu chcete trvale SMAZAT celý playlist \"{NAME}\" a všechna jeho videa?",
+		confirm_clear_playlist: "Vymazat všechna videa z playlistu \"{NAME}\"?",
+		prog_requesting: "Požadavek na konverzi na serveru...",
+		prog_conn_error: "Chyba připojení k serveru.",
+		prog_converting: "Konverze na serveru: ",
+		prog_ready: "Hotovo! Stahování do vašeho zařízení...",
+		prog_conv_error: "Chyba během konverze."
+	},
+	sl: { // Slovenian
+		theme: "Tema", search: "Išči", history: "Zgodovina", clear_all: "Počisti vse",
+		new_list: "Nov seznam", rename: "Preimenuj", clear: "Počisti", delete: "Izbriši",
+		export: "Izvozi", import: "Uvozi", results: "Rezultati", favorite: "Priljubljeno",
+		download_mp3: "Prenesi MP3", download_mp4: "Prenesi MP4", prev: "Nazaj", next: "Naprej",
+		copyright: "Copyright &copy; 2026 Razvil <strong>Dimitris Tzemos</strong>. Vse pravice pridržane.",
+		search_placeholder: "Išči...", search_button: "Išči", perform_search: "Izvedite iskanje...",
+		empty_history: "Zgodovina je prazna", empty_playlist: "Prazen seznam predvajanja",
+		loop_on: "Ponavljanje: VKLOP", loop_off: "Ponavljanje: IZKLOP", autoplay_on: "Samodejno predvajanje: VKLOP", autoplay_off: "Samodejno predvajanje: IZKLOP",
+		searching: "Iskanje...", no_results: "Na YouTubu ni bilo najdenih rezultatov.", api_error: "Napaka pri povezavi z API-jem", error_suffix: "Napaka",
+		search_tip: 'Vsak klik na gumb "Išči" vrne več rezultatov, od 15 do največ {MAX}.',
+		no_more_results: "V pomnilniku ni več rezultatov.",
+		import_prompt: "Kako želite uvoziti svoje sezname predvajanja?\n\nVnesite '1' za PAMETNO ZDRUŽEVANJE (Združi skladbe na seznamih, prepreči dvojnike 🌟)\nVnesite '2' za PREPISANJE (Popolnoma zamenja vse s to varnostno kopijo)\n\nPrekliči ali pusti prazno za prekinitev.",
+		confirm_overwrite: "Ste popolnoma prepričani? S tem boste izbrisali vse trenutne sezname predvajanja in jih zamenjali.",
+		success_overwrite: "Zbirka podatkov je bila uspešno prepisana!",
+		import_canceled: "Uvoz je bil preklican.",
+		invalid_structure: "Neveljavna struktura datoteke varnostne kopije. Prepričajte se, da gre za veljaven JSON seznamov predvajanja.",
+		success_merge: "Seznami predvajanja so bili uspešno združeni! Vse nove skladbe so dodane, dvojniki filtrirani.",
+		create_playlist_prompt: "Vnesite ime za svoj nov seznam predvajanja:",
+		playlist_exists_error: "Ta seznam predvajanja že obstaja!",
+		rename_exists_error: "Seznam predvajanja s tem imenom že obstaja!",
+		no_list_selected_rename: "Trenutno ni izbran noben seznam predvajanja za preimenovanje!",
+		no_list_selected_delete: "Trenutno ni izbran noben seznam predvajanja za brisanje!",
+		confirm_delete_playlist: "Ali ste prepričani, da želite trajno IZBRISATI celoten seznam predvajanja \"{NAME}\" in vse njegove videoposnetke?",
+		confirm_clear_playlist: "Počisti vse videoposnetke s seznama \"{NAME}\"?",
+		prog_requesting: "Zahtevanje pretvorbe na strežniku...",
+		prog_conn_error: "Napaka pri povezavi s strežnikom.",
+		prog_converting: "Pretvorba na strežniku: ",
+		prog_ready: "Pripravljeno! Prenos v vašo napravo...",
+		prog_conv_error: "Napaka med pretvorbo."
 	},
 	tr: { // Turkish
 		theme: "Tema", search: "Ara", history: "Geçmiş", clear_all: "Tümünü Temizle",
@@ -1135,7 +1232,7 @@ const translations = {
         let currentShownCount = 0;
         let allCachedResults = [];
         let MAX_HISTORY_ITEMS = 100;
-		let MAX_RESULTS = 100;
+		let MAX_RESULTS = 200;
 		
 		// 🌟 ΔΥΝΑΜΙΚΗ ΜΕΤΑΦΡΑΣΗ ΤΟΥ ΜΗΝΥΜΑΤΟΣ:
 		const searchTipTemplate = translations[currentLang]["search_tip"] || 'Each click on "Search" button returns more results, ranging from 15 up to a maximum of {MAX}.';
