@@ -105,32 +105,32 @@
         .btn-theme { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-input); border-radius: 20px; }
         .btn-theme:hover { background: var(--bg-card-hover); }
         
-.main-layout { 
-    display: grid; 
-    grid-template-columns: 220px 250px 420px 700px; 
-    max-width: 1850px; 
-    margin: 0 auto; 
-    gap: 15px; 
-    flex-grow: 1; 
-    width: 100%;
-    overflow-x: auto; 
-    overflow-y: hidden; /* Εμποδίζει όλη τη σελίδα από το να σκρολάρει προς τα κάτω */
-    height: calc(100vh - 160px); /* Υπολογισμός ύψους για να χωράει ακριβώς πάνω από το footer */
-    padding-bottom: 15px;
-    -webkit-overflow-scrolling: touch;
-    box-sizing: border-box;
-}
+		.main-layout { 
+			display: grid; 
+			grid-template-columns: 220px 250px 420px 700px; 
+			max-width: 1850px; 
+			margin: 0 auto; 
+			gap: 15px; 
+			flex-grow: 1; 
+			width: 100%;
+			overflow-x: auto; 
+			overflow-y: hidden; /*Prevents the entire page from scrolling down */
+			height: calc(100vh - 160px); /* Calculating the height so that it fits exactly above the footer */
+			padding-bottom: 15px;
+			-webkit-overflow-scrolling: touch;
+			box-sizing: border-box;
+		}
 
-.box { 
-    background: var(--bg-box); 
-    padding: 15px; 
-    border-radius: 12px; 
-    height: 100%; /* Γεμίζει το layout και σταματάει ακριβώς πάνω από το footer */
-    min-height: 0; 
-    overflow-y: auto; /* Το scrollbar παραμένει στο ίδιο το box όπως το θέλατε */
-    border: 1px solid var(--border-input); 
-    box-sizing: border-box;
-}
+		.box { 
+			background: var(--bg-box); 
+			padding: 15px; 
+			border-radius: 12px; 
+			height: 100%; /* It fills the layout and stops right above the footer. */
+			min-height: 0; 
+			overflow-y: auto; /* The scrollbar remains within the box itself. */
+			border: 1px solid var(--border-input); 
+			box-sizing: border-box;
+		}
 
         .box-header { display: flex; justify-content: space-between; align-items: center; margin-top: 0; flex-shrink: 0; }
         .btn-clear-action { background: transparent; color: var(--text-sub); border: none; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0; margin: 0; }
