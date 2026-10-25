@@ -1969,7 +1969,7 @@ const translations = {
 			}
 		}
 
-	async function playNextVideo() {
+		async function playNextVideo() {
 			if (!currentVideoId) {
 				console.log("No active playing video.");
 				return;
@@ -1978,22 +1978,21 @@ const translations = {
 			trackEndedTriggered = false;
 			lastCheckedTime = -1;
 
-			// 1. PLAYLISTS MANAGEMENT
+			// 1. PLAYLISTS MANAGEMENT (CUSTOM LISTS)
 			if (typeof currentQueueType !== 'undefined' && currentQueueType === "playlists") {		
 				let playlists = getAllPlaylists();
 				
 				if (!window.currentPlaylist) {
 					const playlistNames = Object.keys(playlists);
 					if (playlistNames.length > 0) {
-						window.currentPlaylist = playlistNames[0]; // Selects the first available custom playlist
+						window.currentPlaylist = playlistNames[0]; 
 					} else {
 						console.log("No active playlist available for autoplay.");
-						return; // Stops if the user has no playlists created
+						return;
 					}
 				}
 				
 				let currentList = playlists[window.currentPlaylist] || [];
-				
 				if (currentList.length === 0) return;
 				
 				let currentIndex = currentList.findIndex(v => v.id === currentVideoId);
@@ -2003,19 +2002,36 @@ const translations = {
 					trackEndedTriggered = false;
 					lastCheckedTime = -1;
 					startPlayback(nextVideo.id, nextVideo.title);
-					scrollToActiveTrack(nextVideo.id); // Scroll list to next track
+					scrollToActiveTrack(nextVideo.id); 
 				} else {
-					// Dynamic Internationalized Alert Entry
 					alert(translations[currentLang]?.end_playlist || translations["en"].end_playlist);
 				}
-				return; // Stops here for playlists
+				return; 
 			}
 
 			// 2. SEARCH RESULTS MANAGEMENT (SEARCH LIST)
+			// Directly plays the next item from your local search results without hitting the server
+			if (typeof allCachedResults !== 'undefined' && allCachedResults.length > 0) {
+				const currentIdx = allCachedResults.findIndex(video => video.id === currentVideoId);
+				
+				// If the video is found and it is not the last one in your search list
+				if (currentIdx !== -1 && currentIdx < allCachedResults.length - 1) {
+					const nextVideo = allCachedResults[currentIdx + 1]; // Takes the exact next video sequentially
+					trackEndedTriggered = false;
+					lastCheckedTime = -1;
+					startPlayback(nextVideo.id, nextVideo.title);
+					scrollToActiveTrack(nextVideo.id); 
+					return; // Stops here so it doesn't execute the API fetch code below
+				} else {
+					// Reached the absolute end of the local search results array
+					alert(translations[currentLang]?.end_search || translations["en"].end_search);
+					return;
+				}
+			}
+
+			// 3. FALLBACK: Only requests the server backend if allCachedResults is completely empty or missing
 			try {
 				let targetUrl = baseApiUrl + "/next?current_id=" + currentVideoId + "&list_type=" + currentQueueType;
-				
-				// Safety check for the search query parameter
 				let queryParam = (typeof lastQuery !== 'undefined' && lastQuery) ? lastQuery : "";
 				if (queryParam) {
 					targetUrl += "&q=" + encodeURIComponent(queryParam);
@@ -2029,30 +2045,14 @@ const translations = {
 					trackEndedTriggered = false;
 					lastCheckedTime = -1;
 					startPlayback(data.next_video.id, data.next_video.title);
-					scrollToActiveTrack(data.next_video.id); // Scroll list to next track
+					scrollToActiveTrack(data.next_video.id); 
 					return;
 				} else if (data.status === "end_of_playlist") {
-					// Dynamic Internationalized Alert Entry
 					alert(translations[currentLang]?.end_search || translations["en"].end_search);
 					return;
 				}
 			} catch (error) {
-				console.error("Network error during Play Next, falling back to local cache: ", error.message);
-			}
-
-			// FALLBACK: If the API fails or lastQuery doesn't exist, the song changes locally from the search results
-			if (typeof allCachedResults !== 'undefined' && allCachedResults.length > 0) {
-				const currentIdx = allCachedResults.findIndex(video => video.id === currentVideoId);
-				if (currentIdx !== -1 && currentIdx < allCachedResults.length - 1) {
-					const nextVideo = allCachedResults[currentIdx + 1];
-					trackEndedTriggered = false;
-					lastCheckedTime = -1;
-					startPlayback(nextVideo.id, nextVideo.title);
-					scrollToActiveTrack(nextVideo.id); // Scroll list to next track
-				} else {
-					// Dynamic Internationalized Alert Entry
-					alert(translations[currentLang]?.end_search_fallback || translations["en"].end_search_fallback);
-				}
+				console.error("Network error during Play Next fallback: ", error.message);
 			}
 		}
 
@@ -2064,11 +2064,9 @@ const translations = {
 			
 			let videosList = [];
 			
-			// 1. IF PLAYING FROM PLAYLISTS
 			if (typeof currentQueueType !== 'undefined' && currentQueueType === "playlists") {
 				let playlists = getAllPlaylists();
 				
-				// If no playlist is actively selected, automatically fallback to the first one
 				if (!window.currentPlaylist) {
 					const playlistNames = Object.keys(playlists);
 					if (playlistNames.length > 0) {
@@ -2081,7 +2079,6 @@ const translations = {
 				
 				videosList = playlists[window.currentPlaylist] || [];
 			} 
-			// 2. IF PLAYING FROM SEARCH RESULTS (SEARCH LIST)
 			else {
 				videosList = (typeof allCachedResults !== 'undefined') ? allCachedResults : [];
 			}
@@ -2097,9 +2094,8 @@ const translations = {
 				const prevVideo = videosList[currentIdx - 1];
 				console.log("⏮️ Playing previous video: " + prevVideo.title);
 				startPlayback(prevVideo.id, prevVideo.title);
-				scrollToActiveTrack(prevVideo.id); // Scroll list to previous track
+				scrollToActiveTrack(prevVideo.id); 
 			} else {
-				// Dynamic Internationalized Alert Entry
 				alert(translations[currentLang]?.first_song || translations["en"].first_song);
 			}
 		}
