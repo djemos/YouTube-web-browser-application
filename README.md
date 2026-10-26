@@ -4,7 +4,7 @@ YouTube web browser application (or YouTube browsing and management tool) is a t
 You can see the application running here: [YouTube Browser Appication](https://meraklis.ddnsfree.com/ytapp/) 💡 *(Hint: Right-click or Ctrl+Click to open in a new tab!)*   
 Each click on "Search" button returns more results, ranging from 15 up to a maximum of 100.  
 
-
+## To install the application in your apache server
 These must be installed locally  
 for installation  
 
@@ -23,7 +23,7 @@ then type
 	sudo chmod -R apache:apache /srv/httpd/htdocs/ytapp/ 
 
 
-In Apache, you need an SSH virtual host in /etc/httpd/extra/httpd-vhosts.conf listening on port 443, as follows. Replace `your_dnsname.ddnsfree.com` with your own dnsfree domain name and use your own Let's Encrypt certificate keys.  
+In Apache, you need an SSH virtual host in /etc/httpd/extra/httpd-vhosts.conf listening on port 443, as follows. Replace `your_dnsname.ddnsfree.com` with your own dnsfree domain name and use your own Let's Encrypt certificate keys. To create them read [this](https://slackel.sourceforge.io/forum/viewtopic.php?t=842)
     
 	Listen 443  
 	SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
