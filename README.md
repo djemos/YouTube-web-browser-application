@@ -23,7 +23,7 @@ then type
 	sudo chmod -R apache:apache /srv/httpd/htdocs/ytapp/ 
 
 
-In Apache, you need an SSH virtual host in /etc/httpd/extra/httpd-vhosts.conf listening on port 443, as follows. Replace `your_dnsname.ddnsfree.com` with your own dnsfree domain name and use your own Let's Encrypt certificate keys. To create them read [this](https://slackel.sourceforge.io/forum/viewtopic.php?t=842)
+In Apache, you need an SSH virtual host in /etc/httpd/extra/httpd-vhosts.conf listening on port 443, as follows. Replace `your_dnsname.ddnsfree.com` with your own dnsfree domain name and use your own Let's Encrypt certificate keys. To create them read [this](https://slackel.sourceforge.io/forum/viewtopic.php?t=842) If you pay for a server the ssh keys are given by the your host provider's interface..
     
 	Listen 443  
 	SSLCipherSuite HIGH:MEDIUM:!MD5:!RC4:!3DES  
