@@ -467,10 +467,10 @@
 				<!-- Row 2: Downloads & Media Track Operations -->
 				<div class="buttons-row" style="margin-top: 8px;">
 					<button class="btn-dl" id="dlMp3">
-						<span data-i18n="download_mp3">Download MP3</span>
+					<span>📥</span><span data-i18n="download_mp3">Download MP3</span>
 					</button>
 					<button class="btn-dl" id="dlMp4">
-						<span data-i18n="download_mp4">Download MP4</span>
+					<span>📥</span><span data-i18n="download_mp4">Download MP4</span>
 					</button>
 					<button class="btn-dl" id="prevButton" onclick="playPreviousVideo()">
 						<span>⏮️</span> <span data-i18n="prev">Prev</span>
@@ -1354,7 +1354,7 @@ const translations = {
         let currentShownCount = 0;
         let allCachedResults = [];
         let MAX_HISTORY_ITEMS = 100;
-		let MAX_RESULTS = 100;
+		let MAX_RESULTS = 200;
 		
 		// 🌟 ΔΥΝΑΜΙΚΗ ΜΕΤΑΦΡΑΣΗ ΤΟΥ ΜΗΝΥΜΑΤΟΣ:
 		const searchTipTemplate = translations[currentLang]["search_tip"] || 'Each click on "Search" button returns more results, ranging from 15 up to a maximum of {MAX}.';
