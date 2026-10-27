@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>YouTube Browser App</title>
+    <title>YouTube Web Browser App</title>
 	<style>
 		:root {
 			--bg-body: #0f0f0f;
@@ -1356,7 +1356,7 @@ const translations = {
         let MAX_HISTORY_ITEMS = 100;
 		let MAX_RESULTS = 200;
 		
-		// 🌟 ΔΥΝΑΜΙΚΗ ΜΕΤΑΦΡΑΣΗ ΤΟΥ ΜΗΝΥΜΑΤΟΣ:
+		// 🌟 DYNAMIC TRANSLATION OF THE MESSAGE:
 		const searchTipTemplate = translations[currentLang]["search_tip"] || 'Each click on "Search" button returns more results, ranging from 15 up to a maximum of {MAX}.';
 		document.getElementById('search-message').textContent = searchTipTemplate.replace('{MAX}', MAX_RESULTS);
 
@@ -1398,7 +1398,7 @@ const translations = {
 		})();
 
 			// 2. Your original app initialization logic (FIXED FOR REFRESH)
-			// 🌟 ΒΗΜΑ Α: Πρώτα βρίσκουμε ποια είναι η πρώτη διαθέσιμη λίστα και την επιλέγουμε
+			// 🌟 ΒΗΜΑ Α: First, we identify the first available list and select it.
 			if (typeof getAllPlaylists === 'function') {
 				let playlists = getAllPlaylists();
 				const playlistNames = Object.keys(playlists);
@@ -1407,10 +1407,10 @@ const translations = {
 				}
 			}
 
-			// 🌟 ΒΗΜΑ Β: Τώρα που η μεταβλητή έχει τη σωστή τιμή, σχεδιάζουμε το UI με τη σωστή σειρά
+			// 🌟 ΒΗΜΑ Β: Now that the variable has the correct value, we render the UI in the correct order.
 			renderHistory();
-			renderPlaylistSelector(); // Σχεδιάζει το dropdown με επιλεγμένη την πρώτη λίστα
-			renderFavorites();        // Σχεδιάζει αμέσως τα τραγούδια της πρώτης λίστας
+			renderPlaylistSelector(); // Renders the dropdown with the first list selected
+			renderFavorites();        // It immediately schedules the songs from the first list
 			
 			if(localStorage.getItem("theme") === "light") {
 				document.body.classList.add("light-theme");
@@ -2181,7 +2181,7 @@ const translations = {
 		async function triggerDownload(id, mode) {
 			document.getElementById('progressBarContainer').style.display = 'block';
 			
-			// 🌟 ΔΙΟΡΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_requesting
+			// 🌟 CORRECTED KEY: prog_requesting
 			const requestMsg = translations[currentLang]["prog_requesting"] || "Requesting conversion on server...";
 			updateProgressBar(0, requestMsg);
 			
