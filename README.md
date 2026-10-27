@@ -1,4 +1,4 @@
-# YouTube web browser application ad-free
+# YouTube Web Browser Application ad-free
 YouTube web-browsing application ad-free (or a tool for browsing and managing YouTube) is a type of specialized web application that allows users to search for, watch (ad-free), and download YouTube content via an alternative, customized interface, separate from the platform's official website, featuring full application internationalization with native support for 21 languages.  
 
 You can see the application running here: [YouTube Browser Appication](https://meraklis.ddnsfree.com/ytapp/) 💡 *(Hint: Right-click or Ctrl+Click to open in a new tab!)*   
