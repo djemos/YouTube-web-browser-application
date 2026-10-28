@@ -117,7 +117,7 @@ you must create this script in /etc/rc.d/rc.ytapp to be executed when system sta
 
 	
 
-An run rc.ytapp script which run the server.py
+Then run the rc.ytapp script which run the server.py
   
 
 	sudo service restart ytapp 
