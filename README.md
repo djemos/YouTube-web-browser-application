@@ -122,6 +122,9 @@ Then run the rc.ytapp script which run the server.py
 
 	sudo service restart ytapp 
 
+
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/05413d2c-30a0-4fb3-a734-d73ef8f02089" />  
+
   
 <img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/45ceded7-e78e-43f9-8e31-763223d4a111" />  
 
