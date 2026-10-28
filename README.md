@@ -123,16 +123,16 @@ Then run the rc.ytapp script which run the server.py
 	sudo service restart ytapp 
 
   
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/e4b51fcd-4743-4030-be2e-c83402cbaa89" />  
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/45ceded7-e78e-43f9-8e31-763223d4a111" />  
 
 
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/a6f54bb3-bf5c-4e95-b46f-ab2dbe497f21" />  
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/83aadc17-6a02-4c74-a544-b13edac55cbb" />  
 
 
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/a12ae28d-46b6-42d6-8c71-4003abbfc744" />  
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/fcb1e3c0-4094-4593-a7fc-bd25b5d89627" />  
 
 
-<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/28014b7a-1bc2-403a-91b3-9f7718e9481d" />  
+<img width="1918" height="1048" alt="Image" src="https://github.com/user-attachments/assets/ba234294-f159-4ff9-8c05-106492800ea7" />  
 
 
 
