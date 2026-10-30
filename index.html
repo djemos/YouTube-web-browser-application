@@ -1376,20 +1376,20 @@ const translations = {
 						if (!value.includes('/embed/')) {
 							const urlParams = new URLSearchParams(value.substring(value.indexOf('?')));
 							const videoId = urlParams.get('v');
-						// youtube-nocookie.com shows copy-link icon	
-						/*	if (videoId) {
+						// youtube-nocookie.com shows copy-link icon (best for firefox)	
+						if (videoId) {
 								value = `https://youtube-nocookie.com{videoId}`;
 							}
 						} else {
 							value = value.replace('youtube.com', 'youtube-nocookie.com');
-						}*/
-						// youtube.com shows share icon
-						if (videoId) {
+						}
+						// youtube.com shows share icon (pop up a window if Firefox not good) 
+						/*if (videoId) {
 							value = `https://youtube.com{videoId}`;
 						}
 						} else {
 							value = value.replace('youtube-nocookie.com', 'youtube.com');
-						}
+						}*/
 
 						// Append required desktop bypass and autoplay parameters securely
 						const separator = value.includes('?') ? '&' : '?';
