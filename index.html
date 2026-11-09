@@ -1943,7 +1943,7 @@ const translations = {
 					return;
 				}
 
-				// Δυναμικό Confirm ανάλογα με τη γλώσσα
+				// Dynamic Confirm based on language
 				const deleteTemplate = translations[currentLang]["confirm_delete_playlist"] || 'Are you sure you want to permanently DELETE the entire playlist "{NAME}" and all its videos?';
 				const confirmDeleteMsg = deleteTemplate.replace('{NAME}', window.currentPlaylist);
 
@@ -2216,7 +2216,7 @@ const translations = {
 
 			} catch (e) { 
 				console.error(e); 
-				// 🌟 ΔΙΟΡΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_conn_error
+				// 🌟 CORRECTED KEY: prog_conn_error
 				const connErrorMsg = translations[currentLang]["prog_conn_error"] || "Error connecting to server.";
 				updateProgressBar(0, connErrorMsg);
 			}
@@ -2229,14 +2229,14 @@ const translations = {
 				const data = await response.json();
 				
 				if (data.status === "downloading") {
-					// 🌟 ΔΙΟРΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_converting
+					// 🌟 FIXED KEY: prog_converting
 					const progressPrefix = translations[currentLang]["prog_converting"] || "Conversion on Server: ";
 					updateProgressBar(data.percent, `${progressPrefix}${data.percent}%`);
 				} 
 				else if (data.status === "finished") {
 					clearInterval(progressInterval);
 					
-					// 🌟 ΔΙΟРΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_ready
+					// 🌟 FIXED KEY: prog_ready
 					const readyMsg = translations[currentLang]["prog_ready"] || "Ready! Downloading to your device...";
 					updateProgressBar(100, readyMsg);
 					
@@ -2253,7 +2253,7 @@ const translations = {
 					}, 4000);
 				} 
 				else if (data.status === "error") {
-					// 🌟 ΔΙΟРΘΩΜΕΝΟ ΚΛΕΙΔΙ: prog_conv_error
+					// 🌟 CORRECTED KEY: prog_conv_error
 					const convErrorMsg = translations[currentLang]["prog_conv_error"] || "Error during conversion.";
 					updateProgressBar(0, convErrorMsg);
 					clearInterval(progressInterval);
@@ -2326,13 +2326,13 @@ const translations = {
 			const container = document.getElementById('favoritesList');
 			if (!container) return;
 
-			// 🌟 ΔΙΚΛΕΙΔΑ ΑΣΦΑΛΕΙΑΣ: Αν δεν υπάρχει επιλεγμένη λίστα, σταμάτα για να μην σπάσει το UI
+			// 🌟 SAFETY CHECK: If no list is selected, stop to prevent the UI from breaking.
 			if (!window.currentPlaylist) {
 				container.innerHTML = "<span style='color:#888; font-size:12px; padding:10px; display:block;'>No playlist selected. Please select or create one!</span>";
 				return;
 			}
 
-			// Χρησιμοποιούμε με συνέπεια το window.currentPlaylist
+			// We consistently use window.currentPlaylist
 			const activeListKey = window.currentPlaylist;
 
 			// 1. WE READ FROM THE NEW STRUCTURE (yt_playlists) AND NOT FROM yt_favorites
